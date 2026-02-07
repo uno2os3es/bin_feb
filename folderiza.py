@@ -2,7 +2,7 @@
 import os
 import pathlib
 import shutil
-
+from dh import uniqe_path
 
 def folderize_files_alphabetically() -> None:
     """Organizes files in the current working directory into folders named
