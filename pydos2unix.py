@@ -15,8 +15,8 @@ import argparse
 import fnmatch
 import logging
 import mmap
-import os
 from multiprocessing import Pool
+import os
 from pathlib import Path
 
 from dh import is_binary_file

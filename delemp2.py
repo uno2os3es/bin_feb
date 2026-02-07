@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import os
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 from pathlib import Path
 
 from dh import BIN_EXT, TXT_EXT

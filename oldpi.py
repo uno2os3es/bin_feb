@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import mmap
 import os
 import tokenize
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import regex as re
 from tqdm import tqdm

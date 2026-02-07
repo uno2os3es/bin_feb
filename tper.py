@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
-import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
+import time
 
 from deep_translator import GoogleTranslator
 from tqdm import tqdm

@@ -1,7 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import shutil
 from pathlib import Path
+import shutil
+
+from dh import unique_path
 
 
 def get_all_files(root_dir):
@@ -103,6 +105,7 @@ def distribute_files(files, folders, base_dir):
                 )
 
                 try:
+                    dest_path = unique_path(dest_path)
                     shutil.move(filepath, dest_path)
                     print(f"Moved {os.path.basename(filepath)} ({size:,} bytes) → {folder_name}")
                     moved_count += 1

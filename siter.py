@@ -4,11 +4,11 @@ import base64
 import csv
 import hashlib
 import logging
+from pathlib import Path
 import shutil
 import sys
 import tempfile
 import zipfile
-from pathlib import Path
 
 logging.basicConfig(
     level=logging.INFO,

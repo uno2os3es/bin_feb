@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import shutil
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import shutil
 
 # Configuration
 EXCLUDE_DIRS = {".git"}

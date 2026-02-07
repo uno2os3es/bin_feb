@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import os
 from multiprocessing import Pool
+import os
 from pathlib import Path
 from sys import exit
 from time import perf_counter

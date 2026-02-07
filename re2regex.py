@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/python
 import argparse
-import re
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+import re
 
 # Regex patterns for the two states
 NORMAL_IMPORT = r"^import re\b"

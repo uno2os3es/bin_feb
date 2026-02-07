@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import pillow_avif  # noqa: F401
 from PIL import Image
+import pillow_avif  # noqa: F401
 
 input_dir = "avif_images"
 output_dir = "jpg_images"

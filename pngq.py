@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import glob
-import subprocess
 from functools import partial
+import glob
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
+import subprocess
 
 # --- Configuration ---
 QUALITY_RANGE_STR = "60-70"

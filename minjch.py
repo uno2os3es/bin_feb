@@ -8,8 +8,8 @@ import json
 import multiprocessing
 import os
 
-import regex as re
 from rcssmin import cssmin
+import regex as re
 from rjsmin import jsmin
 
 

@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python
-import os
 from multiprocessing import Pool
+import os
 from pathlib import Path
 
 import pdfplumber

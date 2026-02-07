@@ -24,7 +24,9 @@ STRTOFIND = [
 def clean_text(text: str) -> str:
     """Remove lines containing any string from STRTOFIND."""
     return "\n".join(
-        line for line in text.splitlines() if not any(s in line for s in STRTOFIND)  # why: check substring membership
+        line
+        for line in text.splitlines()
+        if not any(s in line for s in STRTOFIND)  # why: check substring membership
     )
 
 

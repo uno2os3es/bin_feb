@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+from html.parser import HTMLParser
 import os
+from pathlib import Path
 import sys
 import unicodedata
-from html.parser import HTMLParser
-from pathlib import Path
 
 
 class TitleParser(HTMLParser):

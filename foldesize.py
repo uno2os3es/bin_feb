@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 
+from dh import unique_path
+
 
 def get_all_files(root_dir):
     """Recursively collect all files with their sizes."""
@@ -62,6 +64,7 @@ def distribute_files(files, folders, base_dir):
         )
 
         try:
+            dest_path = unique_path(dest_path)
             shutil.move(filepath, dest_path)
             print(f"Moved {os.path.basename(filepath)} ({size} bytes) to {folders[folder_idx][2]}")
         except Exception as e:

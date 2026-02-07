@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-import os
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 
 from dh import BIN_EXT
 from tqdm import tqdm

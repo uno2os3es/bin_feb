@@ -3,9 +3,9 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from deep_translator import GoogleTranslator
 import regex as re
 import rignore
-from deep_translator import GoogleTranslator
 
 DIRECTORY = "."
 CHUNK_SIZE = 2000  # characters per chunk (safe for Google Translate)

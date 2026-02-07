@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import argparse
+from pathlib import Path
 import re
 import sys
-from pathlib import Path
 
 try:
     from termcolor import colored

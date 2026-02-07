@@ -7,8 +7,8 @@ Requirements: pip install yapf black autopep8 isort autoflake
 from __future__ import annotations
 
 import argparse
-import contextlib
 from collections import deque
+import contextlib
 from multiprocessing import Pool
 from pathlib import Path
 from time import perf_counter

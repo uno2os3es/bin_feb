@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 
-import os
 from collections import defaultdict
+import os
 from pathlib import Path
 
 import click

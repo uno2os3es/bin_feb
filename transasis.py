@@ -2,9 +2,9 @@
 import os
 import sys
 
+from deep_translator import GoogleTranslator
 import regex as re
 import rignore
-from deep_translator import GoogleTranslator
 
 # Directory containing your files
 DIRECTORY = "."

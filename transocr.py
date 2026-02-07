@@ -8,13 +8,13 @@
 """
 
 import argparse
-import sys
 from pathlib import Path
+import sys
 
-import pytesseract
 from deep_translator import GoogleTranslator
 from langdetect import DetectorFactory, detect
 from PIL import Image, ImageEnhance, ImageFilter
+import pytesseract
 
 # Ensures consistent results from langdetect
 DetectorFactory.seed = 0

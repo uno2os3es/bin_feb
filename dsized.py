@@ -3,9 +3,9 @@
 
 import argparse
 import os
+from pathlib import Path
 import urllib.error
 import urllib.request
-from pathlib import Path
 
 MAX_DOWNLOAD_SIZE = 1 * 1024 * 1024  # 1 MB
 

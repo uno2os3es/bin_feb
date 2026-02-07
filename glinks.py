@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from multiprocessing import Pool, cpu_count
 import os
 import subprocess
 import tarfile
 import zipfile
-from multiprocessing import Pool, cpu_count
 
 import regex as re
 
