@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
+import sys
 from collections import Counter
 from pathlib import Path
-import sys
 
-from dh import unique_path
 import regex as re
+from dh import unique_path
 
 USER_KEYWORDS_FILE = Path("/sdcard/keywords")
 

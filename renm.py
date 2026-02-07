@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/python
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from deep_translator import GoogleTranslator
 import regex as re
 import rignore
+from deep_translator import GoogleTranslator
 from tqdm import tqdm
 
 DIRECTORY = "."

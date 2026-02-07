@@ -2,10 +2,10 @@
 
 import contextlib
 import os
-from pathlib import Path
 import re
 import sys
 import tempfile
+from pathlib import Path
 
 LOCAL_FONT_BASE = Path("/sdcard/_static/fonts")
 FONT_EXTS = {".woff", ".woff2", ".ttf", ".otf", ".eot"}

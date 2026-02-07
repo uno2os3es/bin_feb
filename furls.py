@@ -6,11 +6,11 @@ import os
 import sys
 import tarfile
 import tempfile
-from time import perf_counter
 import zipfile
+from time import perf_counter
 
-from dh import is_valid_url
 import regex as re
+from dh import is_valid_url
 
 try:
     import zstandard as zstd  # optional, for .tar.zst support

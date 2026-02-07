@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import os
-from pathlib import Path
 import shutil
 import sysconfig
+from pathlib import Path
 
 
 def format_size(bytes_size: int) -> str:

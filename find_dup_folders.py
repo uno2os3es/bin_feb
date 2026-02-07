@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from collections import defaultdict
 import json
 import os
+from collections import defaultdict
 from pathlib import Path
 
 from fastwalk import walk, walk_files

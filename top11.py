@@ -2,8 +2,8 @@
 """File Size Analyzer - Shows top 10 largest files recursively."""
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def get_file_sizes(start_path="."):

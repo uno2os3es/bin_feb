@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python3.12
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Try to import OpenCV, fall back to Pillow if not available
 try:

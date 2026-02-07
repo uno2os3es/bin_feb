@@ -3,16 +3,16 @@ from __future__ import annotations
 
 import argparse
 import base64
-from configparser import ConfigParser
-from email.parser import Parser
 import hashlib
 import operator
 import os
-from pathlib import Path
 import shutil
 import sys
 import sysconfig
 import zipfile
+from configparser import ConfigParser
+from email.parser import Parser
+from pathlib import Path
 
 # ---------- Utilities ----------
 

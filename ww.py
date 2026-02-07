@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 target_dir = Path(os.getcwd())
 os.chdir(target_dir.parent)

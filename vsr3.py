@@ -7,11 +7,11 @@ Creates installable wheel files from installed packages using their RECORD files
 import argparse
 import csv
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 try:
     from tqdm import tqdm

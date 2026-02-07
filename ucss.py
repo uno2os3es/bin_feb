@@ -2,9 +2,9 @@
 import base64
 import hashlib
 import mimetypes
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 from dh import MIME_TO_EXT
 

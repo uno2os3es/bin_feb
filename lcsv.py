@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from collections import Counter
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
 import os
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from tqdm import tqdm
 

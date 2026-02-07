@@ -6,8 +6,8 @@ from multiprocessing import Pool
 from pathlib import Path
 from time import perf_counter
 
-from fastwalk import walk_files
 import htmlmin
+from fastwalk import walk_files
 
 
 def process_file(file: Path) -> bool:

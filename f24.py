@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
-from pathlib import Path
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 from tqdm import tqdm
 

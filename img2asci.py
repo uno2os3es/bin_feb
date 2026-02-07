@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
 
-from ascii_magic import AsciiArt
 import rignore
+from ascii_magic import AsciiArt
 
 IMG_EXT = [".jpg", ".png", ".jpeg"]
 

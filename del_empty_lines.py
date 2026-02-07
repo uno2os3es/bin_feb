@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def remove_empty_lines(filepath):

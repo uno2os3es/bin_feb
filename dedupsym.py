@@ -19,11 +19,11 @@ Behavior:
 """
 
 import argparse
-from collections import defaultdict
 import json
 import os
-from pathlib import Path
 import shutil
+from collections import defaultdict
+from pathlib import Path
 
 import xxhash
 

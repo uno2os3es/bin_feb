@@ -5,13 +5,13 @@ Uses fastwalk.walk (Rust jwalk-based) for fast, non-symlink traversal.
 """
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import fnmatch
-from pathlib import Path
-from queue import Queue
 import tarfile
 import threading
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+from queue import Queue
 
 import rignore
 

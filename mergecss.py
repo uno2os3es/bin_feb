@@ -23,9 +23,9 @@ Result:
 """
 
 import argparse
-from pathlib import Path
 import re
 import shutil
+from pathlib import Path
 
 LOCAL_FONT_BASE = Path("/sdcard/_static/fonts")
 

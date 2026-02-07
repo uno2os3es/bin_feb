@@ -2,9 +2,9 @@
 import os
 from pathlib import Path
 
-from deep_translator import GoogleTranslator
 import regex as re
 import rignore
+from deep_translator import GoogleTranslator
 
 # Directory to scan
 DIRECTORY = "."

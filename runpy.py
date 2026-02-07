@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import multiprocessing as mp
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 from time import perf_counter
 
 import rignore
