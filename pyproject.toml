@@ -1,0 +1,111 @@
+[project]
+name = "home"
+version = "0.1.0"
+description = "Short description of the library"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Your Name", email = "you@example.com" }
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+indent-width = 4
+fix = true
+
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    ".mypy_cache",
+    ".ruff_cache",
+    "bin/yap.py"
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "W",
+    "F",    # pyflakes
+    "I",    # import sorting
+    "B",    # bugbear
+    "C4",   # comprehensions
+    "UP",   # pyupgrade
+    "SIM",  # simplify
+    "RET",  # return issues
+    "ARG",  # unused arguments
+    "PL",   # pylint-compatible subset
+    "RUF",  # ruff-specific
+]
+
+ignore = [
+    "E501",     # handled by formatter
+    "PLR2004",  # magic numbers (library APIs often require them)
+    "RET505",   # stylistic
+    "PLC0415",
+    "PLR0913",
+    "ARG001",
+    "E722",
+    "PLR0911",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["home"]
+combine-as-imports = true
+force-sort-within-sections = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ARG001",
+    "PLR0915",
+]
+
+# ----------------------------------------
+# Pylint (library-focused)
+# ----------------------------------------
+
+[tool.pylint.master]
+py-version = "3.12"
+jobs = 8
+persistent = true
+load-plugins = ["pylint.extensions.docparams"]
+
+[tool.pylint.messages_control]
+disable = [
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    "C0116",  # missing-function-docstring
+    "R0903",  # too-few-public-methods
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "R0915",  # too-many-statements
+    "W0511",  # TODO
+    "W0703",  # broad-except
+]
+
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.pylint.design]
+max-args = 10
+max-locals = 20
+max-branches = 15
+max-statements = 50
+
+[tool.pylint.variables]
+dummy-variables-rgx = "_|dummy|unused|ignore"
+
+[tool.pylint.reports]
+output-format = "colorized"
+reports = false
+score = true

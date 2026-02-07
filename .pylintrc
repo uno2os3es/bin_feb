@@ -1,0 +1,59 @@
+[MASTER]
+ignore=.git,.venv,venv,build,dist
+persistent=yes
+jobs=8
+py-version=3.12
+load-plugins=pylint.extensions.docparams
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    R0915,  # too-many-statements
+    W0511,  # TODO comments
+    W0703,  # broad-except (context dependent)
+    W1203,  # f-string in logging (fine in practice)
+    E0401, 
+    R1705, 
+    E1101, 
+    W0707, 
+    W0719, 
+    C0301
+
+[FORMAT]
+max-line-length=100
+indent-string='    '
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-branches=15
+max-statements=50
+
+
+[VARIABLES]
+dummy-variables-rgx=_|dummy|unused|ignore
+
+[LOGGING]
+logging-format-style=new
+
+[EXCEPTIONS]
+overgeneral-exceptions=builtins.Exception,builtins.BaseException
+
+[SIMILARITIES]
+min-similarity-lines=6
+
+[REPORTS]
+output-format=colorized
+reports=no
+score=yes
+
+[DOCSTRING]
+accept-no-param-doc=True
+accept-no-raise-doc=True
+
+disable=

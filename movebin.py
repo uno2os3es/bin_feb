@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+# file: move_binary_files.py
+
+from pathlib import Path
+import shutil
+
+from dh import is_binary_file
+
+
+def main():
+    current_dir = Path.cwd()
+    binary_dir = current_dir / "binary"
+    binary_dir.mkdir(exist_ok=True)
+
+    files_moved = 0
+    for f in current_dir.iterdir():
+        if f.is_file() and is_binary_file(Path(f)):
+            try:
+                shutil.move(str(f), binary_dir / f.name)
+                print(f"Moved: {f.name} -> binary/{f.name}")
+                files_moved += 1
+            except Exception as e:
+                print(f"Failed to move {f.name}: {e}")
+
+    if files_moved == 0:
+        print("No binary files found to move.")
+    else:
+        print(f"Total binary files moved: {files_moved}")
+
+
+if __name__ == "__main__":
+    main()

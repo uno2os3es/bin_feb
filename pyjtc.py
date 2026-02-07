@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+import argparse
+import os
+
+import regex as re
+
+
+def remove_comments_and_strings(content, filetype, keep_strings=False):
+    if filetype in ["c", "cpp", "h", "hpp"]:
+        # Remove C/C++ comments (// and /* */)
+        content = re.sub(r"//.*", "", content)
+        content = re.sub(
+            r"/\*.*?\*/",
+            "",
+            content,
+            flags=re.DOTALL,
+        )
+        if not keep_strings:
+            content = re.sub(r"\"[^\"]*\"", "", content)
+            content = re.sub(r"'[^']*'", "", content)
+    elif filetype == "py":
+        # Remove Python comments (#) and docstrings
+        content = re.sub(r"#.*", "", content)
+        content = re.sub(r"\"\"\"[\s\S]*?\"\"\"", "", content)
+        content = re.sub(r"'''[\s\S]*?'''", "", content)
+        if not keep_strings:
+            content = re.sub(r"\"[^\"]*\"", "", content)
+            content = re.sub(r"'[^']*'", "", content)
+    elif filetype == "sh":
+        # Remove Bash comments (#)
+        content = re.sub(r"#.*", "", content)
+        if not keep_strings:
+            content = re.sub(r"\"[^\"]*\"", "", content)
+            content = re.sub(r"'[^']*'", "", content)
+    return content
+
+
+def process_file(filepath, inplace=False, keep_strings=False):
+    _, ext = os.path.splitext(filepath)
+    ext = ext[1:].lower()
+    if ext not in [
+        "hpp",
+        "h",
+        "c",
+        "cpp",
+        "py",
+        "sh",
+    ]:
+        print(f"Unsupported file type: {ext}")
+        return
+
+    with open(filepath) as f:
+        content = f.read()
+
+    cleaned = remove_comments_and_strings(content, ext, keep_strings)
+    if inplace:
+        with open(filepath, "w") as f:
+            f.write(cleaned)
+        print(f"File {filepath} cleaned and saved in-place.")
+    else:
+        print(f"--- Cleaned {filepath} ---\n{cleaned}\n")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Remove comments and docstrings from code files, optionally keeping strings."
+    )
+    parser.add_argument(
+        "files",
+        metavar="FILE",
+        type=str,
+        nargs="+",
+        help="Files to process",
+    )
+    parser.add_argument(
+        "-i",
+        "--inplace",
+        action="store_true",
+        help="Edit files in-place",
+    )
+    parser.add_argument(
+        "-s",
+        "--strings",
+        action="store_true",
+        help="Keep strings in the output",
+    )
+    args = parser.parse_args()
+
+    for filepath in args.files:
+        process_file(
+            filepath,
+            inplace=args.inplace,
+            keep_strings=args.strings,
+        )
