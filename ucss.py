@@ -3,10 +3,10 @@ import base64
 import hashlib
 import mimetypes
 from pathlib import Path
-import re
 import sys
 
 from dh import MIME_TO_EXT
+import regex as re
 
 # DATA_URL_RE = re.compile(r"url\(\s*(['\"]?)data:(?P<mime>[^;]+)(?:;charset=[^;]+)?;base64,(?P<data>[A-Za-z0-9+/=\s]+)\1\s*\)",re.IGNORECASE,)
 # DATA_URL_RE = re.compile(r'url\(\s*([\'"]?)data:(?P<mime>[^;]+)(?:;[^;=]+=[^;]+)*;base64,(?P<data>[A-Za-z0-9+/=\s]+)\1\s*\)',re.IGNORECASE,)

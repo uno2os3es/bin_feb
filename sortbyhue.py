@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import colorsys
-import re
 import sys
+
+import regex as re
 
 HEX_RE = re.compile(r"^#([0-9a-fA-F]{6})$")
 

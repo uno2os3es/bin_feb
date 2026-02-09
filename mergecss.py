@@ -24,8 +24,9 @@ Result:
 
 import argparse
 from pathlib import Path
-import re
 import shutil
+
+import regex as re
 
 LOCAL_FONT_BASE = Path("/sdcard/_static/fonts")
 

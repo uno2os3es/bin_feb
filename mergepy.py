@@ -1,6 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
-import re
+
+import regex as re
 
 
 def resolve_imports(content, current_dir):

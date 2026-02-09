@@ -2,8 +2,9 @@
 import argparse
 import os
 from pathlib import Path
-import re
 import sys
+
+import regex as re
 
 try:
     from termcolor import colored

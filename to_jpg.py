@@ -145,7 +145,7 @@ def main() -> None:
     # Step 2: Parallel Execution
     # map handles the distribution; lambda passes the context
     with ThreadPoolExecutor(max_workers=8) as executor:
-        results = list(executor.map(lambda f: convert_file(f), files))
+        results = list(executor.map(convert_file, files))
 
     # Step 3: Reporting
     changed_count = sum(1 for r in results if r)

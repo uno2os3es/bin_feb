@@ -10,12 +10,14 @@ from fastwalk import walk_files
 import htmlmin
 
 
+# fmt: off
 def process_file(file: Path) -> bool:
     try:
         orig = file.read_text(encoding="utf-8")
         print(len(orig))
         code = orig
         code = htmlmin.minify(orig, remove_comments=True)
+# fmt: on
         print(len(code))
         if len(code) != len(orig):
             with open(file, "w", encoding="utf-8") as fo:

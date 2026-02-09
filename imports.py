@@ -6,8 +6,7 @@ import importlib.util
 import numbers
 import os
 import pathlib
-
-from dh import STDLIB
+from dh import STDLIB, get_installed_pkgs
 
 
 def get_py_files(start_path):
@@ -104,6 +103,7 @@ def main():
     with open(output_file, "w", encoding="utf-8") as f:
         f.write("\n".join(results))
     cleaned = []
+
     with open(output_file, encoding="utf-8") as fin:
         lines = fin.readlines()
         for line in lines:
@@ -114,8 +114,13 @@ def main():
                 .replace("==(unknown)", "")
                 .replace("==", "")
             )
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write("\n".join(cleaned))
+    pkgz = get_installed_pkgs()
+    cleaned = [p for p in cleaned if p not in pkgz]
+    if cleaned:
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(cleaned))
+    else:
+        os.remove("importz.txt")
 
     print(f"\nResults saved to {output_file}")
 

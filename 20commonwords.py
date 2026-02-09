@@ -46,13 +46,15 @@ def main():
     filtered = [w for w in words if w not in EXCLUDE]
     dst = ""
 
-    for word, count in Counter(filtered).most_common(5):
+    for word, count in Counter(filtered).most_common(50):
         dst = dst + str(word) if count == 5 else dst + str(word) + "_"
         print(f"{word:<15} {count}")
     p = Path(src)
     dst = Path(str(dst)[:25] + p.suffix)
     dst = unique_path(dst)
-    p.rename(dst)
+
+
+#    p.rename(dst)
 
 
 if __name__ == "__main__":

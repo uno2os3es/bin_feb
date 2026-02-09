@@ -108,7 +108,7 @@ def dedupe(root: Path, dry_run=False, force=False):
         if len(paths) < 2:
             continue
         # sort to have deterministic choice of stored original
-        paths_sorted = sorted(paths, key=lambda p: str(p))
+        paths_sorted = sorted(paths, key=str)
         original = paths_sorted[0]
         stored_name = f"{h}__{original.name}"
         stored_path = DUPS_DIR / stored_name

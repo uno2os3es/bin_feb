@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import argparse
 from pathlib import Path
-import re
 import sys
+
+import regex as re
 
 try:
     from termcolor import colored

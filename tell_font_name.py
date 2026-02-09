@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
-import re
 import sys
 
 from fontTools.ttLib import TTFont
+import regex as re
 from termcolor import cprint
 
 # ---------- helpers ----------
