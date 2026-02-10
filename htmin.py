@@ -6,8 +6,8 @@ from multiprocessing import Pool
 from pathlib import Path
 from time import perf_counter
 
-import htmlmin
 from fastwalk import walk_files
+import htmlmin
 
 
 # fmt: off

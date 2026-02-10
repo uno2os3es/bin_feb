@@ -1,9 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/python
-import os
-import subprocess
-from collections import deque
 from multiprocessing import Pool
+import os
 from pathlib import Path
+import subprocess
 
 from fastwalk import walk_files
 
@@ -44,7 +43,7 @@ def main():
             if result:
                 print(result)
 
-    print(f"\nOptimization complete. Success: {success}/{len(png_files)} files.")
+    print("\nOptimization complete.")
 
 
 if __name__ == "__main__":

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import os
-import sys
-from multiprocessing import Pool
 from pathlib import Path
+import sys
 
-import regex as re
 from fastwalk import walk_files
+import regex as re
 
 
 def clean_log(path):
@@ -64,7 +63,6 @@ def clean_log(path):
 
 
 def main() -> None:
-    files = []
     for pth in walk_files("."):
         path = Path(pth)
         if path.is_file() and path.suffix == ".log":

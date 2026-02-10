@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/python
+from multiprocessing import Process, Queue, cpu_count
 import pathlib
 import sys
-from multiprocessing import Process, Queue, cpu_count
 
 import cv2
-import pytesseract
 from PIL import Image
+import pytesseract
 from termcolor import cprint
 
 video = sys.argv[1]

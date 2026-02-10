@@ -1,11 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 
 import ast
-import io
+from pathlib import Path
 import shutil
 import sys
-import tokenize
-from pathlib import Path
 
 
 class SourceCleaner:
@@ -46,7 +44,6 @@ class SourceCleaner:
             del lines[start:end]
 
         return "\n".join(lines) + "\n", len(ranges)
-
 
     def remove_comments(self, text: str) -> str:
         cleaned_lines = []

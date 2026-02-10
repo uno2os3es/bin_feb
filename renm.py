@@ -1,15 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/python
-import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 from pathlib import Path
 
-import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
+import regex as re
 from tqdm import tqdm
-
-frombdh import unique_path
-
 
 DIRECTORY = "."
 
@@ -73,7 +70,7 @@ def rename_files(directory):
             continue
 
         new_fp = fp.with_name(new_name)
-        new_fp=uniq_path(new_fp)
+        new_fp = uniq_path(new_fp)
 
         try:
             os.rename(fp, new_fp)

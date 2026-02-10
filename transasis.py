@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
-import sys
 from pathlib import Path
+import sys
 
-import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
+import regex as re
 
 # Directory containing your files
 DIRECTORY = "."

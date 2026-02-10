@@ -16,7 +16,7 @@ def process_file(fp):
     lines = read_lines(fp)
     cleaned = []
     for line in lines:
-        if not "</svg>" in line:
+        if not any(p in line for p in ("</svg>", "</html>")):
             cleaned.append(line)
         else:
             cleaned.append(line)
@@ -32,7 +32,7 @@ def main():
         path = Path(pth)
         if path.is_symlink():
             continue
-        if path.is_file() and path.suffix == ".svg":
+        if path.is_file() and path.suffix in {".html", ".htm", ".svg"}:
             files.append(path)
 
     with Pool(8) as p:

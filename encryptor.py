@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
+from pathlib import Path
 import random
 import string
-from pathlib import Path
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding

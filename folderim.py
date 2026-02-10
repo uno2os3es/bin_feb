@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-import json
-import os
-import shutil
 from pathlib import Path
+import shutil
 
 import dh
 from PIL import Image
@@ -10,7 +8,7 @@ from PIL import Image
 # -------- CONFIG --------
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 HASH_FUNC = dh.phash  # phash / dhash / ahash
-MAX_DISTANCE = 8  # lower = stricter similarity
+MAX_DISTANCE = 10  # lower = stricter similarity
 OUT_PREFIX = "group_"
 # ------------------------
 

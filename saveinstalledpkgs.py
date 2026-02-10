@@ -1,7 +1,7 @@
 #!/usr/bin/env python
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
 
 OUTPUT_FILE = Path("/sdcard/installed_packages.txt")
 

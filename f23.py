@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
-import shutil
 from pathlib import Path
+import shutil
 
 import regex as re
 

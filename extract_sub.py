@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import json
-import subprocess
 from pathlib import Path
+import subprocess
 
 
 def run(cmd):

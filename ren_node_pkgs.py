@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import json
-import os
+from pathlib import Path
 import re
 import sys
-from pathlib import Path
 
 
 def sanitize_pkg_name(name: str) -> str:
@@ -15,8 +14,7 @@ def sanitize_pkg_name(name: str) -> str:
     """
     name = name.lstrip("@")
     name = name.replace("/", "__")
-    name = re.sub(r"[^\w.-]", "_", name)
-    return name
+    return re.sub(r"[^\w.-]", "_", name)
 
 
 def rename_package_dirs(root: Path, dry_run: bool = False) -> None:

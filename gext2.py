@@ -1,12 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import ast
+from multiprocessing import Pool, cpu_count
 import os
+from pathlib import Path
 import shutil
 import tarfile
-import zipfile
-from multiprocessing import Pool, cpu_count
-from pathlib import Path
 from typing import Any
+import zipfile
 
 import regex as re
 

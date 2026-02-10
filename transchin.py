@@ -3,10 +3,10 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-import regex as re
 from deep_translator import GoogleTranslator
 from dh import is_text_file
 from fastwalk import walk_files
+import regex as re
 
 DIRECTORY = "."
 CHUNK_SIZE = 2000  # characters per chunk (safe for Google Translate)

@@ -3,9 +3,9 @@ import os
 import shutil
 import sys
 
+from bs4 import BeautifulSoup
 import markdown
 import regex as re
-from bs4 import BeautifulSoup
 
 
 def modify_classes(html_content):

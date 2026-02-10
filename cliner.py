@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import mmap
-import re
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
-from typing import List
+import re
 
 # -------- CONFIG --------
 LOG_EXT = ".log"
@@ -40,16 +39,15 @@ def clean_line(line: str) -> str:
         cleaned = pattern.sub("", cleaned)
 
     # Remove multiple consecutive spaces (optional)
-    cleaned = re.sub(r" {2,}", " ", cleaned)
+    return re.sub(r" {2,}", " ", cleaned)
 
-    return cleaned
 
 
 def clean_file_small(file_path: Path) -> tuple:
     """Clean a small file using regular file I/O."""
     try:
         # Read the file
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
 
         # Clean each line

@@ -5,10 +5,10 @@ Handles docstrings in classes, functions, and modules.
 """
 
 import ast
+from pathlib import Path
 import re
 import shutil
 import sys
-from pathlib import Path
 
 
 class DocstringRemover:

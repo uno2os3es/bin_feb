@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import sys
 from pathlib import Path
+import sys
 
 from deep_translator import GoogleTranslator
 

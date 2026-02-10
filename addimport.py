@@ -7,7 +7,8 @@ from time import perf_counter
 
 from fastwalk import walk_files
 
-shebang="#!/data/data/com.termux/files/usr/bin/python\n\n"
+shebang = "#!/data/data/com.termux/files/usr/bin/python\n\n"
+
 
 def process_file(fp):
     if not fp.exists() or fp.is_symlink():
@@ -37,10 +38,10 @@ def main():
     start = perf_counter()
     files = []
     for pth in walk_files("."):
-        path=Path(pth)
+        path = Path(pth)
         if path.is_file() and path.suffix == ".py":
             files.append(path)
-    with Pool(8) as pool
+    with Pool(8) as pool:
         pool.imap_unordered(process_file, files)
 
     print(f"{perf_counter() - start} sec")

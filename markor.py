@@ -4,10 +4,10 @@ Markor - A Markdown/Text Editor for Termux using termux-gui-python-bindings
 Implements core features: file management, markdown editing, preview, and todo list management
 """
 
-import sys
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
+import sys
 from typing import Any
 
 import markdown

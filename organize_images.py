@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
-import shutil
 from pathlib import Path
+import shutil
 
 import cv2
 import numpy as np

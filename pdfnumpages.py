@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-import os
 from multiprocessing import Pool
+import os
 from pathlib import Path
 from sys import exit
 from time import perf_counter
 
-import pdfplumber
 from fastwalk import walk_files
+import pdfplumber
 
 
 def process_file(fp):
@@ -34,11 +34,11 @@ def main():
     start = perf_counter()
     files = []
     for pth in walk_files("."):
-        path=Path(pth)
+        path = Path(pth)
         if path.is_file() and path.suffix == ".pdf":
             files.append(path)
     with Pool(8) as pool:
-    pool.imap_unordered(process_file, files)
+        pool.imap_unordered(process_file, files)
 
     print(f"{perf_counter() - start} sec")
 

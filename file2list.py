@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import sys
 from pathlib import Path
+import sys
 from time import perf_counter
 
 

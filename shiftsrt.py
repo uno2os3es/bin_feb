@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import sys
 from pathlib import Path
+import sys
 
 import regex as re
 

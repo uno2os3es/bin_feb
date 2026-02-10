@@ -7,8 +7,8 @@ Supports:
 """
 
 import argparse
-import sys
 from pathlib import Path
+import sys
 
 from deep_translator import GoogleTranslator, single_detection
 

@@ -2,9 +2,9 @@
 import os
 from pathlib import Path
 
-import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
+import regex as re
 
 # Directory to scan
 DIRECTORY = "."
@@ -47,7 +47,7 @@ def get_unique_path(path: Path) -> Path:
 
 
 def rename_files(directory: str):
-    for pth in walk_files(directory):
+    for _pth in walk_files(directory):
         path = Path(filepath)
 
         # Handle files

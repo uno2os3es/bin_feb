@@ -6,10 +6,10 @@ Handles existing repos by offering merge or new repo creation options.
 """
 
 import argparse
-import subprocess
-import sys
 from datetime import datetime
 from pathlib import Path
+import subprocess
+import sys
 
 
 class GitHubRepoManager:

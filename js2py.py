@@ -6,8 +6,8 @@ Uses OpenAI API or local AST-based conversion with js2py library.
 
 import argparse
 import os
-import sys
 from pathlib import Path
+import sys
 
 import regex as re
 

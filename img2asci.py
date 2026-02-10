@@ -4,7 +4,6 @@ from pathlib import Path
 
 from ascii_magic import AsciiArt
 from dh import IMG_EXT
-from fastwalk import walk_files
 
 
 def getimg(dir="."):

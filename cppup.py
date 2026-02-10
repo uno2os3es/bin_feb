@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import subprocess
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+import subprocess
 from time import perf_counter
 
 import fastwalk

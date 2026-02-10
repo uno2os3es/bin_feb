@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 import contextlib
 import os
-import pathlib
+from pathlib import Path
 import shutil
 
 from dh import unique_path
 
 
 def folderize_files_alphabetically() -> None:
-    current_dir = pathlib.Path.cwd()
+    current_dir = Path.cwd()
     other_folder_name = "Other_Symbols_Or_Numbers"
     try:
         all_entries = Path(current_dir).rglob("*")
@@ -27,8 +27,9 @@ def folderize_files_alphabetically() -> None:
             target_folder_path.mkdir(exist_ok=True, parents=True)
         except OSError:
             continue
-        destination_path = Path(os.path.join(str(target_folder_path), str(entry)))
-        destination_path=unique_path(destination_path)
+        destination_path = target_folder_path / entry
+        if destination_path.exists():
+            destination_path = unique_path(destination_path)
         with contextlib.suppress(shutil.Error):
             shutil.move(entry_path, destination_path)
 

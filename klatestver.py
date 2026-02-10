@@ -3,8 +3,8 @@ import operator
 import os
 import pathlib
 
-import regex as re
 from packaging.version import Version
+import regex as re
 
 # Regex to extract name and version from wheel filename
 wheel_pattern = re.compile(r"^(?P<name>.+)-(?P<version>\d+(\.\d+)+).*\.txt$")

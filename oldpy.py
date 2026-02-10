@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import mmap
+from multiprocessing import Pool
 import os
 import tokenize
-from multiprocessing import Pool
 
 import regex as re
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
+import shutil
 
 import dh
 from PIL import Image
@@ -63,7 +63,7 @@ def main():
         assigned = False
 
         for group in groups:
-            ref_img, ref_hash = group[0]
+            _ref_img, ref_hash = group[0]
             score = similarity_score(h, ref_hash)
 
             if score <= MAX_SCORE:
@@ -74,12 +74,13 @@ def main():
         if not assigned:
             groups.append([(img, h)])
 
-    for idx, group in enumerate(groups, 1):
-        folder = cwd / f"{OUT_PREFIX}{idx:03d}"
-        folder.mkdir(exist_ok=True)
+    for idx, group in enumerate(groups, start=1):
+        if len(group) > 1:
+            folder = cwd / f"{OUT_PREFIX}{idx:03d}"
+            folder.mkdir(exist_ok=True)
 
-        for img, _ in group:
-            shutil.move(str(img), folder / img.name)
+            for img, _ in group:
+                shutil.move(str(img), folder / img.name)
 
     print(f"Done. Created {len(groups)} groups.")
 

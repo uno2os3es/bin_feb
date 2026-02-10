@@ -1,25 +1,7 @@
-#!/data/data/com.termux/files/usr/bin/env python3
-import magic
+#!/data/data/com.termux/files/usr/bin/python
 
-# NOTE: This script requires the 'python-magic' library.
-# Install it using: pip install python-magic
-# A robust mapping of common MIME types to their preferred file extensions.
-# This list can be expanded as needed.
-MIME_TO_EXT_MAP = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/gif": "gif",
-    "image/webp": "webp",
-    "application/pdf": "pdf",
-    "application/zip": "zip",
-    "application/x-tar": "tar",
-    "video/mp4": "mp4",
-    "audio/mpeg": "mp3",
-    "text/plain": "txt",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-    "application/octet-stream": None,  # Binary/unknown, skip renaming
-}
+import magic
+from dh import MIME_TO_EXT
 
 
 def get_ext_from_mime(mime_type):
@@ -31,34 +13,23 @@ def get_ext_from_mime(mime_type):
     if "text/" in mime_type:
         return "txt"
     # Look up in the specific map
-    return MIME_TO_EXT_MAP.get(mime_type.split(";")[0].strip().lower())
+    return MIME_TO_EXT.get(mime_type.split(";")[0].strip().lower())
 
 
 def correct_file_extensions(root_dir=".", dry_run=True) -> None:
-    """Scans a directory recursively, checks for file extension mismatches using
-    libmagic (python-magic), and renames the files in-place if a mismatch is found.
-
-    Args:
-        root_dir (str): The starting directory for the recursive scan.
-        dry_run (bool): If True, only prints the planned renames without executing them.
-
-    """
     if dry_run:
         pass
     renames_count = 0
-    # Create a magic object for efficiency
     m = magic.Magic(mime=True)
-    # Walk through the directory structure recursively
     for dirpath, dirnames, filenames in os.walk(root_dir):
-        # Exclude hidden directories
         dirnames[:] = [d for d in dirnames if not d.startswith(".")]
         for filename in filenames:
             current_path = Path(dirpath) / filename
-            # Skip directories or non-regular files
             if not current_path.is_file():
                 continue
+            if current_path.suffix=="css":
+                continue
             try:
-                # 1. Determine the MIME type using libmagic (from content)
                 mime_type_full = m.from_file(str(current_path))
                 # 2. Convert MIME type to a standard extension
                 detected_ext = get_ext_from_mime(mime_type_full)
@@ -86,7 +57,5 @@ def correct_file_extensions(root_dir=".", dry_run=True) -> None:
 
 
 if __name__ == "__main__":
-    # --- SAFETY FIRST: RUNS IN DRY RUN MODE BY DEFAULT ---
     correct_file_extensions(root_dir=".", dry_run=False)
-    # To run for real, uncomment the line below and comment out the line above:
     # correct_file_extensions(root_dir='.', dry_run=False)

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-import re
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
-from typing import List, Set
+import re
 
 # -------- CONFIG --------
 LIC_FILE = Path("/sdcard/lic")
@@ -12,10 +11,10 @@ EXCLUDE_EXTS = {".pyc", ".so", ".o", ".a", ".exe", ".dll"}  # Binary files to sk
 # ------------------------
 
 
-def load_patterns(lic_path: Path) -> List[str]:
+def load_patterns(lic_path: Path) -> list[str]:
     """Load multiline patterns from the license file."""
     try:
-        with open(lic_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(lic_path, encoding="utf-8", errors="ignore") as f:
             content = f.read()
 
         # Split by 3 or more consecutive blank lines
@@ -45,11 +44,10 @@ def escape_for_regex(text: str) -> str:
     # Escape all special regex characters
     escaped = re.escape(text)
     # Unescape newlines so they match actual newlines
-    escaped = escaped.replace(r"\n", r"\s*\n\s*")  # Allow whitespace around newlines
-    return escaped
+    return escaped.replace(r"\n", r"\s*\n\s*")  # Allow whitespace around newlines
 
 
-def remove_patterns_from_content(content: str, patterns: List[str]) -> str:
+def remove_patterns_from_content(content: str, patterns: list[str]) -> str:
     """Remove all patterns from content."""
     cleaned = content
 
@@ -91,7 +89,7 @@ def clean_file_worker(args: tuple) -> tuple:
 
     try:
         # Read the file
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding="utf-8", errors="ignore") as f:
             original_content = f.read()
 
         # Remove patterns
@@ -161,7 +159,7 @@ def main():
             print(f"✗ Error: {file_path} - {message}")
             error_count += 1
 
-    print(f"\nDone.")
+    print("\nDone.")
     print(f"  Processed: {success_count}/{len(all_files)} file(s)")
     print(f"  Modified: {modified_count} file(s)")
     if error_count > 0:

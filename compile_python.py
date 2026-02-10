@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-import compileall
-import os
-import subprocess
 from collections import deque
+import compileall
 from multiprocessing import Pool
+import os
 from pathlib import Path
 from sys import exit
 from time import perf_counter
-
-from fastwalk import walk
 
 
 def process_file(fp):
     if not fp.exists():
         return False
-    compileall.compile_file(fp, legacy=True, optimize=2)
+    compileall.compile_file(fp, optimize=1)
     return True
 
 
 def process_dir(dr):
-    compileall.compile_dir(dr, legacy=True, optimize=2)
+    compileall.compile_dir(dr, optimize=1)
 
 
 def main():
@@ -27,7 +24,7 @@ def main():
     files = []
     dirs = []
     dir = "/data/data/com.termux/files/usr/lib/python3.12"
-    compileall.compile_dir(dir, maxlevels=1, legacy=True, optimize=2)
+    #    compileall.compile_dir(dir, maxlevels=1, legacy=True, optimize=2)
     for pth in os.listdir(dir):
         path = Path(os.path.join(dir, pth))
         if path.is_symlink():

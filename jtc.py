@@ -2,10 +2,10 @@
 
 import argparse
 import ast
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import io
 import os
 import tokenize
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 DEFAULT_EXCLUDES = {".git", "dist", "venv", ".venv"}
 

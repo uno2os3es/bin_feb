@@ -2,9 +2,9 @@
 
 import contextlib
 import os
+from pathlib import Path
 import sys
 import tempfile
-from pathlib import Path
 
 import regex as re
 

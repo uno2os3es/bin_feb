@@ -7,12 +7,12 @@ Full OCR testing pipeline:
 """
 
 import itertools
-import time
 from pathlib import Path
+import time
 
 import cv2
-import pytesseract
 from dh import IMG_EXT
+import pytesseract
 
 # -----------------------------
 # CONFIGURATION

@@ -1,30 +1,20 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import glob
-import subprocess
-from functools import partial
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 from pathlib import Path
+import subprocess
 
-# --- Configuration ---
-QUALITY_RANGE_STR = "60-70"
+QUALITY_RANGE = "60-70"
 START_DIR = Path(".")
-NUM_PROCESSES = cpu_count()
+NUM_PROCESSES = 8
 print(f"Using {NUM_PROCESSES} CPU cores for parallel processing via subprocess.")
 
-# --- Optimization Function (Subprocess) ---
 
-
-def compress_single_file_subprocess(input_path: str, quality_range: str):
-    """
-    Compresses a single PNG file by directly calling the pngquant CLI
-    using the subprocess module. This avoids all Python wrapper API issues.
-    """
+def process_png(input_path):
     try:
-        # Construct the command:
-        # pngquant --quality=60-70 --force --skip-if-larger input_path.png --output input_path.png
         command = [
             "pngquant",
-            f"--quality={quality_range}",
+            f"--quality={QUALITY_RANGE}",
             "--force",  # Force overwrite
             # Do not save if file size increases (safe optimization)
             "--skip-if-larger",
@@ -55,25 +45,15 @@ def compress_single_file_subprocess(input_path: str, quality_range: str):
         print(f"❌ Error compressing {input_path}: {e}")
 
 
-# --- Main Execution (Switch to subprocess function) ---
 if __name__ == "__main__":
-    all_png_files = glob.glob(
+    files = glob.glob(
         str(START_DIR / "**" / "*.png"),
         recursive=True,
     )
-    if not all_png_files:
+    if not files:
         print(f"No PNG files found recursively in {START_DIR}.")
     else:
-        print(f"Found {len(all_png_files)} PNG files to process...")
-        # Use functools.partial to pre-set the quality argument
-        compress_task = partial(
-            compress_single_file_subprocess,
-            quality_range=QUALITY_RANGE_STR,
-        )
-        # Create a multiprocessing Pool
-        try:
-            with Pool(NUM_PROCESSES) as pool:
-                pool.map(compress_task, all_png_files)
-            print("\n✨ All PNG files processed successfully using Subprocess. ✨")
-        except Exception as e:
-            print(f"\nAn unexpected error occurred during multiprocessing: {e}")
+        print(f"Found {len(files)} PNG files to process...")
+        with Pool(8) as pool:
+            for f in files:
+                pool.apply_async(process_png, (f,))

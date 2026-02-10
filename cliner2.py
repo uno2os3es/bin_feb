@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import re
 from pathlib import Path
+import re
 
 # -------- CONFIG --------
 LOG_EXT = ".log"
@@ -32,16 +32,15 @@ def clean_line(line: str) -> str:
         cleaned = re.sub(pattern, "", cleaned)
 
     # Remove multiple consecutive spaces (optional)
-    cleaned = re.sub(r" {2,}", " ", cleaned)
+    return re.sub(r" {2,}", " ", cleaned)
 
-    return cleaned
 
 
 def clean_file(file_path: Path) -> None:
     """Clean a single log file in place."""
     try:
         # Read the file
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
 
         # Clean each line
