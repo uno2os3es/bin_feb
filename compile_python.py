@@ -1,38 +1,54 @@
-#!/data/data/com.termux/files/usr/bin/env python3
+#!/usr/bin/env python3
+import os
+from collections import deque
+from time import perf_counter
+from multiprocessing import Pool
+from fastwalk import walk
 from pathlib import Path
-
-EXCLUDED = "site-packages"
-
-
-def remove_file(fpath) -> int:
-    filepath = Path(fpath)
-    if filepath.exists():
-        if filepath.parent in {
-            "setuptools",
-            "wheel",
-            "pip",
-        }:
-            return 1
-        Path(filepath).unlink()
-    return 0
+from sys import exit
+import compileall
+import subprocess
 
 
-def main() -> None:
+def process_file(fp):
+    if not fp.exists():
+        return False
+    compileall.compile_file(fp, legacy=True, optimize=2)
+    return True
+
+
+def process_dir(dr):
+    compileall.compile_dir(dr, legacy=True, optimize=2)
+
+
+def main():
+    start = perf_counter()
+    files = []
+    dirs = []
     dir = "/data/data/com.termux/files/usr/lib/python3.12"
-    for r, d, files in os.walk(dir):
-        for file in files:
-            if file.endswith(".pyc"):
-                remove_file(os.path.join(r, file))
-        for dir in d:
-            dp = os.path.join(r, dir)
-            if str(dir) == "site-packages" or "site-packages" in str(dir):
-                continue
-            if "site-packages" in str(dp) or "__pycache__" in str(dp):
-                continue
-            if "test" in str(dp):
-                continue
-            compileall.compile_dir(dp)
+    compileall.compile_dir(dir, maxlevels=1, legacy=True, optimize=2)
+    for pth in os.listdir(dir):
+        path = Path(os.path.join(dir, pth))
+        if path.is_symlink():
+            continue
+        if path.is_file():
+            files.append(path)
+        if path.is_dir() and path.name != "site-packages":
+            dirs.append(path)
+
+    with Pool(8) as p:
+        pending = deque()
+        for f in files:
+            pending.append(p.apply_async(process_file, ((f),)))
+            if len(pending) > 16:
+                pending.popleft().get()
+        while pending:
+            pending.popleft().get()
+    for dir in dirs:
+        process_dir(dir)
+
+    print(f"{perf_counter() - start} seconds")
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())

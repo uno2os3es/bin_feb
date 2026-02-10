@@ -10,7 +10,6 @@ import os
 
 from rcssmin import cssmin
 import regex as re
-from rjsmin import jsmin
 
 
 def minify_html(html: str) -> str:
@@ -28,10 +27,7 @@ def process_file(path: str) -> str:
         with open(path, encoding="utf-8") as f:
             content = f.read()
 
-        if ext == ".js":
-            content = jsmin(content)
-
-        elif ext == ".css":
+        if ext == ".css":
             content = cssmin(content)
 
         elif ext == ".json":
@@ -56,22 +52,17 @@ def process_file(path: str) -> str:
 def collect_files() -> list:
     """Find all supported file types."""
     supported = (
-        ".js",
         ".css",
         ".json",
         ".html",
         ".htm",
     )
-    excluded_min = (".min.js", ".min.css")
     out = []
 
     for base, _, files in os.walk(os.getcwd()):
         for name in files:
             path = os.path.join(base, name)
             lower = name.lower()
-
-            if lower.endswith(excluded_min):
-                continue
 
             if lower.endswith(supported):
                 out.append(path)

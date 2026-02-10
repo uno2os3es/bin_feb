@@ -66,7 +66,11 @@ if __name__ == "__main__":
         #                prob.append(x)
         #        with open("prob.py","w") as fp:
         #            fp.writelines(prob)
-        filtered = [line.strip() for line in lines if is_python_like(line)]  # or looks_like_python(line)]
+        filtered = []
+
+        for line in lines:
+            if is_python_like(line) or looks_like_python(line) or is_probably_python(line):
+                filtered.append(line)
         print(filtered)
         with open("out.py", "w") as f:
             for l in filtered:

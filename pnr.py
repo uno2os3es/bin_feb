@@ -6,7 +6,7 @@ Renames files and directories according to specified rules.
 import argparse
 import os
 import sys
-
+from pathlib import Path
 
 def get_unique_name(path, base_name):
     """Generate a unique name by appending _number if name exists."""
@@ -24,11 +24,10 @@ def get_unique_name(path, base_name):
 
 
 def ask_user_for_rename(old_name, new_name):
-    """Ask user whether to rename with _number suffix."""
+    return True
     while True:
-        response = (
-            input(f"'{new_name}' already exists. Rename '{old_name}' with _number suffix? (y/n): ").lower().strip()
-        )
+        response = input(f"'{new_name}' already exists. Rename '{old_name}' with _number suffix? (y/n): ").lower().strip()
+
 
         if response in ["y", "yes"]:
             return True
@@ -346,6 +345,8 @@ def rename_by_template(
                 print(f"Would rename: '{old_path}' -> '{new_name}'")
             else:
                 try:
+                    np=Path(new_path)
+                    new_path=get_unique_path(np.parent,np.name)
                     os.rename(old_path, new_path)
                     print(f"Renamed: '{old_path}' -> '{new_name}'")
                     renamed_count += 1
@@ -400,6 +401,7 @@ Examples:
         "-t",
         "--template",
         metavar="NAME",
+        default="",
         help="Rename files using template with sequential numbering",
     )
 

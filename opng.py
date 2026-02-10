@@ -1,18 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/python
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from collections import deque
 import os
 import subprocess
-
-from tqdm import tqdm
-
+from multiprocessing import Pool
+from fastwalk import walk_files
+from pathlib import Path
 
 def find_png_files(directory):
     """Recursively find all .png files in the given directory."""
     png_files = []
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.lower().endswith(".png"):
-                png_files.append(os.path.join(root, file))
+    for pth in walk_files(directory):
+        path=Path(pth)
+        if path.suffix.lower()==".png":
+                png_files.append(path)
     return png_files
 
 
@@ -20,7 +20,7 @@ def optimize_png(file_path):
     """Optimize a single PNG file using optipng."""
     try:
         subprocess.run(
-            ["optipng", "-o7", file_path],
+            ["optipng", "-o7", str(file_path)],
             check=True,
         )
         return True, file_path
@@ -37,22 +37,16 @@ def main():
         return
 
     print(f"Found {len(png_files)} PNG files to optimize.")
-
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = {executor.submit(optimize_png, file): file for file in png_files}
-        results = []
-
-        with tqdm(
-            total=len(png_files),
-            desc="Optimizing PNGs",
-            unit="file",
-        ) as pbar:
-            for future in as_completed(futures):
-                results.append(future.result())
-                pbar.update(1)
-
-    # Print summary
-    success = sum(1 for r in results if r[0])
+    with Pool(8) as pool:
+        pending=deque()
+        pending.append(
+            pool.imap_unordered(optimize_png,png_files)
+        )
+        if len(pending)>16:
+            pending.popleft().get()
+        while pending:
+            pending.popleft().get()
+    
     print(f"\nOptimization complete. Success: {success}/{len(png_files)} files.")
 
 
