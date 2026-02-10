@@ -1,20 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/python
 
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import regex as re
-from fastwalk import walk_files
-from pathlib import Path
-from dh import is_text_file
 from deep_translator import GoogleTranslator
+from dh import is_text_file
+from fastwalk import walk_files
 
 DIRECTORY = "."
 CHUNK_SIZE = 2000  # characters per chunk (safe for Google Translate)
 
 # Detect non-ASCII characters
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
-
-
 
 
 def split_into_chunks(text: str, size: int):
@@ -75,4 +73,3 @@ def process_directory(directory: str):
 
 if __name__ == "__main__":
     process_directory(DIRECTORY)
-

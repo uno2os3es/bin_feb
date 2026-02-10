@@ -47,19 +47,23 @@ class SourceCleaner:
 
         return "\n".join(lines) + "\n", len(ranges)
 
+    # -------------------- COMMENTS --------------------
 
-    def remove_comments(self, text: str) -> str:
-        cleaned_lines = []
-        for line in text.splitlines():
-            stripped = line.lstrip()
-            if stripped.startswith("#"):
+    def remove_comments(self, source: str) -> tuple[str, int]:
+        out = []
+        removed = 0
+        reader = io.StringIO(source).readline
+
+        for tok in tokenize.generate_tokens(reader):
+            tok_type, tok_str, *_ = tok
+            if tok_type == tokenize.COMMENT:
+                removed += 1
                 continue
-            comment_index = line.find("#")
-            if comment_index != -1:
-                line = line[:comment_index]
-            if line.strip():
-                cleaned_lines.append(line.rstrip())
-        return "\n".join(cleaned_lines) + "\n"
+            out.append(tok_str)
+
+        return "".join(out), removed
+
+    # -------------------- FILE --------------------
 
     def process_file(self, path: Path) -> None:
         try:

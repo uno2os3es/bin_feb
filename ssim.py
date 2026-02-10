@@ -102,8 +102,8 @@ class FileSimilarityDetector:
                 # KEEP ONE, DELETE REST
                 for victim in group[1:]:
                     try:
-                         print(victim)
-#                        Path(victim).unlink()
+                        print(victim)
+                    #                        Path(victim).unlink()
                     except Exception as e:
                         print(f"Failed to delete {victim}: {e}")
             else:

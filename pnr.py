@@ -27,8 +27,9 @@ def get_unique_name(path, base_name):
 def ask_user_for_rename(old_name, new_name):
     return True
     while True:
-        response = input(f"'{new_name}' already exists. Rename '{old_name}' with _number suffix? (y/n): ").lower().strip()
-
+        response = (
+            input(f"'{new_name}' already exists. Rename '{old_name}' with _number suffix? (y/n): ").lower().strip()
+        )
 
         if response in ["y", "yes"]:
             return True
@@ -346,8 +347,8 @@ def rename_by_template(
                 print(f"Would rename: '{old_path}' -> '{new_name}'")
             else:
                 try:
-                    np=Path(new_path)
-                    new_path=get_unique_path(np.parent,np.name)
+                    np = Path(new_path)
+                    new_path = get_unique_path(np.parent, np.name)
                     os.rename(old_path, new_path)
                     print(f"Renamed: '{old_path}' -> '{new_name}'")
                     renamed_count += 1

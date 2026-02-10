@@ -1,14 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
 import sys
+from pathlib import Path
 
 import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
-from pathlib import Path
-
-
-
 
 # Directory containing your files
 DIRECTORY = "."
@@ -63,17 +60,17 @@ def translate_file(filepath):
 
 def translate_folder(directory):
     for pth in walk_files(directory):
-        path=Path(pth)
+        path = Path(pth)
         if path.is_file():
             translate_file(path)
 
 
 if __name__ == "__main__":
-    choice=input("translate a f)ile or d)ir?")
-    if choice =='d':
+    choice = input("translate a f)ile or d)ir?")
+    if choice == "d":
         translate_folder(DIRECTORY)
-    elif choice=='f':
-        fn=input('filename:').strip()
+    elif choice == "f":
+        fn = input("filename:").strip()
         translate_file(fn)
     else:
         print("enter d for dir and f for file.")

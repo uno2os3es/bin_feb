@@ -1,19 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
+from pathlib import Path
 
 from ascii_magic import AsciiArt
-
-from fastwalk import walk_files
-from pathlib import Path
 from dh import IMG_EXT
-
-
+from fastwalk import walk_files
 
 
 def getimg(dir="."):
     img_files = []
     for pth in walk_filrs(dir):
-        path=Path(pth)
+        path = Path(pth)
         if path.suffix in IMG_EXT:
             img_files.append(path)
     return img_files

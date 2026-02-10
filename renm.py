@@ -1,13 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 import regex as re
 from deep_translator import GoogleTranslator
+from fastwalk import walk_files
 from tqdm import tqdm
 
-from fastwalk import walk_files
-from pathlib import Path
 frombdh import unique_path
 
 

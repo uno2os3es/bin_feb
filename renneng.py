@@ -1,14 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
-
-import regex as re
-
-
-from fastwalk import walk_files
 from pathlib import Path
 
-
+import regex as re
 from deep_translator import GoogleTranslator
+from fastwalk import walk_files
 
 # Directory to scan
 DIRECTORY = "."

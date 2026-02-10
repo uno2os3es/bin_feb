@@ -5,12 +5,11 @@ import shutil
 import tempfile
 import tokenize
 from multiprocessing import Pool
+from pathlib import Path
 
 import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
-from pathlib import Path
-
 from tqdm import tqdm
 
 DIRECTORY = "."

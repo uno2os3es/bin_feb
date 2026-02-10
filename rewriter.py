@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 import pathlib
+from pathlib import Path
 from sys import argv, exit
 
 
-def main() -> None:
-    fn=argv[1]
+def main() -> bool:
+    fn=Path(argv[1])
     try:
-        with pathlib.Path(fn).open("rb") as f:
+        with fn.open("rb") as f:
             content = f.read()
-        with pathlib.Path(fn).open("wb") as fo:
-            fo.write(content)
-
-
+        fn.write_text(content)
+        return True
+    except:
+        return False
 if __name__ == "__main__":
     exit(main())

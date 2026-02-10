@@ -44,7 +44,7 @@ def convert_file(file_path: str) -> bool:
         return False
 
     # If already JPG, nothing to do
-    if path.suffix.lower() ==".png":
+    if path.suffix.lower() == ".png":
         return True
 
     output_path = path.with_suffix(".png")

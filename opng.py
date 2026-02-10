@@ -12,9 +12,9 @@ def find_png_files(directory):
     """Recursively find all .png files in the given directory."""
     png_files = []
     for pth in walk_files(directory):
-        path=Path(pth)
-        if path.suffix.lower()==".png":
-                png_files.append(path)
+        path = Path(pth)
+        if path.suffix.lower() == ".png":
+            png_files.append(path)
     return png_files
 
 
@@ -40,10 +40,10 @@ def main():
 
     print(f"Found {len(png_files)} PNG files to optimize.")
     with Pool(8) as pool:
-        for result in pool.imap_unordered(optimize_png,png_files):
+        for result in pool.imap_unordered(optimize_png, png_files):
             if result:
                 print(result)
-    
+
     print(f"\nOptimization complete. Success: {success}/{len(png_files)} files.")
 
 

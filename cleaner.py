@@ -64,12 +64,11 @@ def clean_log(path):
 
 
 def main() -> None:
-    files=[]
+    files = []
     for pth in walk_files("."):
-        path=Path(pth)
-        if path.is_file() and path.suffix=='.log':
+        path = Path(pth)
+        if path.is_file() and path.suffix == ".log":
             clean_log(path)
-
 
 
 if __name__ == "__main__":

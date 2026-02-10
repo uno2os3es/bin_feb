@@ -1,10 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/python
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
-from pathlib import Path
 
 # Directory to scan
 DIRECTORY = "."

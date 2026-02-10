@@ -13,38 +13,39 @@ from fastwalk import walk_files
 def process_file(fp):
     if not fp.exists():
         return False
-    lines=read_lines(fp)
-    cleaned=[]
+    lines = read_lines(fp)
+    cleaned = []
     for line in lines:
         if not "</svg>" in line:
             cleaned.append(line)
         else:
             cleaned.append(line)
             break
-    fp.write_text(''.join(cleaned))
+    fp.write_text("".join(cleaned))
     return True
+
 
 def main():
     start = perf_counter()
     files = []
-    for pth in walk_files('.'):
-        path=Path(pth)
+    for pth in walk_files("."):
+        path = Path(pth)
         if path.is_symlink():
             continue
-        if path.is_file() and path.suffix=='.svg':
+        if path.is_file() and path.suffix == ".svg":
             files.append(path)
 
     with Pool(8) as p:
         pending = deque()
         for f in files:
-            pending.append(
-                p.apply_async(process_file,((f),)))
-            if len(pending)>32:
+            pending.append(p.apply_async(process_file, ((f),)))
+            if len(pending) > 32:
                 pending.popleft().get()
         while pending:
             pending.popleft().get()
 
-    print(f'{perf_counter()-start} seconds')
+    print(f"{perf_counter() - start} seconds")
+
 
 if __name__ == "__main__":
     exit(main())

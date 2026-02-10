@@ -10,10 +10,10 @@ import tarfile
 import threading
 import zipfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 from queue import Queue
 
 from fastwalk import walk_files
-from pathlib import Path
 
 # -------------------- Globals --------------------
 
@@ -228,7 +228,7 @@ def main():
 
     files = []
     for pth in walk_files(root):
-        path=Path(pth)
+        path = Path(pth)
         if path.is_dir():
             continue
         if should_skip_file(path):

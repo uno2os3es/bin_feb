@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 import contextlib
 import os
-import pathlib
+from pathlib import Path
 import shutil
 
 from dh import unique_path
 
 
-def folderize_files_alphabetically() -> None:
-    current_dir = pathlib.Path.cwd()
-    other_folder_name = "Other_Symbols_Or_Numbers"
+def folderize_files_by_ext() -> None:
+    current_dir = Path.cwd()
     try:
         all_entries = Path(current_dir).rglob("*")
     except OSError:
@@ -18,10 +17,11 @@ def folderize_files_alphabetically() -> None:
         entry_path = Path(entry)
         if entry_path.is_dir():
             continue
-        first_char = str(entry)[0]
-        folder_name = first_char.upper() if first_char.isalpha() else other_folder_name
-        if entry == folder_name:
-            continue
+        ext=entry_path.suffix
+        if ext:
+            folder_name = ext
+        else:
+            folder_name="no_ext"
         target_folder_path = Path(os.path.join(current_dir, folder_name))
         try:
             target_folder_path.mkdir(exist_ok=True, parents=True)
@@ -34,4 +34,4 @@ def folderize_files_alphabetically() -> None:
 
 
 if __name__ == "__main__":
-    folderize_files_alphabetically()
+    folderize_files_by_ext()

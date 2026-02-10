@@ -1,13 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
+from pathlib import Path
 
 import regex as re
 from deep_translator import GoogleTranslator
-
 from fastwalk import walk_files
-from pathlib import Path
-
-
 
 DIRECTORY = "."
 
@@ -35,7 +32,6 @@ def rename_files(directory):
 
     for pth in walk_files(directory):
         path = Path(pth)
-
 
         # Skip already-English names
         if is_english(path.name):

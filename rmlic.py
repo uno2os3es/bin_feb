@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re
-from pathlib import Path
 from multiprocessing import Pool, cpu_count
+from pathlib import Path
 from typing import List, Set
 
 # -------- CONFIG --------
@@ -15,26 +15,26 @@ EXCLUDE_EXTS = {".pyc", ".so", ".o", ".a", ".exe", ".dll"}  # Binary files to sk
 def load_patterns(lic_path: Path) -> List[str]:
     """Load multiline patterns from the license file."""
     try:
-        with open(lic_path, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(lic_path, "r", encoding="utf-8", errors="ignore") as f:
             content = f.read()
-        
+
         # Split by 3 or more consecutive blank lines
         # Pattern: \n followed by 3+ groups of (optional spaces + \n)
-        pattern_separator = r'\n(?:\s*\n){' + str(MIN_BLANK_LINES) + r',}'
+        pattern_separator = r"\n(?:\s*\n){" + str(MIN_BLANK_LINES) + r",}"
         patterns = re.split(pattern_separator, content)
-        
+
         # Clean up patterns: strip whitespace and filter empty ones
         patterns = [p.strip() for p in patterns if p.strip()]
-        
+
         print(f"Loaded {len(patterns)} pattern(s) from {lic_path}")
         for idx, pattern in enumerate(patterns, 1):
-            preview = pattern[:50].replace('\n', '\\n')
+            preview = pattern[:50].replace("\n", "\\n")
             if len(pattern) > 50:
                 preview += "..."
             print(f"  Pattern {idx}: {preview}")
-        
+
         return patterns
-        
+
     except Exception as e:
         print(f"Error loading patterns from {lic_path}: {e}")
         return []
@@ -45,21 +45,21 @@ def escape_for_regex(text: str) -> str:
     # Escape all special regex characters
     escaped = re.escape(text)
     # Unescape newlines so they match actual newlines
-    escaped = escaped.replace(r'\n', r'\s*\n\s*')  # Allow whitespace around newlines
+    escaped = escaped.replace(r"\n", r"\s*\n\s*")  # Allow whitespace around newlines
     return escaped
 
 
 def remove_patterns_from_content(content: str, patterns: List[str]) -> str:
     """Remove all patterns from content."""
     cleaned = content
-    
+
     for pattern in patterns:
         # Escape the pattern for regex matching
         regex_pattern = escape_for_regex(pattern)
-        
+
         # Try to remove the pattern (case-insensitive, multiline)
-        cleaned = re.sub(regex_pattern, '', cleaned, flags=re.IGNORECASE | re.MULTILINE)
-    
+        cleaned = re.sub(regex_pattern, "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
+
     return cleaned
 
 
@@ -68,17 +68,17 @@ def should_process_file(file_path: Path) -> bool:
     # Skip binary files
     if file_path.suffix.lower() in EXCLUDE_EXTS:
         return False
-    
+
     # Skip hidden files
-    if file_path.name.startswith('.'):
+    if file_path.name.startswith("."):
         return False
-    
+
     # Try to detect if it's a text file
     try:
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             chunk = f.read(1024)
             # Check for null bytes (binary file indicator)
-            if b'\x00' in chunk:
+            if b"\x00" in chunk:
                 return False
         return True
     except:
@@ -88,25 +88,25 @@ def should_process_file(file_path: Path) -> bool:
 def clean_file_worker(args: tuple) -> tuple:
     """Worker function to clean a single file."""
     file_path, patterns = args
-    
+
     try:
         # Read the file
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             original_content = f.read()
-        
+
         # Remove patterns
         cleaned_content = remove_patterns_from_content(original_content, patterns)
-        
+
         # Only write if content changed
         if cleaned_content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(cleaned_content)
-            
+
             removed_chars = len(original_content) - len(cleaned_content)
             return (file_path, True, f"removed {removed_chars} characters")
         else:
             return (file_path, True, "no changes")
-        
+
     except Exception as e:
         return (file_path, False, str(e))
 
@@ -116,39 +116,39 @@ def main():
     if not LIC_FILE.exists():
         print(f"Error: License file not found: {LIC_FILE}")
         return
-    
+
     patterns = load_patterns(LIC_FILE)
-    
+
     if not patterns:
         print("No patterns found. Exiting.")
         return
-    
+
     print()
-    
+
     # Find all text files recursively
     cwd = Path.cwd()
-    all_files = [f for f in cwd.rglob('*') if f.is_file() and should_process_file(f)]
-    
+    all_files = [f for f in cwd.rglob("*") if f.is_file() and should_process_file(f)]
+
     if not all_files:
         print("No files to process.")
         return
-    
+
     print(f"Found {len(all_files)} file(s) to process.")
     print(f"Using {NUM_WORKERS} worker(s).\n")
     print("Processing...\n")
-    
+
     # Prepare arguments for workers
     worker_args = [(file_path, patterns) for file_path in all_files]
-    
+
     # Process files in parallel
     with Pool(processes=NUM_WORKERS) as pool:
         results = pool.map(clean_file_worker, worker_args)
-    
+
     # Print results
     success_count = 0
     modified_count = 0
     error_count = 0
-    
+
     for file_path, success, message in results:
         if success:
             if "no changes" not in message:
@@ -160,7 +160,7 @@ def main():
         else:
             print(f"✗ Error: {file_path} - {message}")
             error_count += 1
-    
+
     print(f"\nDone.")
     print(f"  Processed: {success_count}/{len(all_files)} file(s)")
     print(f"  Modified: {modified_count} file(s)")
