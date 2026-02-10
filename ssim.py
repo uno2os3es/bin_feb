@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import argparse
+import os
+import shutil
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import os
 from pathlib import Path
-import shutil
 
 import ssdeep
-from tqdm import tqdm
 import xxhash
+from tqdm import tqdm
 
 EXCLUDE_DIRS = {".git", "__pycache__", "node_modules"}
 
@@ -102,7 +102,8 @@ class FileSimilarityDetector:
                 # KEEP ONE, DELETE REST
                 for victim in group[1:]:
                     try:
-                        Path(victim).unlink()
+                         print(victim)
+#                        Path(victim).unlink()
                     except Exception as e:
                         print(f"Failed to delete {victim}: {e}")
             else:

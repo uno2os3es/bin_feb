@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 
+import subprocess
 from multiprocessing import Pool
 from pathlib import Path
-import subprocess
 from time import perf_counter
 
 from fastwalk import walk_files

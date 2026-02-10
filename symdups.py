@@ -5,10 +5,10 @@ Finds duplicate files and replaces them with symlinks to save space.
 """
 
 import argparse
-from collections import defaultdict
-from datetime import datetime
 import json
 import os
+from collections import defaultdict
+from datetime import datetime
 
 import xxhash
 

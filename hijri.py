@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import datetime
 
-from dh import perprint, georgian_to_hijri
+from dh import georgian_to_hijri, perprint
 
 
 def get_current_ymd():

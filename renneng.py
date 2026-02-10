@@ -1,10 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
+
+import regex as re
+
+
+from fastwalk import walk_files
 from pathlib import Path
 
+
 from deep_translator import GoogleTranslator
-import regex as re
-import rignore
 
 # Directory to scan
 DIRECTORY = "."
@@ -47,36 +51,36 @@ def get_unique_path(path: Path) -> Path:
 
 
 def rename_files(directory: str):
-    for filepath in rignore.walk(directory):
-        fp = Path(filepath)
+    for pth in walk_files(directory):
+        path = Path(filepath)
 
         # Handle files
-        if fp.is_file():
-            new_name = translate_if_needed(fp.name)
+        if path.is_file():
+            new_name = translate_if_needed(path.name)
 
             # Skip if no change
-            if new_name == fp.name:
+            if new_name == path.name:
                 continue
 
-            new_path = fp.parent / new_name
+            new_path = path.parent / new_name
             new_path = get_unique_path(new_path)
 
-            os.rename(fp, new_path)
-            print(f"File renamed: {fp.name} -> {new_path.name}")
+            os.rename(path, new_path)
+            print(f"File renamed: {path.name} -> {new_path.name}")
 
         # Handle directories
-        elif fp.is_dir():
-            new_name = translate_if_needed(fp.name)
+        elif path.is_dir():
+            new_name = translate_if_needed(path.name)
 
             # Skip if no change
-            if new_name == fp.name:
+            if new_name == path.name:
                 continue
 
-            new_path = fp.parent / new_name
+            new_path = path.parent / new_name
             new_path = get_unique_path(new_path)
 
-            os.rename(fp, new_path)
-            print(f"Directory renamed: {fp.name} -> {new_path.name}")
+            os.rename(path, new_path)
+            print(f"Directory renamed: {path.name} -> {new_path.name}")
 
 
 if __name__ == "__main__":

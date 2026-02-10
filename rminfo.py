@@ -3,7 +3,8 @@
 
 import os
 
-import rignore
+from fastwalk import walk_files
+from pathlib import Path
 
 
 def is_python_file(path: str) -> bool:
@@ -63,13 +64,12 @@ def remove_header(path) -> None:
 
 
 def main() -> None:
-    for path in rignore.walk("."):
+    for pth in walk_files("."):
+        path=Path(pth)
         if is_python_file(path):
             remove_header(path)
 
 
-#            else:
-#                print(f'{os.path.relpath(path)} is not a python file')
 
 if __name__ == "__main__":
     main()

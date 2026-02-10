@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from pathlib import Path
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 
 def safe_mkdir(base: Path) -> Path:

@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from multiprocessing import Pool, cpu_count
 import os
 import pathlib
 import shutil
+from multiprocessing import Pool, cpu_count
 
 # File extensions to delete
 FILE_EXTENSIONS = [".pyc", ".log", ".bak"]

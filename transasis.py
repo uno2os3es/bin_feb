@@ -2,9 +2,13 @@
 import os
 import sys
 
-from deep_translator import GoogleTranslator
 import regex as re
-import rignore
+from deep_translator import GoogleTranslator
+from fastwalk import walk_files
+from pathlib import Path
+
+
+
 
 # Directory containing your files
 DIRECTORY = "."
@@ -58,11 +62,19 @@ def translate_file(filepath):
 
 
 def translate_folder(directory):
-    for filepath in rignore.walk(directory):
-        if os.path.isfile(filepath):
-            translate_file(filepath)
+    for pth in walk_files(directory):
+        path=Path(pth)
+        if path.is_file():
+            translate_file(path)
 
 
 if __name__ == "__main__":
-    translate_file(sys.argv[1])
-#    translate_folder(DIRECTORY)
+    choice=input("translate a f)ile or d)ir?")
+    if choice =='d':
+        translate_folder(DIRECTORY)
+    elif choice=='f':
+        fn=input('filename:').strip()
+        translate_file(fn)
+    else:
+        print("enter d for dir and f for file.")
+        sys.exit(1)

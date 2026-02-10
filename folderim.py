@@ -3,8 +3,9 @@ import json
 import os
 import shutil
 from pathlib import Path
-from PIL import Image
+
 import dh
+from PIL import Image
 
 # -------- CONFIG --------
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
@@ -40,8 +41,7 @@ def main():
         h = compute_hash(img)
         if h is not None:
             hashes[img] = h
-    with open("phashes.json", "w") as f:
-        json.dump(f, hashes)
+
     groups = []
 
     for img, h in hashes.items():
@@ -57,15 +57,16 @@ def main():
         if not placed:
             groups.append([(img, h)])
 
-    # Create folders and move files
+    # Create folders and move files only if there are multiple images in a group
     for idx, group in enumerate(groups, start=1):
-        folder = cwd / f"{OUT_PREFIX}{idx:03d}"
-        folder.mkdir(exist_ok=True)
+        if len(group) > 1:  # Only create a folder if there are multiple images
+            folder = cwd / f"{OUT_PREFIX}{idx:03d}"
+            folder.mkdir(exist_ok=True)
 
-        for img, _ in group:
-            shutil.move(str(img), folder / img.name)
+            for img, _ in group:
+                shutil.move(str(img), folder / img.name)
 
-    print(f"Done. Created {len(groups)} groups.")
+    print(f"Done. Created {len([g for g in groups if len(g) > 1])} groups with multiple images.")
 
 
 if __name__ == "__main__":

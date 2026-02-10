@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def load_json_object(path):

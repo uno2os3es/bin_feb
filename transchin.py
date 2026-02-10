@@ -1,11 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/python
 
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 
-from deep_translator import GoogleTranslator
 import regex as re
-import rignore
+from fastwalk import walk_files
+from pathlib import Path
+from dh import is_text_file
+from deep_translator import GoogleTranslator
 
 DIRECTORY = "."
 CHUNK_SIZE = 2000  # characters per chunk (safe for Google Translate)
@@ -14,14 +15,6 @@ CHUNK_SIZE = 2000  # characters per chunk (safe for Google Translate)
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
-def is_text_file(path: Path) -> bool:
-    """Check if file is likely text (not binary)."""
-    try:
-        with open(path, "rb") as f:
-            chunk = f.read(2048)
-        return b"\x00" not in chunk
-    except OSError:
-        return False
 
 
 def split_into_chunks(text: str, size: int):
@@ -73,12 +66,13 @@ def translate_file(path: Path):
 
 
 def process_directory(directory: str):
-    for filepath in rignore.walk(directory):
-        fp = Path(filepath)
+    for pth in walk_files(directory):
+        path = Path(pth)
 
-        if fp.is_file() and is_text_file(fp):
-            translate_file(fp)
+        if path.is_file() and is_text_file(path):
+            translate_file(path)
 
 
 if __name__ == "__main__":
     process_directory(DIRECTORY)
+

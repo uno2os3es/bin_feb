@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/python
 
 import ast
-from pathlib import Path
 import shutil
 import sys
+from pathlib import Path
 
 import regex as re
 

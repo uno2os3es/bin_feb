@@ -3,8 +3,8 @@
 Batch operations for .so file stripping with ctypes verification.
 """
 
-from pathlib import Path
 import time
+from pathlib import Path
 
 from dh import SoFileStripper
 

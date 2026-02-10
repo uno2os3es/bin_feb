@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
 
-from bs4 import BeautifulSoup
 import cssbeautifier
 import yapf
+from bs4 import BeautifulSoup
 
 # Function to beautify HTML file
 

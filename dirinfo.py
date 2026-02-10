@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from collections import defaultdict
 import os
+from collections import defaultdict
 
 
 def scan_directory(path="."):

@@ -5,15 +5,15 @@ Uses fastwalk.walk (Rust jwalk-based) for fast, non-symlink traversal.
 """
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import fnmatch
-from pathlib import Path
-from queue import Queue
 import tarfile
 import threading
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from queue import Queue
 
-import rignore
+from fastwalk import walk_files
+from pathlib import Path
 
 # -------------------- Globals --------------------
 
@@ -227,18 +227,19 @@ def main():
     print("=" * 80)
 
     files = []
-    for entry in rignore.walk(root):
-        if entry.is_dir():
+    for pth in walk_files(root):
+        path=Path(pth)
+        if path.is_dir():
             continue
-        if should_skip_file(entry):
+        if should_skip_file(path):
             continue
         if is_excluded(
-            entry,
+            path,
             excluded_dirs,
             excluded_patterns,
         ):
             continue
-        files.append(entry)
+        files.append(path)
 
     print(f"[INFO] Files queued: {len(files)}\n")
 

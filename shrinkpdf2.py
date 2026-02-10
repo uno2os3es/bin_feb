@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 
 def human_size(num_bytes: int) -> str:

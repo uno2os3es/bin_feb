@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
+import compileall
 import os
+import subprocess
 from collections import deque
-from time import perf_counter
 from multiprocessing import Pool
-from fastwalk import walk
 from pathlib import Path
 from sys import exit
-import compileall
-import subprocess
+from time import perf_counter
+
+from fastwalk import walk
 
 
 def process_file(fp):

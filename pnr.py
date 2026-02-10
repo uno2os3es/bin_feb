@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 
+
 def get_unique_name(path, base_name):
     """Generate a unique name by appending _number if name exists."""
     if not os.path.exists(os.path.join(path, base_name)):

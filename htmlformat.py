@@ -1,16 +1,17 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from concurrent.futures import ThreadPoolExecutor
 
-import dh
-import rignore
+from multiprocessing import Pool
+from pathlib import Path
+
+from fastwalk import walk_files
 
 
-def splitby(fname):
-    print(f"processing {fname.stem}")
-    with open(fname, encoding="utf-8", errors="ignore") as f:
+def splitby(fp):
+    print(f"processing {fp.name}")
+    with open(fp, encoding="utf-8", errors="ignore") as f:
         content = f.read()
     parts = content.split(">")
-    with open(fname, "w", encoding="utf-8") as f:
+    with open(fp, "w", encoding="utf-8") as f:
         for part in parts:
             f.write(part.strip() + ">\n")
     return 0
@@ -18,8 +19,8 @@ def splitby(fname):
 
 def collectfiles(dir):
     filez = []
-    for pth in rignore.walk(dir):
-        path = dh.Path(pth)
+    for pth in walk_files(dir):
+        path = Path(pth)
         if path.is_symlink():
             continue
         if path.is_file() and (path.suffix in {".html", ".htm", ".xml", ".svg", ".mhtml"}):
@@ -29,9 +30,10 @@ def collectfiles(dir):
 
 def main() -> None:
     files = collectfiles(".")
-    print(f"{len(files)} files found")
-    with ThreadPoolExecutor(max_workers=12) as ex:
-        ex.map(splitby, files)
+    with Pool(8) as pool:
+        for result in pool.imap_unordered(splitby, files):
+            if result:
+                print(result)
 
 
 if __name__ == "__main__":

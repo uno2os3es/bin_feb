@@ -4,8 +4,10 @@ from multiprocessing import Pool
 from sys import exit
 from time import perf_counter
 
-from rignore import walk
+from fastwalk import walk_files
+from pathlib import Path
 
+shebang="#!/data/data/com.termux/files/usr/bin/python\n\n"
 
 def process_file(fp):
     if not fp.exists() or fp.is_symlink():
@@ -21,6 +23,7 @@ def process_file(fp):
         for k in data[1:]:
             newdata.append(k)
     else:
+        newdata.append(shebang)
         newdata.append("import regex as re\nimport os\n")
         for k in data:
             newdata.append(k)
@@ -33,16 +36,12 @@ def process_file(fp):
 def main():
     start = perf_counter()
     files = []
-    for path in walk("."):
-        if path.is_dir() or path.is_symlink():
-            continue
+    for pth in walk_files("."):
+        path=Path(pth)
         if path.is_file() and path.suffix == ".py":
             files.append(path)
-    pool = Pool(12)
-    for f in files:
-        _ = pool.apply_async(process_file, ((f),))
-    pool.close()
-    pool.join()
+    with Pool(8) as pool
+        pool.imap_unordered(process_file, files)
 
     print(f"{perf_counter() - start} sec")
 

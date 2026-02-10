@@ -2,16 +2,20 @@
 import os
 
 from ascii_magic import AsciiArt
-import rignore
 
-IMG_EXT = [".jpg", ".png", ".jpeg"]
+from fastwalk import walk_files
+from pathlib import Path
+from dh import IMG_EXT
+
+
 
 
 def getimg(dir="."):
     img_files = []
-    for fpath in rignore.walk(dir):
-        if fpath.suffix in IMG_EXT:
-            img_files.append(fpath)
+    for pth in walk_filrs(dir):
+        path=Path(pth)
+        if path.suffix in IMG_EXT:
+            img_files.append(path)
     return img_files
 
 

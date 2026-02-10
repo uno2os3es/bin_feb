@@ -508,7 +508,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) == 1:
         # Show current date and time by default
-        print(jdate())
+        print(jcal())
 
     elif sys.argv[1] == "jdate":
         # jdate command

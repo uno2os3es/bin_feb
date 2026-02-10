@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # file: move_binary_files.py
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 from dh import is_binary_file
 

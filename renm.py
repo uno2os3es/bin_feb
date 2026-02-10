@@ -1,12 +1,15 @@
 #!/data/data/com.termux/files/usr/bin/python
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
-from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from deep_translator import GoogleTranslator
 import regex as re
-import rignore
+from deep_translator import GoogleTranslator
 from tqdm import tqdm
+
+from fastwalk import walk_files
+from pathlib import Path
+frombdh import unique_path
+
 
 DIRECTORY = "."
 
@@ -41,17 +44,12 @@ def translate_name(name):
 
 
 def rename_files(directory):
-    # Collect all paths using rignore
-    paths = [Path(p) for p in rignore.walk(directory)]
-
-    # Filter unique names needing translation to avoid redundant API calls
+    paths = [Path(p) for p in walk_files(directory)]
     unique_names_to_translate = list({p.name for p in paths if not is_english(p.name)})
 
     translation_map = {}
 
-    # Parallel translation using ThreadPoolExecutor
-    # max_workers can be higher than CPU count for network I/O tasks
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(8) as executor:
         futures = [executor.submit(translate_name, name) for name in unique_names_to_translate]
 
         for future in tqdm(
@@ -62,8 +60,6 @@ def rename_files(directory):
             original, translated = future.result()
             translation_map[original] = translated
 
-    # Apply renaming (sorted by depth to avoid breaking paths of sub-files)
-    # Note: If rignore.walk returns full paths, we process them.
     for fp in sorted(
         paths,
         key=lambda x: len(x.parts),
@@ -77,13 +73,7 @@ def rename_files(directory):
             continue
 
         new_fp = fp.with_name(new_name)
-
-        # Handle collisions
-        counter = 1
-        while new_fp.exists():
-            base, ext = os.path.splitext(new_name)
-            new_fp = fp.with_name(f"{base}_{counter}{ext}")
-            counter += 1
+        new_fp=uniq_path(new_fp)
 
         try:
             os.rename(fp, new_fp)

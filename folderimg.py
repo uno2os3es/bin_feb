@@ -2,8 +2,9 @@
 
 import shutil
 from pathlib import Path
-from PIL import Image
+
 import dh
+from PIL import Image
 
 # ---------- CONFIG ----------
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}

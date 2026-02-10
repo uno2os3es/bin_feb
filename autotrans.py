@@ -1,10 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/python
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 
-from deep_translator import GoogleTranslator
 import regex as re
-import rignore
+from deep_translator import GoogleTranslator
+from fastwalk import walk_files
+from pathlib import Path
 
 # Directory to scan
 DIRECTORY = "."
@@ -94,11 +94,11 @@ def process_directory(directory: str):
     files = []
 
     # Collect eligible files
-    for filepath in rignore.walk(directory):
-        fp = Path(filepath)
-        if fp.is_file() and is_text_file(fp):
-            files.append(fp)
-            print(f"[FOUND] Text file: {fp}")
+    for pth in walk_files(directory):
+        path = Path(pth)
+        if path.is_file() and is_text_file(path):
+            files.append(path)
+            print(f"[FOUND] Text file: {path}")
 
     print(f"\n[INFO] Total text files found: {len(files)}")
 

@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""
-Enhanced tmux transcript cleaner - PRESERVES NEWLINES.
-Removes ANSI/tmux artifacts while keeping line structure intact.
-"""
-
 import os
 import sys
+from multiprocessing import Pool
+from pathlib import Path
 
 import regex as re
+from fastwalk import walk_files
 
 
-def clean_terminal_transcript(path: str) -> None:
+def clean_log(path):
     """Clean tmux artifacts while preserving newlines and line structure."""
-
+    print(f"[] {path}")
     # Comprehensive ANSI + tmux escape sequences [web:12][web:33]
     ansi_tmux_re = re.compile(
         rb"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])|" rb"\x08|\x0C|\x0F|\x18|\x1C|" rb"\(\d+[a-z]\(B|\(0[Bqtxl]\(B"
@@ -66,16 +64,12 @@ def clean_terminal_transcript(path: str) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        print(f"Usage: {os.path.basename(sys.argv[0])} <transcript_file>")
-        sys.exit(1)
+    files=[]
+    for pth in walk_files("."):
+        path=Path(pth)
+        if path.is_file() and path.suffix=='.log':
+            clean_log(path)
 
-    fname = sys.argv[1]
-    if not os.path.isfile(fname):
-        print(f"Error: '{fname}' not found")
-        sys.exit(1)
-
-    clean_terminal_transcript(fname)
 
 
 if __name__ == "__main__":

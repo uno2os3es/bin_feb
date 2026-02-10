@@ -7,10 +7,10 @@ Remove Python docstrings and comments safely.
 
 import ast
 import io
-from pathlib import Path
 import shutil
 import sys
 import tokenize
+from pathlib import Path
 
 
 class SourceCleaner:

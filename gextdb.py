@@ -2,8 +2,8 @@
 import argparse
 import ast
 import os
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 from typing import Any
 
 import regex as re

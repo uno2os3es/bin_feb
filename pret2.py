@@ -6,9 +6,9 @@ Excludes .min.js and .min.css files.
 """
 
 import os
-from pathlib import Path
 import shutil
 import subprocess
+from pathlib import Path
 
 # File extensions to format
 EXTENSIONS = {".js", ".css", ".html", ".json", ".mjs", ".cjs", ".ts", ".jsx", ".tsx"}

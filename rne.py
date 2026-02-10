@@ -1,10 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/python
 import os
+
+import regex as re
+from deep_translator import GoogleTranslator
+
+from fastwalk import walk_files
 from pathlib import Path
 
-from deep_translator import GoogleTranslator
-import regex as re
-import rignore
+
 
 DIRECTORY = "."
 
@@ -29,45 +32,43 @@ def translate_filename(filename):
 
 
 def rename_files(directory):
-    for filepath in rignore.walk(directory):
-        fp = Path(filepath)
 
-        # Skip root directory
-        if fp.name == ".":
-            continue
+    for pth in walk_files(directory):
+        path = Path(pth)
+
 
         # Skip already-English names
-        if is_english(fp.name):
+        if is_english(path.name):
             continue
 
         # --- FILES ---
-        if fp.is_file():
-            original_fp = fp
-            new_name = translate_filename(fp.name)
-            new_fp = fp.with_name(new_name)
+        if path.is_file():
+            original_path = path
+            new_name = translate_filename(path.name)
+            new_path = path.with_name(new_name)
 
             counter = 1
-            while new_fp.exists():
+            while new_path.exists():
                 name, ext = os.path.splitext(new_name)
-                new_fp = fp.with_name(f"{name}_{counter}{ext}")
+                new_path = path.with_name(f"{name}_{counter}{ext}")
                 counter += 1
 
-            os.rename(original_fp, new_fp)
-            print(f"Renamed file: {original_fp.name} -> {new_fp.name}")
+            os.rename(original_path, new_path)
+            print(f"Renamed file: {original_path.name} -> {new_path.name}")
 
         # --- DIRECTORIES ---
-        elif fp.is_dir():
-            original_fp = fp
-            new_name = translate_filename(fp.name)
-            new_fp = fp.with_name(new_name)
+        elif path.is_dir():
+            original_path = path
+            new_name = translate_filename(path.name)
+            new_path = path.with_name(new_name)
 
             counter = 1
-            while new_fp.exists():
-                new_fp = Path(f"{original_fp}_{counter}")
+            while new_path.exists():
+                new_path = Path(f"{original_path}_{counter}")
                 counter += 1
 
-            os.rename(original_fp, new_fp)
-            print(f"Renamed directory: {original_fp.name} -> {new_fp.name}")
+            os.rename(original_path, new_path)
+            print(f"Renamed directory: {original_path.name} -> {new_path.name}")
 
 
 if __name__ == "__main__":

@@ -1,10 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/python
-from collections import deque
 import os
 import subprocess
+from collections import deque
 from multiprocessing import Pool
-from fastwalk import walk_files
 from pathlib import Path
+
+from fastwalk import walk_files
+
 
 def find_png_files(directory):
     """Recursively find all .png files in the given directory."""
@@ -38,14 +40,9 @@ def main():
 
     print(f"Found {len(png_files)} PNG files to optimize.")
     with Pool(8) as pool:
-        pending=deque()
-        pending.append(
-            pool.imap_unordered(optimize_png,png_files)
-        )
-        if len(pending)>16:
-            pending.popleft().get()
-        while pending:
-            pending.popleft().get()
+        for result in pool.imap_unordered(optimize_png,png_files):
+            if result:
+                print(result)
     
     print(f"\nOptimization complete. Success: {success}/{len(png_files)} files.")
 

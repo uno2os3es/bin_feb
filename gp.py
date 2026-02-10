@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from datetime import datetime
-from pathlib import Path
 import subprocess
 import sys
+from datetime import datetime
+from pathlib import Path
 
 
 def run(cmd) -> None:

@@ -1,15 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/python
 import ast
 import io
-from multiprocessing import Pool, cpu_count
-from pathlib import Path
 import shutil
 import tempfile
 import tokenize
+from multiprocessing import Pool
 
-from deep_translator import GoogleTranslator
 import regex as re
-import rignore
+from deep_translator import GoogleTranslator
+from fastwalk import walk_files
+from pathlib import Path
+
 from tqdm import tqdm
 
 DIRECTORY = "."
@@ -34,7 +35,7 @@ def translate_chunk(chunk: str) -> str:
 
 def translate_text(text: str) -> str:
     chunks = chunk_text(text)
-    with Pool(cpu_count()) as pool:
+    with Pool(8) as pool:
         translated = list(pool.imap(translate_chunk, chunks))
     return "".join(translated)
 
@@ -108,7 +109,7 @@ def translate_python_file(source: str) -> str:
 
 
 def process_files(directory: str) -> None:
-    paths = [Path(p) for p in rignore.walk(directory)]
+    paths = [Path(p) for p in walk_files(directory)]
     files = [p for p in paths if p.is_file()]
 
     for fp in tqdm(files, desc="Scanning files"):

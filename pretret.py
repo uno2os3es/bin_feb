@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
-from pathlib import Path
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 from sys import exit
 from time import perf_counter
 

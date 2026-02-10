@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import csv
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def csv_to_json_map(csv_file):

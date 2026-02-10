@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import pathlib
-from sys import exit,argv
+from sys import argv, exit
 
 
 def main() -> None:

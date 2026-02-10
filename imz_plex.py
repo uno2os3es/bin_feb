@@ -6,13 +6,13 @@ Uses /sdcard/whl/pip.txt for package validation
 """
 
 import ast
-from collections import defaultdict
-from pathlib import Path
 import tarfile
 import zipfile
+from collections import defaultdict
+from pathlib import Path
 
-from dh import STDLIB
 import regex as re
+from dh import STDLIB
 
 # Termux shebang patterns
 SHEBANG_PATTERNS = [
