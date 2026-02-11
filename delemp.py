@@ -6,12 +6,12 @@ from pathlib import Path
 from sys import exit
 from time import perf_counter
 
-from dh import BIN_EXT, TXT_EXT, is_binary_file
+from dh import BIN_EXT, TXT_EXT, is_binary
 from fastwalk import walk_files
 
 
 def process_file(filepath):
-    if is_binary_file(filepath):
+    if is_binary(filepath):
         return False
     try:
         before = filepath.stat().st_size

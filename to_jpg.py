@@ -5,6 +5,7 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import time
+from dh import is_image
 
 try:
     import cv2
@@ -16,15 +17,6 @@ except ImportError:
 
     USE_CV2 = False
 
-SF = {
-    ".png",
-    ".bmp",
-    ".tiff",
-    ".webp",
-    ".ico",
-    ".jpg",
-    ".jpeg",
-}
 IGNORED_DIRS = {
     ".git",
     "dist",
@@ -115,10 +107,6 @@ def convert_file(file_path: str) -> bool:
         return False
 
 
-def is_image_file(path: Path) -> bool:
-    if path.suffix in SF:
-        return True
-    return None
 
 
 def main() -> None:
@@ -128,12 +116,12 @@ def main() -> None:
     start_time = time.perf_counter()
 
     if args.files:
-        files = [Path(f) for f in args.files if Path(f).is_file() and is_image_file(Path(f))]
+        files = [Path(f) for f in args.files if Path(f).is_file() and is_image(Path(f))]
     else:
         files = [
             f
             for f in Path(".").rglob("*")
-            if f.is_file() and not any(part in IGNORED_DIRS for part in f.parts) and is_image_file(f)
+            if f.is_file() and not any(part in IGNORED_DIRS for part in f.parts) and is_image(f)
         ]
 
     if not files:

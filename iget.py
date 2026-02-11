@@ -77,7 +77,7 @@ class MultiPartDownloader:
 if __name__ == "__main__":
     url = input("Enter the file URL: ")
     output_path = input("Enter the output file path: ")
-    num_threads = int(input("Enter the number of threads (default 4): ") or 4)
+    num_threads = int(input("Enter the number of threads (default 4): ") or 8)
 
     downloader = MultiPartDownloader(url, output_path, num_threads)
     downloader.download()

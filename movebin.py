@@ -4,7 +4,7 @@
 from pathlib import Path
 import shutil
 
-from dh import is_binary_file
+from dh import is_binary
 
 
 def main():
@@ -14,7 +14,7 @@ def main():
 
     files_moved = 0
     for f in current_dir.iterdir():
-        if f.is_file() and is_binary_file(Path(f)):
+        if f.is_file() and is_binary(Path(f)):
             try:
                 shutil.move(str(f), binary_dir / f.name)
                 print(f"Moved: {f.name} -> binary/{f.name}")

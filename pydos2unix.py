@@ -19,7 +19,7 @@ from multiprocessing import Pool
 import os
 from pathlib import Path
 
-from dh import is_binary_file
+from dh import is_binary
 from tqdm import tqdm
 
 
@@ -80,7 +80,7 @@ def safe_convert(path: Path, dry_run: bool = False) -> str:
     if not path.is_file():
         return "SKIP_NOT_FILE"
 
-    if is_binary_file(path):
+    if is_binary(path):
         return "SKIP_BINARY"
 
     if not needs_conversion(path):

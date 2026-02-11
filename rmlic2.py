@@ -4,7 +4,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 from pathlib import Path
 
-from dh import is_binary_file
+from dh import is_binary
 
 c_ext = {".h", ".hh", ".hpp", ".hxx", ".c", ".cc", ".cxx", ".cpp", ".cfg"}
 EXCLUDE_DIRS = {".git", "__pycache__"}
@@ -46,7 +46,7 @@ def load_patterns_from_file(
 
 def process_file(path, patterns) -> str | None:
     """Worker function: Performs the string replacement."""
-    if is_binary_file(path):
+    if is_binary(path):
         return f"Skipping binary: {path}"
 
     try:

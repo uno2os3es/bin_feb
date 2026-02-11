@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-
+from dh import unique_path
 # File extensions to format
 EXTENSIONS = {".js", ".css", ".html", ".json", ".mjs", ".cjs", ".ts", ".jsx", ".tsx"}
 
@@ -46,12 +46,7 @@ def move_to_error_folder(file_path: Path) -> None:
     error_dir.mkdir(exist_ok=True)
 
     dest = error_dir / file_path.name
-    counter = 1
-
-    while dest.exists():
-        dest = error_dir / f"{file_path.stem}_{counter}{file_path.suffix}"
-        counter += 1
-
+    dest=unique_path(dest)
     shutil.move(str(file_path), str(dest))
     print(f"  ❌ Moved to error folder: {dest}")
 

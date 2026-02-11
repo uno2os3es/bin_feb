@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
-import re
-
+import regex as re
+from dh import BIN_EXT,TXT_EXT, is_binary
 # -------- CONFIG --------
 LIC_FILE = Path("/sdcard/lic")
 MIN_BLANK_LINES = 3  # Minimum blank lines to separate patterns
-NUM_WORKERS = cpu_count()
-EXCLUDE_EXTS = {".pyc", ".so", ".o", ".a", ".exe", ".dll"}  # Binary files to skip
+NUM_WORKERS = max(cpu_count(),8)
+EXCLUDE_EXTS = BIN_EXT
 # ------------------------
 
 
@@ -66,22 +66,15 @@ def should_process_file(file_path: Path) -> bool:
     # Skip binary files
     if file_path.suffix.lower() in EXCLUDE_EXTS:
         return False
+    if file_path.suffix.lower() in TXT_EXT:
+        return True
 
-    # Skip hidden files
     if file_path.name.startswith("."):
         return False
-
-    # Try to detect if it's a text file
-    try:
-        with open(file_path, "rb") as f:
-            chunk = f.read(1024)
-            # Check for null bytes (binary file indicator)
-            if b"\x00" in chunk:
-                return False
-        return True
-    except:
+    if is_binary(file_path):
         return False
-
+    else:
+        return True
 
 def clean_file_worker(args: tuple) -> tuple:
     """Worker function to clean a single file."""

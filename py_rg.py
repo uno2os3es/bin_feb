@@ -12,7 +12,7 @@ import stat
 import sys
 from typing import TYPE_CHECKING
 
-from dh import is_binary_file
+from dh import is_binary
 import regex as re
 
 if TYPE_CHECKING:
@@ -306,7 +306,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Worker: skip binary files quickly, then search
     def worker(path: str):
-        if is_binary_file(path):
+        if is_binary(path):
             return path, []
         return search_file_text_mode(
             path,
