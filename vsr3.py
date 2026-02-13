@@ -20,9 +20,7 @@ except ImportError:
     sys.exit(1)
 
 
-def find_dist_info_dirs(
-    site_packages: Path,
-) -> list[Path]:
+def find_dist_info_dirs(site_packages: Path, ) -> list[Path]:
     """Find all .dist-info and .egg-info directories in site-packages."""
     dist_dirs = []
     dist_dirs.extend(site_packages.glob("*.dist-info"))
@@ -30,9 +28,7 @@ def find_dist_info_dirs(
     return sorted(dist_dirs)
 
 
-def get_package_name_version(
-    dist_dir: Path,
-) -> tuple:
+def get_package_name_version(dist_dir: Path, ) -> tuple:
     """Extract package name and version from dist-info directory name."""
     name = dist_dir.name
     if name.endswith(".dist-info"):
@@ -47,7 +43,8 @@ def get_package_name_version(
     return parts[0], "0.0.0"
 
 
-def read_record_file(dist_dir: Path, site_packages: Path) -> tuple[list[Path], set[Path]]:
+def read_record_file(dist_dir: Path,
+                     site_packages: Path) -> tuple[list[Path], set[Path]]:
     """
     Read RECORD file and return list of existing files and set of missing files.
     Returns: (existing_files, missing_files)
@@ -60,9 +57,9 @@ def read_record_file(dist_dir: Path, site_packages: Path) -> tuple[list[Path], s
     missing_files = set()
 
     with open(
-        record_file,
-        newline="",
-        encoding="utf-8",
+            record_file,
+            newline="",
+            encoding="utf-8",
     ) as f:
         reader = csv.reader(f)
         for row in reader:
@@ -71,7 +68,8 @@ def read_record_file(dist_dir: Path, site_packages: Path) -> tuple[list[Path], s
 
             file_path = row[0]
             # Handle both absolute and relative paths
-            full_path = Path(file_path) if os.path.isabs(file_path) else site_packages / file_path
+            full_path = Path(file_path) if os.path.isabs(
+                file_path) else site_packages / file_path
 
             # Skip .pyc files as per requirements
             if full_path.suffix == ".pyc":
@@ -86,9 +84,7 @@ def read_record_file(dist_dir: Path, site_packages: Path) -> tuple[list[Path], s
     return existing_files, missing_files
 
 
-def get_wheel_tag(
-    dist_dir: Path,
-) -> str | None:
+def get_wheel_tag(dist_dir: Path, ) -> str | None:
     """Extract wheel tag from WHEEL file in dist-info directory."""
     wheel_file = dist_dir / "WHEEL"
     if not wheel_file.exists():
@@ -157,7 +153,10 @@ def create_wheel(
             str(output_dir),
         ]
 
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        result = subprocess.run(cmd,
+                                check=False,
+                                capture_output=True,
+                                text=True)
 
         if result.returncode == 0:
             return True
@@ -166,9 +165,9 @@ def create_wheel(
             import zipfile
 
             with zipfile.ZipFile(
-                wheel_file,
-                "w",
-                zipfile.ZIP_DEFLATED,
+                    wheel_file,
+                    "w",
+                    zipfile.ZIP_DEFLATED,
             ) as whl:
                 for root, _dirs, files in os.walk(temp_dir):
                     for file in files:
@@ -198,7 +197,8 @@ def repack_package(
         return False
 
     # Check for missing critical files (non-.pyc)
-    has_missing_critical = any(f.suffix in [".py", ""] or f.is_dir() for f in missing_files)
+    has_missing_critical = any(f.suffix in [".py", ""] or f.is_dir()
+                               for f in missing_files)
 
     if has_missing_critical:
         # Copy to not_repacked directory
@@ -242,7 +242,8 @@ def repack_package(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Repack installed Python packages as wheels")
+    parser = argparse.ArgumentParser(
+        description="Repack installed Python packages as wheels")
     parser.add_argument(
         "packages",
         nargs="*",
@@ -285,25 +286,28 @@ def main():
     # Filter packages if specific ones requested
     if not args.all:
         pkg_set = set(args.packages)
-        all_dist_dirs = [d for d in all_dist_dirs if get_package_name_version(d)[0] in pkg_set]
+        all_dist_dirs = [
+            d for d in all_dist_dirs
+            if get_package_name_version(d)[0] in pkg_set
+        ]
 
     # Process packages with progress bar
     success_count = 0
     failed_count = 0
 
     with tqdm(
-        total=len(all_dist_dirs),
-        desc="Repacking packages",
+            total=len(all_dist_dirs),
+            desc="Repacking packages",
     ) as pbar:
         for dist_dir in all_dist_dirs:
             pkg_name, _ = get_package_name_version(dist_dir)
             pbar.set_description(f"Repacking {pkg_name}")
 
             if repack_package(
-                dist_dir,
-                site_packages,
-                output_dir,
-                not_repacked_dir,
+                    dist_dir,
+                    site_packages,
+                    output_dir,
+                    not_repacked_dir,
             ):
                 success_count += 1
             else:

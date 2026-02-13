@@ -13,7 +13,9 @@ def clean_file(filename):
         for line in lines:
             # unicodedata.category(c) 'C' stands for 'Other' (Control, Private Use, etc.)
             # This removes non-printing characters but keeps standard spaces and newlines
-            cleaned_line = "".join(ch for ch in line if unicodedata.category(ch)[0] != "C" or ch in "\n\r\t")
+            cleaned_line = "".join(
+                ch for ch in line
+                if unicodedata.category(ch)[0] != "C" or ch in "\n\r\t")
             cleaned_lines.append(cleaned_line)
 
         # Overwrite the file with the cleaned version

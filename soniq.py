@@ -17,13 +17,15 @@ def sort_uniq_inplace(path: Path, by_length: bool) -> None:
     data = path.read_text(encoding="utf-8")
     unique_lines = set(data.splitlines())
 
-    sorted_lines = sorted(unique_lines, key=lambda s: (-len(s), s)) if by_length else sorted(unique_lines)
+    sorted_lines = sorted(unique_lines, key=lambda s:
+                          (-len(s), s)) if by_length else sorted(unique_lines)
 
     path.write_text("\n".join(sorted_lines) + "\n", encoding="utf-8")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Sort and deduplicate a file in place.")
+    parser = argparse.ArgumentParser(
+        description="Sort and deduplicate a file in place.")
     parser.add_argument("filename", type=Path)
     parser.add_argument(
         "-l",

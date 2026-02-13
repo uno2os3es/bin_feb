@@ -18,7 +18,7 @@ suffix = common_suffix(files)
 
 for f in files:
     p = Path(f)
-    core = f[len(prefix) : len(f) - len(suffix)]
+    core = f[len(prefix):len(f) - len(suffix)]
     core = core.strip(".")
     new_name = f"{p.stem.split('.')[0]}.{core}{p.suffix}"
     p.rename(new_name)

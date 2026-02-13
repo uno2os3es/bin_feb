@@ -40,31 +40,24 @@ def is_code_line(line: str) -> bool:
     s = line.strip()
     if not s:
         return True
-    return (
-        s.startswith(
-            (
-                "def ",
-                "class ",
-                "if ",
-                "elif ",
-                "else:",
-                "for ",
-                "while ",
-                "try:",
-                "except ",
-                "finally:",
-                "with ",
-                "return",
-                "import ",
-                "from ",
-                "@",
-                "#",
-            )
-        )
-        or "=" in s
-        or "(" in s
-        or s.endswith(":")
-    )
+    return (s.startswith((
+        "def ",
+        "class ",
+        "if ",
+        "elif ",
+        "else:",
+        "for ",
+        "while ",
+        "try:",
+        "except ",
+        "finally:",
+        "with ",
+        "return",
+        "import ",
+        "from ",
+        "@",
+        "#",
+    )) or "=" in s or "(" in s or s.endswith(":"))
 
 
 def clean_text(text: str) -> str:
@@ -104,7 +97,8 @@ def clean_text(text: str) -> str:
             continue
 
         # Dedent on exits
-        if stripped.startswith(("return", "pass", "break", "continue", "raise")):
+        if stripped.startswith(
+            ("return", "pass", "break", "continue", "raise")):
             out.append(INDENT * indent_level + stripped)
             indent_level = max(indent_level - 1, 0)
             continue

@@ -9,7 +9,11 @@ import regex as re
 
 
 class DocstringRemover:
-    def __init__(self, backup: bool = True, verbose: bool = True, dry_run: bool = False):
+
+    def __init__(self,
+                 backup: bool = True,
+                 verbose: bool = True,
+                 dry_run: bool = False):
         self.backup = backup
         self.verbose = verbose
         self.dry_run = dry_run
@@ -34,7 +38,9 @@ class DocstringRemover:
         path = Path(directory)
 
         for py_file in path.rglob("*.py"):
-            if any(part.startswith(".") or part in ["venv", "__pycache__"] for part in py_file.parts):
+            if any(
+                    part.startswith(".") or part in ["venv", "__pycache__"]
+                    for part in py_file.parts):
                 continue
             python_files.append(py_file)
 
@@ -60,14 +66,15 @@ class DocstringRemover:
                     before = line[:first].rstrip()
 
                     if before.endswith(":") or before.strip() == "":
-                        result_lines.append(line[:first] + line[second + 3 :])
+                        result_lines.append(line[:first] + line[second + 3:])
                         removed_count += 1
                         i += 1
                         continue
 
-                before = line[: line.find(delimiter)].rstrip()
+                before = line[:line.find(delimiter)].rstrip()
 
-                if before.endswith(":") or before.strip() == "" or "=" not in before:
+                if before.endswith(
+                        ":") or before.strip() == "" or "=" not in before:
                     removed_count += 1
                     if before:
                         result_lines.append(before)
@@ -75,7 +82,8 @@ class DocstringRemover:
                     j = i + 1
                     while j < len(lines):
                         if delimiter in lines[j]:
-                            after = lines[j][lines[j].find(delimiter) + 3 :].strip()
+                            after = lines[j][lines[j].find(delimiter) +
+                                             3:].strip()
                             if after:
                                 result_lines.append(after)
                             i = j + 1
@@ -96,7 +104,8 @@ class DocstringRemover:
         try:
             tree = ast.parse(content)
         except SyntaxError:
-            self.log("Failed to parse file with AST, falling back to simple method")
+            self.log(
+                "Failed to parse file with AST, falling back to simple method")
             return self.remove_docstrings_simple(content)
 
         lines = content.split("\n")
@@ -111,12 +120,14 @@ class DocstringRemover:
 
         return "\n".join(lines), len(docstring_ranges)
 
-    def _find_docstring_ranges(self, node, content: str) -> list[tuple[int, int]]:
+    def _find_docstring_ranges(self, node,
+                               content: str) -> list[tuple[int, int]]:
         docstring_ranges = []
         content.split("\n")
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Module)):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                  ast.ClassDef, ast.Module)):
                 docstring = ast.get_docstring(child)
 
                 if docstring:
@@ -146,14 +157,18 @@ class DocstringRemover:
                 cleaned_lines.append(line.rstrip())
         return "\n".join(cleaned_lines) + "\n"
 
-    def process_file(self, file_path: Path, method: str = "ast") -> tuple[bool, int]:
+    def process_file(self,
+                     file_path: Path,
+                     method: str = "ast") -> tuple[bool, int]:
         try:
             original_content = file_path.read_text(encoding="utf-8")
             original_content = self.remove_comments(original_content)
             if method == "ast":
-                modified_content, docstrings_removed = self.remove_docstrings_ast(original_content)
+                modified_content, docstrings_removed = self.remove_docstrings_ast(
+                    original_content)
             else:
-                modified_content, docstrings_removed = self.remove_docstrings_simple(original_content)
+                modified_content, docstrings_removed = self.remove_docstrings_simple(
+                    original_content)
 
             modified_content = self._cleanup_blank_lines(modified_content)
 
@@ -194,9 +209,10 @@ class DocstringRemover:
 
         return "\n".join(lines)
 
-    def process_directory(
-        self, directory: str = ".", method: str = "ast", exclude_patterns: list[str] | None = None
-    ) -> dict:
+    def process_directory(self,
+                          directory: str = ".",
+                          method: str = "ast",
+                          exclude_patterns: list[str] | None = None) -> dict:
         python_files = self.find_python_files(directory)
 
         if not python_files:
@@ -227,6 +243,7 @@ class DocstringRemover:
 
 
 class DocstringValidator:
+
     @staticmethod
     def has_syntax_errors(file_path: Path) -> tuple[bool, str | None]:
         try:
@@ -240,14 +257,23 @@ class DocstringValidator:
     def validate_directory(directory: str = ".") -> dict:
         python_files = list(Path(directory).rglob("*.py"))
 
-        report = {"total_files": len(python_files), "valid_files": 0, "invalid_files": 0, "errors": []}
+        report = {
+            "total_files": len(python_files),
+            "valid_files": 0,
+            "invalid_files": 0,
+            "errors": []
+        }
 
         for file_path in python_files:
-            has_error, error_msg = DocstringValidator.has_syntax_errors(file_path)
+            has_error, error_msg = DocstringValidator.has_syntax_errors(
+                file_path)
 
             if has_error:
                 report["invalid_files"] += 1
-                report["errors"].append({"file": str(file_path), "error": error_msg})
+                report["errors"].append({
+                    "file": str(file_path),
+                    "error": error_msg
+                })
             else:
                 report["valid_files"] += 1
 
@@ -258,7 +284,8 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Remove multi-line docstrings from Python files recursively",
+        description=
+        "Remove multi-line docstrings from Python files recursively",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -272,9 +299,18 @@ Examples:
         """,
     )
 
-    parser.add_argument("directory", nargs="?", default=".", help="Directory to process (default: current directory)")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be removed without modifying files")
-    parser.add_argument("--no-backup", action="store_true", help="Do not create backup files")
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=".",
+        help="Directory to process (default: current directory)")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be removed without modifying files")
+    parser.add_argument("--no-backup",
+                        action="store_true",
+                        help="Do not create backup files")
     parser.add_argument(
         "--method",
         choices=["ast", "simple"],
@@ -282,7 +318,9 @@ Examples:
         help="Removal method: ast (default) or simple (regex-based)",
     )
     parser.add_argument("--verbose", action="store_true", help="verbose mode")
-    parser.add_argument("--no-cleanup", action="store_true", help="Do not clean up blank lines")
+    parser.add_argument("--no-cleanup",
+                        action="store_true",
+                        help="Do not clean up blank lines")
 
     args = parser.parse_args()
 
@@ -294,7 +332,9 @@ Examples:
     print("║        Python Docstring Removal Tool                       ║")
     print("╚════════════════════════════════════════════════════════════╝")
 
-    remover = DocstringRemover(backup=not args.no_backup, verbose=True, dry_run=args.dry_run)
+    remover = DocstringRemover(backup=not args.no_backup,
+                               verbose=True,
+                               dry_run=args.dry_run)
 
     stats = remover.process_directory(args.directory, method=args.method)
 

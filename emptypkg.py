@@ -18,10 +18,10 @@ def is_empty_package(dist_info_path) -> bool:
                 os.path.join(
                     pathlib.Path(dist_info_path).parent,
                     rel_path,
-                )
-            ).resolve()
+                )).resolve()
             # If the file is outside the dist-info directory → not empty
-            if not abs_path.startswith(pathlib.Path(dist_info_path).resolve() + os.sep):
+            if not abs_path.startswith(
+                    pathlib.Path(dist_info_path).resolve() + os.sep):
                 return False
     return True
 

@@ -84,7 +84,8 @@ def download_chunk(
 
     for attempt in range(MAX_RETRIES):
         try:
-            with requests.get(url, headers=headers, stream=True, timeout=15) as r:
+            with requests.get(url, headers=headers, stream=True,
+                              timeout=15) as r:
                 r.raise_for_status()
                 with open(path, "r+b") as f:
                     f.seek(downloaded)
@@ -124,8 +125,7 @@ def download(url: str, output: str, workers: int = 4):
                         end,
                         meta,
                         meta_lock,
-                    )
-                )
+                    ))
 
             for f in as_completed(futures):
                 f.result()

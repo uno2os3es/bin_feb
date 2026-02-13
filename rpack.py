@@ -127,7 +127,8 @@ def repack(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Repack installed Python packages")
+    parser = argparse.ArgumentParser(
+        description="Repack installed Python packages")
     parser.add_argument(
         "packages",
         nargs="*",

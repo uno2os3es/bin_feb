@@ -29,8 +29,14 @@ def modify_classes(html_content):
 
 
 def convert_latex_format(text):
-    text = re.sub(r"\\\[(.*?)\\\]", r'<div class="latex-display">\1</div>', text, flags=re.DOTALL)
-    return re.sub(r"\\\((.*?)\\\)", r'<span class="latex-inline">\1</span>', text, flags=re.DOTALL)
+    text = re.sub(r"\\\[(.*?)\\\]",
+                  r'<div class="latex-display">\1</div>',
+                  text,
+                  flags=re.DOTALL)
+    return re.sub(r"\\\((.*?)\\\)",
+                  r'<span class="latex-inline">\1</span>',
+                  text,
+                  flags=re.DOTALL)
 
 
 def read_markdown_file(file_path):
@@ -40,7 +46,9 @@ def read_markdown_file(file_path):
 
 def convert_markdown(md_path: str) -> str:
     if not md_path:
-        raise ValueError("Markdown file path cannot be empty. Please provide a valid .md file path.")
+        raise ValueError(
+            "Markdown file path cannot be empty. Please provide a valid .md file path."
+        )
     markdown_text = read_markdown_file(md_path)
     markdown_text = convert_latex_format(markdown_text)
     base_name = os.path.basename(md_path).replace(".md", "")

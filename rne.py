@@ -21,7 +21,8 @@ def translate_filename(filename):
     """Translate non-English filename to English."""
     name, ext = os.path.splitext(filename)
     try:
-        translated = GoogleTranslator(source="auto", target="en").translate(name)
+        translated = GoogleTranslator(source="auto",
+                                      target="en").translate(name)
         return translated + ext
     except Exception as e:
         print(f"Translation error for {filename}: {e}")
@@ -64,7 +65,8 @@ def rename_files(directory):
                 counter += 1
 
             os.rename(original_path, new_path)
-            print(f"Renamed directory: {original_path.name} -> {new_path.name}")
+            print(
+                f"Renamed directory: {original_path.name} -> {new_path.name}")
 
 
 if __name__ == "__main__":

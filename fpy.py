@@ -39,8 +39,8 @@ def looks_like_python(code_block) -> bool | None:
 
 def is_python_like(line) -> bool:
     if re.match(
-        r"\s*(def|class|if|elif|else|for|while|try|except|with)\b.*:",
-        line,
+            r"\s*(def|class|if|elif|else|for|while|try|except|with)\b.*:",
+            line,
     ):
         return True
     if re.match(r"\s*@[A-Za-z_]\w*", line):  # decorators
@@ -69,7 +69,8 @@ if __name__ == "__main__":
         filtered = []
 
         for line in lines:
-            if is_python_like(line) or looks_like_python(line) or is_probably_python(line):
+            if is_python_like(line) or looks_like_python(
+                    line) or is_probably_python(line):
                 filtered.append(line)
         print(filtered)
         with open("out.py", "w") as f:

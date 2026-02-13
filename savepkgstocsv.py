@@ -26,23 +26,21 @@ FIELDS = [
     "Bugs",
 ]
 
-FORMAT = (
-    "${binary:Package}\t"
-    "${Version}\t"
-    "${Architecture}\t"
-    "${Status}\t"
-    "${Priority}\t"
-    "${Section}\t"
-    "${Installed-Size}\t"
-    "${Maintainer}\t"
-    "${Homepage}\t"
-    "${binary:Summary}\t"
-    "${Source}\t"
-    "${Essential}\t"
-    "${Multi-Arch}\t"
-    "${Origin}\t"
-    "${Bugs}\n"
-)
+FORMAT = ("${binary:Package}\t"
+          "${Version}\t"
+          "${Architecture}\t"
+          "${Status}\t"
+          "${Priority}\t"
+          "${Section}\t"
+          "${Installed-Size}\t"
+          "${Maintainer}\t"
+          "${Homepage}\t"
+          "${binary:Summary}\t"
+          "${Source}\t"
+          "${Essential}\t"
+          "${Multi-Arch}\t"
+          "${Origin}\t"
+          "${Bugs}\n")
 
 
 def query_packages() -> list[list[str]]:

@@ -55,7 +55,8 @@ def du_sort_python(target_dir="."):
     for entry in current_path.iterdir():
         if entry.is_dir() or entry.is_file():
             # Calculate size for each file/directory
-            size = get_dir_size(entry) if entry.is_dir() else entry.stat().st_size
+            size = get_dir_size(
+                entry) if entry.is_dir() else entry.stat().st_size
             results.append((size, str(entry)))
     # Sort results by size (first element of the tuple), descending order (largest first)
     # The sort order is reversed compared to the shell command's 'sort -h' default

@@ -36,7 +36,8 @@ def black_check(file_path: Path) -> tuple[Path, bool]:
     """
     print(f"[OK] {file_path}")
     result = subprocess.run(
-        ["black", "--check", "--quiet", str(file_path)],
+        ["black", "--check", "--quiet",
+         str(file_path)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )

@@ -6,9 +6,7 @@ from rcssmin import cssmin
 from rjsmin import jsmin
 
 
-def minify_assets_in_directory(
-    root_dir=".",
-) -> None:
+def minify_assets_in_directory(root_dir=".", ) -> None:
     """Recursively finds all JavaScript (.js) and CSS (.css) files in the given
     directory and minifies them in-place, overwriting the originals.
     Uses rjsmin for JS and rcssmin for CSS.
@@ -17,9 +15,9 @@ def minify_assets_in_directory(
     errors_count = 0
     # os.walk iterates through directories recursively
     for (
-        foldername,
-        _subfolders,
-        filenames,
+            foldername,
+            _subfolders,
+            filenames,
     ) in os.walk(root_dir):
         for filename in filenames:
             file_path = os.path.join(foldername, filename)

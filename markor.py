@@ -21,7 +21,10 @@ class GUIFramework:
         self.session_id = None
         self.dialogs = {}
 
-    def show_dialog(self, title: str, message: str, buttons: list[str] | None = None) -> int:
+    def show_dialog(self,
+                    title: str,
+                    message: str,
+                    buttons: list[str] | None = None) -> int:
         """
         Show a dialog box.
 
@@ -45,7 +48,10 @@ class GUIFramework:
         choice = input("Select option: ").strip()
         return int(choice) if choice.isdigit() else 0
 
-    def show_text_input(self, title: str, hint: str = "", multi_line: bool = False) -> str | None:
+    def show_text_input(self,
+                        title: str,
+                        hint: str = "",
+                        multi_line: bool = False) -> str | None:
         """
         Show text input dialog.
 
@@ -86,7 +92,8 @@ class GUIFramework:
         if initial_path is None:
             initial_path = str(Path.home())
 
-        return input(f"Enter file path (starting from {initial_path}): ").strip() or None
+        return input(f"Enter file path (starting from {initial_path}): "
+                     ).strip() or None
 
     def show_toast(self, message: str):
         """Show toast notification."""
@@ -124,17 +131,14 @@ class DocumentFormat(ABC):
     @abstractmethod
     def get_syntax_highlight_rules(self) -> dict[str, str]:
         """Get syntax highlighting rules."""
-        pass
 
     @abstractmethod
     def get_preview(self, content: str) -> str:
         """Get preview of content."""
-        pass
 
     @abstractmethod
     def get_format_actions(self) -> list[str]:
         """Get format-specific quick actions."""
-        pass
 
 
 class MarkdownFormat(DocumentFormat):
@@ -256,7 +260,8 @@ class Document:
         """Load document from file."""
         if self.file_path.exists():
             self.content = self.file_path.read_text(encoding="utf-8")
-            self.last_modified = datetime.fromtimestamp(self.file_path.stat().st_mtime)
+            self.last_modified = datetime.fromtimestamp(
+                self.file_path.stat().st_mtime)
 
     def save(self) -> bool:
         """Save document to file."""
@@ -308,14 +313,22 @@ class Document:
     def get_info(self) -> dict[str, Any]:
         """Get document information."""
         return {
-            "name": self.file_path.name,
-            "path": str(self.file_path),
-            "size_bytes": self.file_path.stat().st_size if self.file_path.exists() else 0,
-            "format": self.format_type,
-            "words": self.get_word_count(),
-            "characters": self.get_char_count(),
-            "lines": self.get_line_count(),
-            "last_modified": self.last_modified.isoformat() if self.last_modified else None,
+            "name":
+            self.file_path.name,
+            "path":
+            str(self.file_path),
+            "size_bytes":
+            self.file_path.stat().st_size if self.file_path.exists() else 0,
+            "format":
+            self.format_type,
+            "words":
+            self.get_word_count(),
+            "characters":
+            self.get_char_count(),
+            "lines":
+            self.get_line_count(),
+            "last_modified":
+            self.last_modified.isoformat() if self.last_modified else None,
         }
 
 
@@ -335,7 +348,10 @@ class FileManager:
         self.root_path = Path(root_path)
         self.root_path.mkdir(parents=True, exist_ok=True)
 
-    def create_document(self, name: str, format_type: str = "markdown", parent_dir: str | None = None) -> Document:
+    def create_document(self,
+                        name: str,
+                        format_type: str = "markdown",
+                        parent_dir: str | None = None) -> Document:
         """Create a new document."""
         file_path = self.root_path / f"{name}.md" if parent_dir is None else self.root_path / parent_dir / f"{name}.md"
 
@@ -371,7 +387,9 @@ class FileManager:
             return True
         return False
 
-    def list_documents(self, folder: str | None = None, recursive: bool = False) -> list[dict[str, Any]]:
+    def list_documents(self,
+                       folder: str | None = None,
+                       recursive: bool = False) -> list[dict[str, Any]]:
         """List documents."""
         search_path = self.root_path / folder if folder else self.root_path
 
@@ -382,15 +400,20 @@ class FileManager:
         pattern = "**/*" if recursive else "*"
 
         for file_path in search_path.glob(pattern):
-            if file_path.is_file() and file_path.suffix in [".md", ".txt", ".json"]:
-                documents.append(
-                    {
-                        "name": file_path.name,
-                        "path": str(file_path.relative_to(self.root_path)),
-                        "size": file_path.stat().st_size,
-                        "modified": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(),
-                    }
-                )
+            if file_path.is_file() and file_path.suffix in [
+                    ".md", ".txt", ".json"
+            ]:
+                documents.append({
+                    "name":
+                    file_path.name,
+                    "path":
+                    str(file_path.relative_to(self.root_path)),
+                    "size":
+                    file_path.stat().st_size,
+                    "modified":
+                    datetime.fromtimestamp(
+                        file_path.stat().st_mtime).isoformat(),
+                })
 
         return sorted(documents, key=lambda x: x["name"])
 
@@ -411,7 +434,9 @@ class FileManager:
         folders = [d.name for d in search_path.iterdir() if d.is_dir()]
         return sorted(folders)
 
-    def search_documents(self, query: str, search_content: bool = False) -> list[dict[str, Any]]:
+    def search_documents(self,
+                         query: str,
+                         search_content: bool = False) -> list[dict[str, Any]]:
         """Search documents by name or content."""
         results = []
 
@@ -490,14 +515,17 @@ class TextEditor:
         if not name:
             return
 
-        format_choice = self.gui.show_menu(
-            "Select Format", ["Markdown (.md)", "Todo List (.txt)", "Plain Text (.txt)", "JSON (.json)"]
-        )
+        format_choice = self.gui.show_menu("Select Format", [
+            "Markdown (.md)", "Todo List (.txt)", "Plain Text (.txt)",
+            "JSON (.json)"
+        ])
 
         formats = ["markdown", "todo", "text", "json"]
-        format_type = formats[format_choice] if 0 <= format_choice < len(formats) else "markdown"
+        format_type = formats[format_choice] if 0 <= format_choice < len(
+            formats) else "markdown"
 
-        self.current_document = self.file_manager.create_document(name, format_type=format_type)
+        self.current_document = self.file_manager.create_document(
+            name, format_type=format_type)
         self.gui.show_toast(f"Created: {name}")
 
     def open_document(self):
@@ -512,7 +540,8 @@ class TextEditor:
         choice = self.gui.show_menu("Open Document", doc_names)
 
         if 0 <= choice < len(docs):
-            self.current_document = self.file_manager.open_document(docs[choice]["path"])
+            self.current_document = self.file_manager.open_document(
+                docs[choice]["path"])
             if self.current_document:
                 self.gui.show_toast(f"Opened: {docs[choice]['name']}")
 
@@ -521,14 +550,16 @@ class TextEditor:
         recent = self.file_manager.get_recent_documents()
 
         if not recent:
-            self.gui.show_dialog("No Recent Documents", "No recent documents found")
+            self.gui.show_dialog("No Recent Documents",
+                                 "No recent documents found")
             return
 
         doc_names = [doc["name"] for doc in recent]
         choice = self.gui.show_menu("Recent Documents", doc_names)
 
         if 0 <= choice < len(recent):
-            self.current_document = self.file_manager.open_document(recent[choice]["path"])
+            self.current_document = self.file_manager.open_document(
+                recent[choice]["path"])
             if self.current_document:
                 self.gui.show_toast(f"Opened: {recent[choice]['name']}")
 
@@ -538,24 +569,24 @@ class TextEditor:
         if not query:
             return
 
-        search_content = (
-            self.gui.show_dialog(
-                "Search Scope", "Search in filenames only or file content?", ["Filenames Only", "Content Too"]
-            )
-            == 1
-        )
+        search_content = (self.gui.show_dialog(
+            "Search Scope", "Search in filenames only or file content?",
+            ["Filenames Only", "Content Too"]) == 1)
 
-        results = self.file_manager.search_documents(query, search_content=search_content)
+        results = self.file_manager.search_documents(
+            query, search_content=search_content)
 
         if not results:
-            self.gui.show_dialog("No Results", f"No documents found matching '{query}'")
+            self.gui.show_dialog("No Results",
+                                 f"No documents found matching '{query}'")
             return
 
         result_names = [r["name"] for r in results]
         choice = self.gui.show_menu("Search Results", result_names)
 
         if 0 <= choice < len(results):
-            self.current_document = self.file_manager.open_document(results[choice]["path"])
+            self.current_document = self.file_manager.open_document(
+                results[choice]["path"])
 
     def manage_folders(self):
         """Manage folders."""
@@ -564,14 +595,16 @@ class TextEditor:
         choice = self.gui.show_menu("Manage Folders", menu_items)
 
         if choice == 0:
-            folder_name = self.gui.show_text_input("New Folder", "Enter folder name")
+            folder_name = self.gui.show_text_input("New Folder",
+                                                   "Enter folder name")
             if folder_name:
                 self.file_manager.create_folder(folder_name)
                 self.gui.show_toast(f"Created folder: {folder_name}")
         elif choice == 1:
             folders = self.file_manager.list_folders()
             if folders:
-                self.gui.show_dialog("Folders", "Folders:\n" + "\n".join(folders))
+                self.gui.show_dialog("Folders",
+                                     "Folders:\n" + "\n".join(folders))
             else:
                 self.gui.show_dialog("No Folders", "No folders found")
 
@@ -612,22 +645,30 @@ class TextEditor:
         """Edit document content."""
         print(f"\n{'=' * 50}")
         print(f"Editing: {self.current_document.file_path.name}")
-        print(f"Current content ({self.current_document.get_line_count()} lines):")
+        print(
+            f"Current content ({self.current_document.get_line_count()} lines):"
+        )
         print(f"{'=' * 50}")
-        print(self.current_document.content[:500] + ("..." if len(self.current_document.content) > 500 else ""))
+        print(self.current_document.content[:500] +
+              ("..." if len(self.current_document.content) > 500 else ""))
         print(f"{'=' * 50}")
 
-        edit_choice = self.gui.show_menu("Edit Options", ["View Full", "Edit Full", "Append", "Back"])
+        edit_choice = self.gui.show_menu(
+            "Edit Options", ["View Full", "Edit Full", "Append", "Back"])
 
         if edit_choice == 0:
             print("\n" + self.current_document.content)
         elif edit_choice == 1:
-            new_content = self.gui.show_text_input("Edit Content", "", multi_line=True)
+            new_content = self.gui.show_text_input("Edit Content",
+                                                   "",
+                                                   multi_line=True)
             if new_content is not None:
                 self.current_document.content = new_content
                 self.is_modified = True
         elif edit_choice == 2:
-            append_text = self.gui.show_text_input("Append Text", "", multi_line=True)
+            append_text = self.gui.show_text_input("Append Text",
+                                                   "",
+                                                   multi_line=True)
             if append_text:
                 self.current_document.content += "\n" + append_text
                 self.is_modified = True
@@ -705,12 +746,15 @@ class TextEditor:
             self.gui.show_dialog("Not Found", f"'{find_text}' not found")
             return
 
-        replace_choice = self.gui.show_dialog("Replace", f"Found {count} occurrence(s).\nReplace all?", ["Yes", "No"])
+        replace_choice = self.gui.show_dialog(
+            "Replace", f"Found {count} occurrence(s).\nReplace all?",
+            ["Yes", "No"])
 
         if replace_choice == 0:
             replace_text = self.gui.show_text_input("Replace With", "")
             if replace_text is not None:
-                replaced = self.current_document.replace_text(find_text, replace_text)
+                replaced = self.current_document.replace_text(
+                    find_text, replace_text)
                 self.is_modified = True
                 self.gui.show_snackbar(f"Replaced {replaced} occurrence(s)")
 
@@ -745,8 +789,8 @@ Last Modified: {info["last_modified"]}
         """Close current document."""
         if self.is_modified:
             save_choice = self.gui.show_dialog(
-                "Save Changes?", "Document has unsaved changes", ["Save", "Don't Save", "Cancel"]
-            )
+                "Save Changes?", "Document has unsaved changes",
+                ["Save", "Don't Save", "Cancel"])
 
             if save_choice == 0:
                 self.save_document()
@@ -757,7 +801,10 @@ Last Modified: {info["last_modified"]}
 
     def show_settings(self):
         """Show settings screen."""
-        settings_menu = ["Theme (Dark/Light)", "Auto-save", "Font Size", "Word Wrap", "Show Line Numbers", "Back"]
+        settings_menu = [
+            "Theme (Dark/Light)", "Auto-save", "Font Size", "Word Wrap",
+            "Show Line Numbers", "Back"
+        ]
 
         choice = self.gui.show_menu("Settings", settings_menu)
 

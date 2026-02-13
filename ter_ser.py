@@ -3,23 +3,31 @@ from collections import deque
 from multiprocessing import Pool
 from pathlib import Path
 from sys import exit
+from termcolor import cprint
 
-from dh import run_command, folder_size, format_size
+from dh import run_command, folder_size, format_size, file_size
 from fastwalk import walk_files
 
 
 def process_file(fp):
+    start = file_size(fp)
     if not fp.exists():
         return False
-    print(f"processing ... {fp}", end=" ")
+    print(f"{fp.name}", end=" ")
     cmd = f"terser {fp}"
     output, err, code = run_command(cmd)
     if code == 0:
         fp.write_text(output)
-        print("[OK]")
+        result = file_size(fp) - start
+        if int(result) == 0:
+            cprint("[OK]", "white")
+        elif result < 0:
+            cprint(f"[OK] - {format_size(abs(result))}", "cyan")
+        elif result > 0:
+            cprint(f"[OK] + {format_size(abs(result))}", "yellow")
         return True
     else:
-        print("[ERROR]")
+        cprint(f"[ERROR] {err}", "magenta")
         return False
 
 
@@ -34,7 +42,7 @@ def main():
     with Pool(8) as p:
         pending = deque()
         for f in files:
-            pending.append(p.apply_async(process_file, ((f),)))
+            pending.append(p.apply_async(process_file, ((f), )))
             if len(pending) > 16:
                 pending.popleft().get()
         while pending:

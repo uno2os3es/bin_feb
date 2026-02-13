@@ -18,9 +18,7 @@ EXCLUDED_EXT = {
 }
 
 
-def load_patterns_from_file(
-    path="/sdcard/all.xtx",
-):
+def load_patterns_from_file(path="/sdcard/all.xtx", ):
     """Reads patterns, filters length, and updates the file with unique entries."""
     if not os.path.exists(path):
         raise FileNotFoundError(f"{path} not found")
@@ -51,9 +49,9 @@ def process_file(path, patterns) -> str | None:
 
     try:
         with open(
-            path,
-            encoding="utf-8",
-            errors="ignore",
+                path,
+                encoding="utf-8",
+                errors="ignore",
         ) as f:
             data = f.read()
     except Exception as e:
@@ -100,7 +98,10 @@ def clean_dir_concurrent(root, patterns) -> None:
     # Using ProcessPoolExecutor for CPU-bound string replacement tasks
     with ProcessPoolExecutor() as executor:
         # Map patterns to every file path for the worker
-        future_to_file = {executor.submit(process_file, f, patterns): f for f in files}
+        future_to_file = {
+            executor.submit(process_file, f, patterns): f
+            for f in files
+        }
 
         for future in as_completed(future_to_file):
             result = future.result()
@@ -109,7 +110,8 @@ def clean_dir_concurrent(root, patterns) -> None:
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="Remove strings from text files recursively (Concurrent)")
+    ap = argparse.ArgumentParser(
+        description="Remove strings from text files recursively (Concurrent)")
     ap.add_argument(
         "--path",
         default=".",

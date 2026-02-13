@@ -18,8 +18,8 @@ def find_fonts(root_dir="."):
     fonts = []
     for dirpath, _, filenames in os.walk(root_dir):
         fonts.extend(
-            os.path.join(dirpath, filename) for filename in filenames if filename.lower().endswith(FONT_EXTENSIONS)
-        )
+            os.path.join(dirpath, filename) for filename in filenames
+            if filename.lower().endswith(FONT_EXTENSIONS))
     return fonts
 
 
@@ -44,8 +44,7 @@ def generate_html(font_files):
         html.append("</style>")
         html.extend(
             f"<p style='font-family: \"{font_name}\"; font-size: {size}px;'>({font_path})فارسی</p>"
-            for size in FONT_SIZES
-        )
+            for size in FONT_SIZES)
         html.append("</div>")
     html.append("</body></html>")
     return "\n".join(html)

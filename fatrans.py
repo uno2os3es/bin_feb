@@ -75,7 +75,8 @@ def interactive_mode(fa_en, en_fa):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Offline Persian ↔ English translator")
+    parser = argparse.ArgumentParser(
+        description="Offline Persian ↔ English translator")
     parser.add_argument(
         "word",
         nargs="*",

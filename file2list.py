@@ -14,7 +14,8 @@ def main():
     with open(new_fn, "w") as fo:
         fo.write("{")
         for line in lines:
-            str1 = '"' + str(line.strip()) + '", ' if '"' not in line else "'" + str(line.strip()) + "', "
+            str1 = '"' + str(line.strip(
+            )) + '", ' if '"' not in line else "'" + str(line.strip()) + "', "
             fo.write(str1)
         fo.write("}")
 

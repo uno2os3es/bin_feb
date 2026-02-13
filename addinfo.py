@@ -24,23 +24,20 @@ def is_python_file(path: str) -> bool:
 
     try:
         with open(
-            path,
-            encoding="utf-8",
-            errors="ignore",
+                path,
+                encoding="utf-8",
+                errors="ignore",
         ) as f:
             first_line = f.readline().strip()
             if first_line.startswith("#!"):
                 return "python" in first_line
             sample = f.read(200)
-            return any(
-                tok in sample
-                for tok in (
-                    "def ",
-                    "class ",
-                    "import ",
-                    "from ",
-                )
-            )
+            return any(tok in sample for tok in (
+                "def ",
+                "class ",
+                "import ",
+                "from ",
+            ))
     except Exception:
         return False
 
@@ -52,9 +49,7 @@ def build_header(info: dict) -> str:
     return f"# Author : {info.get('name', '')}\n# Email  : {info.get('email', '')}\n# Time   : {timestamp}\n\n\n"
 
 
-def file_already_has_header(
-    contents: str,
-) -> bool:
+def file_already_has_header(contents: str, ) -> bool:
     """Why: Avoid duplicate headers."""
     return "# Author :" in contents.split("\n")[:5]
 

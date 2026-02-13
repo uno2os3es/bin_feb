@@ -5,8 +5,8 @@ import os
 directory = "."
 
 for entry in sorted(
-    os.scandir(directory),
-    key=lambda e: e.name.lower(),
+        os.scandir(directory),
+        key=lambda e: e.name.lower(),
 ):
     st = entry.stat()
     # Format modification time as HH:MM

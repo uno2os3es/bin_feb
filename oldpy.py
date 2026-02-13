@@ -22,9 +22,9 @@ def _open_source(filepath: str):
 def _read_text(filepath: str) -> str | None:
     try:
         with open(
-            filepath,
-            encoding="utf-8",
-            errors="ignore",
+                filepath,
+                encoding="utf-8",
+                errors="ignore",
         ) as f:
             return f.read()
     except Exception:
@@ -44,9 +44,7 @@ def regex_flag(filepath: str) -> bool:
     return bool(OLD_PRINT_RE.search(text))
 
 
-def tokenizer_confirm(
-    filepath: str,
-) -> str | None:
+def tokenizer_confirm(filepath: str, ) -> str | None:
     try:
         src = _open_source(filepath)
         tokens = list(tokenize.tokenize(src.readline))
@@ -62,10 +60,10 @@ def tokenizer_confirm(
 
             j = i + 1
             while j < len(tokens) and tokens[j].type in {
-                tokenize.NL,
-                tokenize.NEWLINE,
-                tokenize.INDENT,
-                tokenize.DEDENT,
+                    tokenize.NL,
+                    tokenize.NEWLINE,
+                    tokenize.INDENT,
+                    tokenize.DEDENT,
             }:
                 j += 1
 
@@ -100,7 +98,7 @@ def collect_py_files(root: str) -> list[str]:
 def main() -> None:
     pool = Pool(8)
     for f in collect_py_files("."):
-        pool.apply_async(process_file, ((f),))
+        pool.apply_async(process_file, ((f), ))
     pool.close()
     pool.join()
 

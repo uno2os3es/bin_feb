@@ -14,7 +14,10 @@ from pathlib import Path
 class DocstringRemover:
     """Remove docstrings from Python source code."""
 
-    def __init__(self, backup: bool = True, verbose: bool = False, dry_run: bool = False):
+    def __init__(self,
+                 backup: bool = True,
+                 verbose: bool = False,
+                 dry_run: bool = False):
         self.backup = backup
         self.verbose = verbose
         self.dry_run = dry_run
@@ -33,7 +36,9 @@ class DocstringRemover:
         path = Path(directory)
 
         for py_file in path.rglob("*.py"):
-            if any(part.startswith(".") or part in {"venv", "__pycache__"} for part in py_file.parts):
+            if any(
+                    part.startswith(".") or part in {"venv", "__pycache__"}
+                    for part in py_file.parts):
                 continue
             python_files.append(py_file)
 
@@ -59,14 +64,15 @@ class DocstringRemover:
                     before = line[:first].rstrip()
 
                     if before.endswith(":") or before.strip() == "":
-                        result_lines.append(line[:first] + line[second + 3 :])
+                        result_lines.append(line[:first] + line[second + 3:])
                         removed_count += 1
                         i += 1
                         continue
 
-                before = line[: line.find(delimiter)].rstrip()
+                before = line[:line.find(delimiter)].rstrip()
 
-                if before.endswith(":") or before.strip() == "" or "=" not in before:
+                if before.endswith(
+                        ":") or before.strip() == "" or "=" not in before:
                     removed_count += 1
                     if before:
                         result_lines.append(before)
@@ -74,7 +80,8 @@ class DocstringRemover:
                     j = i + 1
                     while j < len(lines):
                         if delimiter in lines[j]:
-                            after = lines[j][lines[j].find(delimiter) + 3 :].strip()
+                            after = lines[j][lines[j].find(delimiter) +
+                                             3:].strip()
                             if after:
                                 result_lines.append(after)
                             i = j + 1
@@ -102,7 +109,7 @@ class DocstringRemover:
         ranges = self._find_docstring_ranges(tree)
 
         for start, end in sorted(ranges, reverse=True):
-            del lines[start - 1 : end]
+            del lines[start - 1:end]
 
         return "\n".join(lines), len(ranges)
 
@@ -110,12 +117,15 @@ class DocstringRemover:
         ranges: list[tuple[int, int]] = []
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if isinstance(child, (ast.Module, ast.FunctionDef,
+                                  ast.AsyncFunctionDef, ast.ClassDef)):
                 if child.body and isinstance(child.body[0], ast.Expr):
                     value = child.body[0].value
-                    if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                    if isinstance(value, ast.Constant) and isinstance(
+                            value.value, str):
                         if child.body[0].lineno and child.body[0].end_lineno:
-                            ranges.append((child.body[0].lineno, child.body[0].end_lineno))
+                            ranges.append((child.body[0].lineno,
+                                           child.body[0].end_lineno))
 
         return ranges
 
@@ -123,7 +133,9 @@ class DocstringRemover:
         content = re.sub(r"\n\n\n+", "\n\n", content)
         return "\n".join(line.rstrip() for line in content.split("\n"))
 
-    def process_file(self, file_path: Path, method: str = "ast") -> tuple[bool, int]:
+    def process_file(self,
+                     file_path: Path,
+                     method: str = "ast") -> tuple[bool, int]:
         try:
             original = file_path.read_text(encoding="utf-8")
 
@@ -175,6 +187,7 @@ class DocstringRemover:
 
 
 class DocstringValidator:
+
     @staticmethod
     def has_syntax_errors(file_path: Path) -> tuple[bool, str | None]:
         try:
@@ -186,7 +199,12 @@ class DocstringValidator:
     @staticmethod
     def validate_directory(directory: str) -> dict:
         files = list(Path(directory).rglob("*.py"))
-        report = {"total_files": len(files), "valid_files": 0, "invalid_files": 0, "errors": []}
+        report = {
+            "total_files": len(files),
+            "valid_files": 0,
+            "invalid_files": 0,
+            "errors": []
+        }
 
         for f in files:
             has_error, msg = DocstringValidator.has_syntax_errors(f)
@@ -202,10 +220,17 @@ class DocstringValidator:
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Remove Python docstrings recursively or from a single file")
+    parser = argparse.ArgumentParser(
+        description="Remove Python docstrings recursively or from a single file"
+    )
 
-    parser.add_argument("directory", nargs="?", default=".", help="Directory to process")
-    parser.add_argument("-f", "--file", help="Process only a single Python file")
+    parser.add_argument("directory",
+                        nargs="?",
+                        default=".",
+                        help="Directory to process")
+    parser.add_argument("-f",
+                        "--file",
+                        help="Process only a single Python file")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--no-backup", action="store_true")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -240,7 +265,8 @@ def main():
 
     if args.validate and not args.file:
         report = DocstringValidator.validate_directory(args.directory)
-        print(f"\nValid files: {report['valid_files']}/{report['total_files']}")
+        print(
+            f"\nValid files: {report['valid_files']}/{report['total_files']}")
 
 
 if __name__ == "__main__":

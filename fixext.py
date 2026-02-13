@@ -46,7 +46,8 @@ def get_file_mime(file_path):
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"Error detecting file type for {file_path}: {e}", file=sys.stderr)
+        print(f"Error detecting file type for {file_path}: {e}",
+              file=sys.stderr)
         return None
 
 
@@ -75,7 +76,8 @@ def check_files(directory, auto_fix=False):
                 if expected_exts and ext not in expected_exts:
                     new_path = None
                     if auto_fix:
-                        new_ext = expected_exts[0]  # pick first expected extension
+                        new_ext = expected_exts[
+                            0]  # pick first expected extension
                         new_name = os.path.splitext(name)[0] + new_ext
                         new_path = os.path.join(root, new_name)
                         new_path = safe_rename(file_path, new_path)
@@ -84,7 +86,8 @@ def check_files(directory, auto_fix=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Check and optionally fix mismatched file extensions.")
+    parser = argparse.ArgumentParser(
+        description="Check and optionally fix mismatched file extensions.")
     parser.add_argument(
         "directory",
         nargs="*",
@@ -108,7 +111,9 @@ def main():
         print("Files with mismatched extensions:")
         for file_path, ext, mime, new_path in mismatches:
             if new_path:
-                print(f"{file_path} -> extension: {ext}, detected: {mime} [Renamed to {new_path}]")
+                print(
+                    f"{file_path} -> extension: {ext}, detected: {mime} [Renamed to {new_path}]"
+                )
             else:
                 print(f"{file_path} -> extension: {ext}, detected: {mime}")
     else:

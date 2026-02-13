@@ -17,7 +17,7 @@ def process_file(file: Path) -> bool:
         print(len(orig))
         code = orig
         code = htmlmin.minify(orig, remove_comments=True)
-# fmt: on
+        # fmt: on
         print(len(code))
         if len(code) != len(orig):
             with open(file, "w", encoding="utf-8") as fo:
@@ -45,7 +45,7 @@ def main() -> None:
 
     pool = Pool(10)
     for name in files:
-        pool.apply_async(process_file, ((name),))
+        pool.apply_async(process_file, ((name), ))
 
     pool.close()
     pool.join()

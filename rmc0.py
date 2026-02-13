@@ -7,7 +7,11 @@ from pathlib import Path
 
 
 class SourceCleaner:
-    def __init__(self, backup: bool = True, dry_run: bool = False, verbose: bool = False):
+
+    def __init__(self,
+                 backup: bool = True,
+                 dry_run: bool = False,
+                 verbose: bool = False):
         self.backup = backup
         self.dry_run = dry_run
         self.verbose = verbose
@@ -34,11 +38,14 @@ class SourceCleaner:
         ranges: list[tuple[int, int]] = []
 
         for node in ast.walk(tree):
-            if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
+                                 ast.AsyncFunctionDef)):
                 if node.body and isinstance(node.body[0], ast.Expr):
                     val = node.body[0].value
-                    if isinstance(val, ast.Constant) and isinstance(val.value, str):
-                        ranges.append((node.body[0].lineno - 1, node.body[0].end_lineno))
+                    if isinstance(val, ast.Constant) and isinstance(
+                            val.value, str):
+                        ranges.append(
+                            (node.body[0].lineno - 1, node.body[0].end_lineno))
 
         for start, end in sorted(ranges, reverse=True):
             del lines[start:end]
@@ -77,7 +84,9 @@ class SourceCleaner:
             self.stats["comments_removed"] += comments_removed
 
             if self.verbose:
-                print(f"✓ {path} | docstrings={docs_removed}, comments={comments_removed}")
+                print(
+                    f"✓ {path} | docstrings={docs_removed}, comments={comments_removed}"
+                )
 
         except Exception as exc:
             print(f"✗ {path}: {exc}")
@@ -87,7 +96,9 @@ class SourceCleaner:
 
     def process_directory(self, directory: Path) -> None:
         for py in directory.rglob("*.py"):
-            if any(p.startswith(".") or p in {"venv", "__pycache__"} for p in py.parts):
+            if any(
+                    p.startswith(".") or p in {"venv", "__pycache__"}
+                    for p in py.parts):
                 continue
             self.process_file(py)
 

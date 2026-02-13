@@ -44,7 +44,8 @@ def build_output_path(input_path: Path) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Translate jap → English using deep-translator.")
+    parser = argparse.ArgumentParser(
+        description="Translate jap → English using deep-translator.")
     parser.add_argument(
         "input_path",
         type=str,

@@ -121,7 +121,9 @@ def find_and_replace_in_directory(directory="."):
             modified_count += 1
 
     print(f"\n{'=' * 50}")
-    print(f"Summary: Modified {modified_count} out of {len(python_files)} file(s)")
+    print(
+        f"Summary: Modified {modified_count} out of {len(python_files)} file(s)"
+    )
 
 
 if __name__ == "__main__":

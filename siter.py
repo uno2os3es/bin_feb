@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 
 
 class WheelBuilder:
+
     def __init__(
         self,
         site_packages: Path,
@@ -72,9 +73,9 @@ class WheelBuilder:
 
         records = {}
         with open(
-            record_file,
-            encoding="utf-8",
-            newline="",
+                record_file,
+                encoding="utf-8",
+                newline="",
         ) as f:
             reader = csv.reader(f)
             for row in reader:
@@ -94,7 +95,8 @@ class WheelBuilder:
             return installer_file.read_text().strip()
         return "unknown"
 
-    def _find_scripts_for_package(self, package_name: str, records: dict) -> list[Path]:
+    def _find_scripts_for_package(self, package_name: str,
+                                  records: dict) -> list[Path]:
         """Find console scripts for this package"""
         if not self.bin_dir or not self.bin_dir.exists():
             return []
@@ -136,7 +138,8 @@ class WheelBuilder:
 
         return scripts
 
-    def _find_data_for_package(self, package_name: str, records: dict) -> list[tuple[Path, str]]:
+    def _find_data_for_package(self, package_name: str,
+                               records: dict) -> list[tuple[Path, str]]:
         """Find data files in share/ for this package"""
         if not self.share_dir or not self.share_dir.exists():
             return []
@@ -159,9 +162,7 @@ class WheelBuilder:
 
         return data_files
 
-    def _get_wheel_tags(
-        self,
-    ) -> tuple[str, str, str, bool]:
+    def _get_wheel_tags(self, ) -> tuple[str, str, str, bool]:
         """Determine wheel compatibility tags"""
         try:
             from packaging.tags import sys_tags
@@ -191,7 +192,8 @@ class WheelBuilder:
 
     def _detect_purity(self, records: dict) -> bool:
         """Check if package is pure Python (no compiled extensions)"""
-        return all(not path.endswith((".so", ".pyd", ".dll")) for path in records)
+        return all(not path.endswith((".so", ".pyd", ".dll"))
+                   for path in records)
 
     def build_wheel(self, dist_info_dir: Path) -> Path | None:
         """Build a wheel file for a single package"""
@@ -260,7 +262,9 @@ class WheelBuilder:
                 if not src.exists():
                     continue
 
-                dest = dist_info_dest / Path(path_str).name if ".dist-info" in path_str else tmp_path / path_str
+                dest = dist_info_dest / Path(
+                    path_str
+                ).name if ".dist-info" in path_str else tmp_path / path_str
 
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dest)
@@ -268,13 +272,11 @@ class WheelBuilder:
                 rel_path = dest.relative_to(tmp_path)
                 file_hash = self._compute_hash(dest)
                 file_size = dest.stat().st_size
-                new_record.append(
-                    (
-                        str(rel_path),
-                        file_hash,
-                        str(file_size),
-                    )
-                )
+                new_record.append((
+                    str(rel_path),
+                    file_hash,
+                    str(file_size),
+                ))
 
             if scripts:
                 data_dir = tmp_path / data_dir_name
@@ -287,13 +289,11 @@ class WheelBuilder:
                     rel_path = dest.relative_to(tmp_path)
                     file_hash = self._compute_hash(dest)
                     file_size = dest.stat().st_size
-                    new_record.append(
-                        (
-                            str(rel_path),
-                            file_hash,
-                            str(file_size),
-                        )
-                    )
+                    new_record.append((
+                        str(rel_path),
+                        file_hash,
+                        str(file_size),
+                    ))
 
             if data_files:
                 if not data_dir:
@@ -302,8 +302,8 @@ class WheelBuilder:
                 data_data_dir.mkdir(parents=True, exist_ok=True)
 
                 for (
-                    src,
-                    rel_data_path,
+                        src,
+                        rel_data_path,
                 ) in data_files:
                     dest = data_data_dir / rel_data_path
                     dest.parent.mkdir(
@@ -314,13 +314,11 @@ class WheelBuilder:
                     rel_path = dest.relative_to(tmp_path)
                     file_hash = self._compute_hash(dest)
                     file_size = dest.stat().st_size
-                    new_record.append(
-                        (
-                            str(rel_path),
-                            file_hash,
-                            str(file_size),
-                        )
-                    )
+                    new_record.append((
+                        str(rel_path),
+                        file_hash,
+                        str(file_size),
+                    ))
 
             wheel_file = dist_info_dest / "WHEEL"
             with open(wheel_file, "w") as f:
@@ -332,36 +330,32 @@ class WheelBuilder:
             rel_path = wheel_file.relative_to(tmp_path)
             file_hash = self._compute_hash(wheel_file)
             file_size = wheel_file.stat().st_size
-            new_record.append(
-                (
-                    str(rel_path),
-                    file_hash,
-                    str(file_size),
-                )
-            )
+            new_record.append((
+                str(rel_path),
+                file_hash,
+                str(file_size),
+            ))
 
             record_file = dist_info_dest / "RECORD"
             with open(
-                record_file,
-                "w",
-                newline="",
-                encoding="utf-8",
+                    record_file,
+                    "w",
+                    newline="",
+                    encoding="utf-8",
             ) as f:
                 writer = csv.writer(f)
                 for row in new_record:
                     writer.writerow(row)
-                writer.writerow(
-                    [
-                        f"{dist_info_name}/RECORD",
-                        "",
-                        "",
-                    ]
-                )
+                writer.writerow([
+                    f"{dist_info_name}/RECORD",
+                    "",
+                    "",
+                ])
 
             with zipfile.ZipFile(
-                wheel_path,
-                "w",
-                zipfile.ZIP_DEFLATED,
+                    wheel_path,
+                    "w",
+                    zipfile.ZIP_DEFLATED,
             ) as whl:
                 for file in tmp_path.rglob("*"):
                     if file.is_file():
@@ -395,7 +389,8 @@ class WheelBuilder:
 
                     traceback.print_exc()
 
-        log.info(f"\nBuilt {built}/{len(dist_infos)} wheels in {self.output_dir}")
+        log.info(
+            f"\nBuilt {built}/{len(dist_infos)} wheels in {self.output_dir}")
         return built
 
 
@@ -506,7 +501,8 @@ Examples:
     else:
         sites = find_site_packages()
         if not sites:
-            log.error("No site-packages found. Use --site-packages to specify.")
+            log.error(
+                "No site-packages found. Use --site-packages to specify.")
             return 1
 
         if len(sites) == 1:

@@ -23,7 +23,8 @@ def delete_item(path: Path):
             path.unlink()
         elif path.is_dir():
             # Sum size of all files inside before removing the dir
-            size_freed = sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
+            size_freed = sum(f.stat().st_size for f in path.rglob("*")
+                             if f.is_file())
             shutil.rmtree(path)
             dir_count = 1
     except Exception:

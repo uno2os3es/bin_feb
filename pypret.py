@@ -22,7 +22,8 @@ def beautify_json_file(file_path) -> bool | None:
         return False
 
 
-def beautify_code_file(file_path, beautify_function, asset_type) -> bool | None:
+def beautify_code_file(file_path, beautify_function,
+                       asset_type) -> bool | None:
     """Beautifies HTML, JS, or CSS files using jsbeautifier."""
     try:
         # 1. Read the original content
@@ -41,9 +42,7 @@ def beautify_code_file(file_path, beautify_function, asset_type) -> bool | None:
         return False
 
 
-def beautify_files_in_directory(
-    root_dir=".",
-) -> None:
+def beautify_files_in_directory(root_dir=".", ) -> None:
     """Recursively finds and beautifies HTML, JS, CSS, and JSON files."""
     processed_count = 0
     errors_count = 0
@@ -54,9 +53,9 @@ def beautify_files_in_directory(
         ".css": (jsbeautifier.beautify, "CSS"),
     }
     for (
-        foldername,
-        _subfolders,
-        filenames,
+            foldername,
+            _subfolders,
+            filenames,
     ) in os.walk(root_dir):
         for filename in filenames:
             file_path = os.path.join(foldername, filename)
@@ -69,8 +68,8 @@ def beautify_files_in_directory(
                     errors_count += 1
             # Handle code files (JS, HTML, CSS)
             for ext, (
-                func,
-                asset_type,
+                    func,
+                    asset_type,
             ) in beautifier_map.items():
                 if filename.endswith(ext):
                     success = beautify_code_file(

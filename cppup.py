@@ -36,8 +36,8 @@ def format_file(file_path):
         )
         return True
     except (
-        subprocess.CalledProcessError,
-        FileNotFoundError,
+            subprocess.CalledProcessError,
+            FileNotFoundError,
     ):
         return False
 

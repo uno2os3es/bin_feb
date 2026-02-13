@@ -70,7 +70,8 @@ def is_excluded(path: Path, excluded_dirs, excluded_patterns):
     for part in path.parts:
         if part in excluded_dirs:
             return True
-    return any(fnmatch.fnmatch(path.name, pattern) for pattern in excluded_patterns)
+    return any(
+        fnmatch.fnmatch(path.name, pattern) for pattern in excluded_patterns)
 
 
 def should_skip_file(path: Path):
@@ -99,9 +100,9 @@ def search_in_file(file_path, search_string, search_content):
 
     try:
         with open(
-            file_path,
-            encoding="utf-8",
-            errors="ignore",
+                file_path,
+                encoding="utf-8",
+                errors="ignore",
         ) as f:
             for ln, line in enumerate(f, 1):
                 pause_event.wait()
@@ -117,7 +118,8 @@ def extract_and_search_archive(archive_path, search_string, search_content):
     results = []
 
     try:
-        if archive_path.suffix == ".zip" or archive_path.name.endswith((".whl", ".apk")):
+        if archive_path.suffix == ".zip" or archive_path.name.endswith(
+            (".whl", ".apk")):
             with zipfile.ZipFile(archive_path) as zf:
                 for member in zf.namelist():
                     pause_event.wait()
@@ -133,11 +135,11 @@ def extract_and_search_archive(archive_path, search_string, search_content):
                                 errors="ignore",
                             )
                             for (
-                                ln,
-                                line,
+                                    ln,
+                                    line,
                             ) in enumerate(
-                                content.splitlines(),
-                                1,
+                                    content.splitlines(),
+                                    1,
                             ):
                                 if search_string in line:
                                     results.append((ref, ln))
@@ -165,19 +167,17 @@ def extract_and_search_archive(archive_path, search_string, search_content):
                                     errors="ignore",
                                 )
                                 for (
-                                    ln,
-                                    line,
+                                        ln,
+                                        line,
                                 ) in enumerate(
-                                    content.splitlines(),
-                                    1,
+                                        content.splitlines(),
+                                        1,
                                 ):
                                     if search_string in line:
-                                        results.append(
-                                            (
-                                                ref,
-                                                ln,
-                                            )
-                                        )
+                                        results.append((
+                                            ref,
+                                            ln,
+                                        ))
                         except Exception:
                             pass
     except Exception:
@@ -188,7 +188,8 @@ def extract_and_search_archive(archive_path, search_string, search_content):
 
 def process_file(path: Path, search_string, search_content):
     if path.name.endswith(ARCHIVE_EXTENSIONS):
-        results = extract_and_search_archive(path, search_string, search_content)
+        results = extract_and_search_archive(path, search_string,
+                                             search_content)
     else:
         results = search_in_file(path, search_string, search_content)
 
@@ -200,7 +201,8 @@ def process_file(path: Path, search_string, search_content):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fast recursive string search")
+    parser = argparse.ArgumentParser(
+        description="Fast recursive string search")
     parser.add_argument("search_string")
     parser.add_argument("-c", "--content", action="store_true")
     parser.add_argument("-d", "--directory", default=".")
@@ -214,8 +216,14 @@ def main():
 
     args = parser.parse_args()
 
-    excluded_dirs = DEFAULT_EXCLUDED_DIRS | {e for e in args.exclude if not any(ch in e for ch in "*?[]")}
-    excluded_patterns = {e for e in args.exclude if any(ch in e for ch in "*?[]")}
+    excluded_dirs = DEFAULT_EXCLUDED_DIRS | {
+        e
+        for e in args.exclude if not any(ch in e for ch in "*?[]")
+    }
+    excluded_patterns = {
+        e
+        for e in args.exclude if any(ch in e for ch in "*?[]")
+    }
 
     setup_keyboard_listener()
 
@@ -234,9 +242,9 @@ def main():
         if should_skip_file(path):
             continue
         if is_excluded(
-            path,
-            excluded_dirs,
-            excluded_patterns,
+                path,
+                excluded_dirs,
+                excluded_patterns,
         ):
             continue
         files.append(path)
@@ -250,8 +258,7 @@ def main():
                 p,
                 args.search_string,
                 args.content,
-            )
-            for p in files
+            ) for p in files
         ]
         for _f in as_completed(futures):
             pass

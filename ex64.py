@@ -7,7 +7,8 @@ from pathlib import Path
 import regex as re
 
 # Regex to match any base64 image embedded in text files
-BASE64_IMG_REGEX = re.compile(r"data:image/(?P<ext>[a-zA-Z0-9+]+);base64,(?P<data>[A-Za-z0-9+/=\n\r]+)")
+BASE64_IMG_REGEX = re.compile(
+    r"data:image/(?P<ext>[a-zA-Z0-9+]+);base64,(?P<data>[A-Za-z0-9+/=\n\r]+)")
 
 
 def extract_images_from_file(file_path: Path, output_dir: Path):

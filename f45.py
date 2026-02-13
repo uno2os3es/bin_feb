@@ -42,10 +42,10 @@ def fold_file_inplace(filename):
 
     # Write to temp file using fold command
     with tempfile.NamedTemporaryFile(
-        mode="w+",
-        suffix=".tmp",
-        delete=False,
-        encoding="utf-8",
+            mode="w+",
+            suffix=".tmp",
+            delete=False,
+            encoding="utf-8",
     ) as temp_f:
         temp_filename = temp_f.name
         temp_f.write(original_content)

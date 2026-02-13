@@ -19,12 +19,12 @@ def get_skip_dirs():
 
     site_packages = Path(sysconfig.get_paths()["purelib"])
     for d in (
-        "pip",
-        "setuptools",
-        "wheel",
-        "packaging",
-        "importlib-metadata",
-        "regex",
+            "pip",
+            "setuptools",
+            "wheel",
+            "packaging",
+            "importlib-metadata",
+            "regex",
     ):
         skip.add(str(site_packages / d))
     skip.add("/data/data/com.termux/files/home/bin")
@@ -33,9 +33,7 @@ def get_skip_dirs():
     return skip
 
 
-def clean_pyc_and_pycache(
-    start_dir: Path = Path.cwd(),
-):
+def clean_pyc_and_pycache(start_dir: Path = Path.cwd(), ):
     total_size = 0
     dirs_removed = 0
     files_removed = 0

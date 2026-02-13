@@ -24,18 +24,18 @@ PREFIX = "Tag: py2-none-any"
 
 def clean_text(text: str) -> str:
     """Remove PREFIX lines from raw text."""
-    return "\n".join(line for line in text.splitlines() if not line.startswith(PREFIX)) + (
-        "\n" if text.endswith("\n") else ""
-    )
+    return "\n".join(
+        line for line in text.splitlines()
+        if not line.startswith(PREFIX)) + ("\n" if text.endswith("\n") else "")
 
 
 def clean_file(path: str) -> None:
     """Remove Requires-Dist lines from a normal file."""
     try:
         with open(
-            path,
-            encoding="utf-8",
-            errors="ignore",
+                path,
+                encoding="utf-8",
+                errors="ignore",
         ) as f:
             original = f.read()
     except Exception:
@@ -52,8 +52,8 @@ def process_zip(path: str) -> None:
     tmp = tempfile.mktemp(suffix=".zip")
     # why: zipfile cannot update files in place; must rewrite entire archive
     with (
-        zipfile.ZipFile(path, "r") as zin,
-        zipfile.ZipFile(tmp, "w") as zout,
+            zipfile.ZipFile(path, "r") as zin,
+            zipfile.ZipFile(tmp, "w") as zout,
     ):
         for item in zin.infolist():
             data = zin.read(item.filename)
@@ -98,7 +98,8 @@ def dispatch_archive(path: str) -> None:
     name = path.lower()
     if name.endswith(".zip") or name.endswith(".whl"):
         process_zip(path)
-    elif name.endswith(".tar.gz") or name.endswith(".tgz") or name.endswith(".tar"):
+    elif name.endswith(".tar.gz") or name.endswith(".tgz") or name.endswith(
+            ".tar"):
         process_tar(path)
 
 
@@ -113,15 +114,13 @@ def main() -> None:
                 continue
 
             # handle archives
-            if name.lower().endswith(
-                (
+            if name.lower().endswith((
                     ".zip",
                     ".whl",
                     ".tar.gz",
                     ".tgz",
                     ".tar",
-                )
-            ):
+            )):
                 #                continue
                 dispatch_archive(full_path)
 

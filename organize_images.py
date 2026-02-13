@@ -50,7 +50,10 @@ def get_image_features_cv2(image_path, size=(64, 64)):
         img_flat = img_resized.flatten()
 
         # 组合特征
-        features = np.concatenate([hist_h.flatten(), hist_s.flatten(), hist_v.flatten(), img_flat])
+        features = np.concatenate(
+            [hist_h.flatten(),
+             hist_s.flatten(),
+             hist_v.flatten(), img_flat])
 
         # 归一化
         norm = np.linalg.norm(features)
@@ -68,7 +71,9 @@ def get_all_images(directory):
     """
     Recursively find all image files.
     """
-    image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
+    image_extensions = {
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"
+    }
     image_files = []
 
     for root, _dirs, files in os.walk(directory):
@@ -123,7 +128,8 @@ def simple_clustering(features, paths, n_clusters=10, threshold=0.7):
         for i in range(len(cluster_ids)):
             for j in range(i + 1, len(cluster_ids)):
                 id1, id2 = cluster_ids[i], cluster_ids[j]
-                sim = compute_similarity(cluster_centers[id1], cluster_centers[id2])
+                sim = compute_similarity(cluster_centers[id1],
+                                         cluster_centers[id2])
 
                 if sim > max_sim:
                     max_sim = sim
@@ -181,7 +187,9 @@ def organize_photos(source_dir=".", n_clusters=10, move=False, threshold=0.7):
             features.append(feat)
             valid_paths.append(path)
 
-    print(f"\nSuccessfully processed {len(features)} out of {len(image_paths)} images")
+    print(
+        f"\nSuccessfully processed {len(features)} out of {len(image_paths)} images"
+    )
 
     if len(features) == 0:
         print("No valid images to process!")
@@ -213,7 +221,8 @@ def organize_photos(source_dir=".", n_clusters=10, move=False, threshold=0.7):
         base_name = Path(dest_path).stem
         extension = Path(dest_path).suffix
         while os.path.exists(dest_path):
-            dest_path = os.path.join(dest_dir, f"{base_name}_{counter}{extension}")
+            dest_path = os.path.join(dest_dir,
+                                     f"{base_name}_{counter}{extension}")
             counter += 1
 
         try:
@@ -231,11 +240,26 @@ def organize_photos(source_dir=".", n_clusters=10, move=False, threshold=0.7):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Organize photos by similarity")
-    parser.add_argument("-d", "--directory", default=".", help="Source directory (default: current)")
-    parser.add_argument("-k", "--clusters", type=int, default=10, help="Number of groups (default: 10)")
-    parser.add_argument("-m", "--move", action="store_true", help="Move files instead of copy")
-    parser.add_argument("-t", "--threshold", type=float, default=0.7, help="Similarity threshold (default: 0.7)")
+    parser = argparse.ArgumentParser(
+        description="Organize photos by similarity")
+    parser.add_argument("-d",
+                        "--directory",
+                        default=".",
+                        help="Source directory (default: current)")
+    parser.add_argument("-k",
+                        "--clusters",
+                        type=int,
+                        default=10,
+                        help="Number of groups (default: 10)")
+    parser.add_argument("-m",
+                        "--move",
+                        action="store_true",
+                        help="Move files instead of copy")
+    parser.add_argument("-t",
+                        "--threshold",
+                        type=float,
+                        default=0.7,
+                        help="Similarity threshold (default: 0.7)")
 
     args = parser.parse_args()
 

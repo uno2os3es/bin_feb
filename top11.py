@@ -80,7 +80,7 @@ def main() -> None:
         # Truncate long paths with ellipsis
         path_str = str(file_path)
         if len(path_str) > max_path_len:
-            path_str = "..." + path_str[-(max_path_len - 3) :]
+            path_str = "..." + path_str[-(max_path_len - 3):]
 
         size_str = format_size(size)
         print(f"{i:<4} {path_str:<{max_path_len}} {size_str:>12}")

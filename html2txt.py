@@ -7,12 +7,12 @@ def strip_html_tags(input_file, output_file) -> None:
     inside_tag = False
 
     with (
-        open(
-            input_file,
-            encoding="utf-8",
-            errors="ignore",
-        ) as f,
-        open(output_file, "w", encoding="utf-8") as out,
+            open(
+                input_file,
+                encoding="utf-8",
+                errors="ignore",
+            ) as f,
+            open(output_file, "w", encoding="utf-8") as out,
     ):
         for line in f:
             buf = []

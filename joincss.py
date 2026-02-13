@@ -88,7 +88,10 @@ def read_css(files):
 
 def atomic_write(path, content):
     path = Path(path)
-    tmp = tempfile.NamedTemporaryFile(delete=False, dir=str(path.parent), mode="w", encoding="utf-8")
+    tmp = tempfile.NamedTemporaryFile(delete=False,
+                                      dir=str(path.parent),
+                                      mode="w",
+                                      encoding="utf-8")
     try:
         tmp.write(content)
         tmp.flush()

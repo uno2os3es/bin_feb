@@ -28,11 +28,14 @@ def remove_ipynb_if_md_exists(root: Path, dry_run: bool = True):
 
     print("\n--- Summary ---")
     print(f"Checked: {checked}")
-    print(f"Removed: {removed}" if not dry_run else "Dry run only. No files removed.")
+    print(f"Removed: {removed}"
+          if not dry_run else "Dry run only. No files removed.")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Remove .ipynb files if a .md file with the same name exists.")
+    parser = argparse.ArgumentParser(
+        description=
+        "Remove .ipynb files if a .md file with the same name exists.")
     parser.add_argument(
         "--apply",
         action="store_true",

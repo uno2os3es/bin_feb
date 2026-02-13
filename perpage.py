@@ -51,7 +51,7 @@ def main():
         return
     pool = Pool(4)
     for f in files:
-        _ = pool.apply_async(process_file, ((f),))
+        _ = pool.apply_async(process_file, ((f), ))
     pool.close()
     pool.join()
     del pool

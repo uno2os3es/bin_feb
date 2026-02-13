@@ -12,7 +12,8 @@ def get_ansi_color_code(r, g, b):
         if r > 248:
             return 231
         return round(((r - 8) / 247) * 24) + 232
-    return 16 + (36 * round(r / 255 * 5)) + (6 * round(g / 255 * 5)) + round(b / 255 * 5)
+    return 16 + (36 * round(r / 255 * 5)) + (6 * round(g / 255 * 5)) + round(
+        b / 255 * 5)
 
 
 def get_color(r, g, b):

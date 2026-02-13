@@ -31,9 +31,9 @@ def compress_small_site_packages(max_size_mb=15):
                 if folder_size_mb <= max_size_mb:
                     print(f"Including folder {item} ({folder_size_mb:.2f} MB)")
                     for (
-                        root,
-                        _dirs,
-                        files_list,
+                            root,
+                            _dirs,
+                            files_list,
                     ) in os.walk(item_path):
                         for f in files_list:
                             if not f.endswith(".pyc"):

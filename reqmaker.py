@@ -6,7 +6,8 @@ from pathlib import Path
 import regex as re
 
 REQUIREMENTS_FILE = Path("requirements.txt")
-MISSING_PATTERN = re.compile(r"requires ([A-Za-z0-9_\-]+), which is not installed\.")
+MISSING_PATTERN = re.compile(
+    r"requires ([A-Za-z0-9_\-]+), which is not installed\.")
 
 
 def run_pip_check() -> str:
@@ -20,9 +21,7 @@ def run_pip_check() -> str:
     return result.stdout.strip()
 
 
-def parse_missing_packages(
-    pip_output: str,
-) -> list[str]:
+def parse_missing_packages(pip_output: str, ) -> list[str]:
     """Extract missing package names from `pip check` output."""
     missing: set[str] = set()
 
@@ -40,19 +39,21 @@ def read_existing_requirements() -> set[str]:
         return set()
 
     return {
-        line.strip() for line in REQUIREMENTS_FILE.read_text().splitlines() if line.strip() and not line.startswith("#")
+        line.strip()
+        for line in REQUIREMENTS_FILE.read_text().splitlines()
+        if line.strip() and not line.startswith("#")
     }
 
 
-def save_to_requirements(
-    packages: Iterable[str],
-) -> None:
+def save_to_requirements(packages: Iterable[str], ) -> None:
     """Merge missing packages into requirements.txt with unique entries."""
     existing = read_existing_requirements()
     merged = sorted(existing | set(packages))
 
     REQUIREMENTS_FILE.write_text("\n".join(merged) + "\n")
-    print(f"✔️ Saved {len(packages)} new package(s). Total: {len(merged)} in requirements.txt")
+    print(
+        f"✔️ Saved {len(packages)} new package(s). Total: {len(merged)} in requirements.txt"
+    )
 
 
 def main() -> None:

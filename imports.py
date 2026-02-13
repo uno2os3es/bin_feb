@@ -16,6 +16,7 @@ def get_py_files(start_path):
 
 
 class ImportVisitor(ast.NodeVisitor):
+
     def __init__(self):
         self.imports = set()
 
@@ -52,9 +53,10 @@ def find_imports(start_path):
     # Filter out standard libraries and local files
     local_files = {p.stem for p in pathlib.Path(start_path).glob("*.py")}
 
-    return sorted(
-        [imp for imp in all_imports if imp not in std_libs and imp not in local_files and imp != "__future__"]
-    )
+    return sorted([
+        imp for imp in all_imports if imp not in std_libs
+        and imp not in local_files and imp != "__future__"
+    ])
 
 
 def get_version(module_name):
@@ -74,7 +76,8 @@ def get_version(module_name):
         mod = importlib.import_module(module_name)
         # Search dictionary for 'version' related keys
         for k, v in mod.__dict__.items():
-            if ("version" in k.lower() or "ver" in k.lower()) and isinstance(v, (str, numbers.Number)):
+            if ("version" in k.lower() or "ver" in k.lower()) and isinstance(
+                    v, (str, numbers.Number)):
                 return str(v)
     except Exception:
         return "Not Installed(unknown)"
@@ -108,13 +111,8 @@ def main():
     with open(output_file, encoding="utf-8") as fin:
         lines = fin.readlines()
         for line in lines:
-            cleaned.append(
-                line.rstrip()
-                .replace("Not Installed", "")
-                .replace("==(NA)", "")
-                .replace("==(unknown)", "")
-                .replace("==", "")
-            )
+            cleaned.append(line.rstrip().replace("Not Installed", "").replace(
+                "==(NA)", "").replace("==(unknown)", "").replace("==", ""))
     pkgz = get_installed_pkgs()
     cleaned = [p for p in cleaned if p not in pkgz]
     if cleaned:

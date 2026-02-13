@@ -97,7 +97,8 @@ def format_single_file(file: Path, args) -> bool:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Fast Python API-based formatter (Lazy Loading)")
+    p = argparse.ArgumentParser(
+        description="Fast Python API-based formatter (Lazy Loading)")
     p.add_argument(
         "-b",
         "--black",
@@ -129,12 +130,9 @@ def main() -> None:
     files = []
     for pth in walk_files("."):
         path = Path(pth)
-        if (
-            path.is_file()
-            and not any(part in IGNORED_DIRS for part in path.parts)
-            and is_python_file(path)
-            and not path.is_symlink()
-        ):
+        if (path.is_file()
+                and not any(part in IGNORED_DIRS for part in path.parts)
+                and is_python_file(path) and not path.is_symlink()):
             files.append(path)
 
     if not files:
@@ -153,8 +151,7 @@ def main() -> None:
                         (name),
                         (args),
                     ),
-                )
-            )
+                ))
             if len(pending) >= MAX_IN_FLIGHT:
                 pending.popleft().get()
         while pending:

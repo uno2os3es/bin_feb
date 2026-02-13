@@ -11,7 +11,6 @@ except ImportError:
     print("pip install termcolor")
     sys.exit(1)
 
-
 VIDEO_EXTS = {".srt"}
 
 # ---------------- REGEX RULES ---------------- #
@@ -53,7 +52,10 @@ def clean_name(fname: str):
 def collect_files(path: Path, recursive: bool):
     if recursive:
         return [p for p in path.rglob("*") if p.suffix.lower() in VIDEO_EXTS]
-    return [p for p in path.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS]
+    return [
+        p for p in path.iterdir()
+        if p.is_file() and p.suffix.lower() in VIDEO_EXTS
+    ]
 
 
 def main():
@@ -78,7 +80,8 @@ def main():
         new_name = new_core + f.suffix
         target = f.with_name(new_name)
 
-        print(colored("OLD:", "red"), f.name, colored("-> NEW:", "green"), new_name)
+        print(colored("OLD:", "red"), f.name, colored("-> NEW:", "green"),
+              new_name)
 
         if args.write:
             if target.exists():

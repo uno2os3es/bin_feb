@@ -39,8 +39,8 @@ def find_and_delete_duplicates(path: Path):
 
     # For each group of files with the same hash, keep the newest and delete the rest
     for (
-        file_hash,
-        paths,
+            file_hash,
+            paths,
     ) in files_by_hash.items():
         if len(paths) > 1:
             # Count the duplicates (all but one)

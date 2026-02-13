@@ -64,7 +64,9 @@ def main():
             for img, _ in group:
                 shutil.move(str(img), folder / img.name)
 
-    print(f"Done. Created {len([g for g in groups if len(g) > 1])} groups with multiple images.")
+    print(
+        f"Done. Created {len([g for g in groups if len(g) > 1])} groups with multiple images."
+    )
 
 
 if __name__ == "__main__":

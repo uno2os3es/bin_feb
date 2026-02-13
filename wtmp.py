@@ -60,7 +60,8 @@ class CopyEventHandler(FileSystemEventHandler):
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else "/data/data/com.termux/files/usr/tmp"
+    path = sys.argv[1] if len(
+        sys.argv) > 1 else "/data/data/com.termux/files/usr/tmp"
 
     # 1️⃣ Perform startup scan before watching
     startup_scan(path)

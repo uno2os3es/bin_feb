@@ -43,10 +43,15 @@ class JalaliDate:
     ]
 
     # Jalali weekday names in English
-    JALALI_WEEKDAYS_EN = ["Shanbeh", "Yekshanbe", "Doshanbe", "Seshanbe", "Chaharshanbe", "Panjshanbe", "Jomeh"]
+    JALALI_WEEKDAYS_EN = [
+        "Shanbeh", "Yekshanbe", "Doshanbe", "Seshanbe", "Chaharshanbe",
+        "Panjshanbe", "Jomeh"
+    ]
 
     # Jalali weekday names in Persian
-    JALALI_WEEKDAYS_FA = ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"]
+    JALALI_WEEKDAYS_FA = [
+        "شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"
+    ]
 
     def __init__(self, jalali_year: int, jalali_month: int, jalali_day: int):
         """
@@ -71,7 +76,9 @@ class JalaliDate:
     def today() -> "JalaliDate":
         """Get today's date in Jalali calendar."""
         gregorian_date = datetime.now()
-        return JalaliDate.from_gregorian(gregorian_date.year, gregorian_date.month, gregorian_date.day)
+        return JalaliDate.from_gregorian(gregorian_date.year,
+                                         gregorian_date.month,
+                                         gregorian_date.day)
 
     @staticmethod
     def from_gregorian(g_year: int, g_month: int, g_day: int) -> "JalaliDate":
@@ -92,12 +99,14 @@ class JalaliDate:
         gd = g_day - 1
 
         g_day_of_year = (
-            sum([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][:gm])
-            + gd
-            + (1 if (gm > 1 and ((g_year % 4 == 0 and g_year % 100 != 0) or g_year % 400 == 0)) else 0)
-        )
+            sum([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][:gm]) + gd +
+            (1 if
+             (gm > 1 and
+              ((g_year % 4 == 0 and g_year % 100 != 0) or g_year % 400 == 0))
+             else 0))
 
-        g_day_no = gy * 365 + ((gy + 3) // 4) - ((gy + 99) // 100) + ((gy + 399) // 400) + g_day_of_year
+        g_day_no = gy * 365 + ((gy + 3) // 4) - ((gy + 99) // 100) + (
+            (gy + 399) // 400) + g_day_of_year
 
         # Calculate Jalali date
         j_day_no = g_day_no - 79
@@ -324,7 +333,9 @@ class JalaliCalendar:
 
         return calendar_grid
 
-    def print_month(self, language: str = "en", show_header: bool = True) -> str:
+    def print_month(self,
+                    language: str = "en",
+                    show_header: bool = True) -> str:
         """
         Generate formatted month calendar.
 
@@ -423,6 +434,7 @@ class JalaliCalendar:
 
 
 class JalaliDateFormatter:
+
     @staticmethod
     def format(date: JalaliDate, time: datetime, fmt: str) -> str:
         output = fmt
@@ -433,8 +445,10 @@ class JalaliDateFormatter:
 
         # Month
         output = output.replace("%m", f"{date.month:02d}")
-        output = output.replace("%B", JalaliDate.JALALI_MONTHS_EN[date.month - 1])
-        output = output.replace("%b", JalaliDate.JALALI_MONTHS_EN[date.month - 1][:3])
+        output = output.replace("%B",
+                                JalaliDate.JALALI_MONTHS_EN[date.month - 1])
+        output = output.replace(
+            "%b", JalaliDate.JALALI_MONTHS_EN[date.month - 1][:3])
 
         # Day
         output = output.replace("%d", f"{date.day:02d}")
@@ -450,7 +464,9 @@ class JalaliDateFormatter:
         return output.replace("%S", f"{time.second:02d}")
 
     @staticmethod
-    def format_fa(date: JalaliDate, fmt: str = "%Y/%m/%d %H:%M:%S", include_time: bool = True) -> str:
+    def format_fa(date: JalaliDate,
+                  fmt: str = "%Y/%m/%d %H:%M:%S",
+                  include_time: bool = True) -> str:
 
         output = fmt
         now = datetime.now()
@@ -461,16 +477,20 @@ class JalaliDateFormatter:
 
         # Month
         output = output.replace("%m", f"{date.month:02d}")
-        output = output.replace("%B", JalaliDate.JALALI_MONTHS_FA[date.month - 1])
-        output = output.replace("%b", JalaliDate.JALALI_MONTHS_FA[date.month - 1][:3])
+        output = output.replace("%B",
+                                JalaliDate.JALALI_MONTHS_FA[date.month - 1])
+        output = output.replace(
+            "%b", JalaliDate.JALALI_MONTHS_FA[date.month - 1][:3])
 
         # Day
         output = output.replace("%d", f"{date.day:02d}")
 
         # Weekday
         weekday_num = date.weekday()
-        output = output.replace("%A", JalaliDate.JALALI_WEEKDAYS_FA[weekday_num])
-        output = output.replace("%a", JalaliDate.JALALI_WEEKDAYS_FA[weekday_num][:3])
+        output = output.replace("%A",
+                                JalaliDate.JALALI_WEEKDAYS_FA[weekday_num])
+        output = output.replace("%a",
+                                JalaliDate.JALALI_WEEKDAYS_FA[weekday_num][:3])
 
         # Time
         output = output.replace("%H", f"{now.hour:02d}")
@@ -478,7 +498,9 @@ class JalaliDateFormatter:
         return output.replace("%S", f"{now.second:02d}")
 
 
-def jcal(month: int | None = None, year: int | None = None, language: str = "en") -> str:
+def jcal(month: int | None = None,
+         year: int | None = None,
+         language: str = "en") -> str:
     if year is None or month is None:
         today = JalaliDate.today()
         if year is None:

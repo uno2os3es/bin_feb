@@ -31,9 +31,9 @@ def format_file(file_path):
         if int(result) == 0:
             print(f"[OK] no change")
         elif result < 0:
-            print(f"[OK] {abs(format_size(result))} bigger than orig")
+            print(f"[OK] {format_size(abs(result))} bigger than orig")
         elif result > 0:
-            print(f"[OK] {abs(format_size(result))} smaller than orig")
+            print(f"[OK] {format_size(result)} smaller than orig")
         return True
     else:
         print(f"[ERROR] {err}")
@@ -58,7 +58,7 @@ def main() -> None:
         pending = deque()
 
         for f in jfiles:
-            pending.append(p.apply_async(format_file, (f,)))
+            pending.append(p.apply_async(format_file, (f, )))
 
             if len(pending) >= MAX_IN_FLIGHT:
                 pending.popleft().get()

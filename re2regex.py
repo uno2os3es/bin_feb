@@ -25,13 +25,11 @@ def update_file(file_path, reverse=False):
             # Only attempt replacement if we haven't hit the main body of the code
             # (Crude check: stop if line starts with a char that isn't import/from/whitespace/#)
             if not changed and re.match(search_pat, line):
-                new_lines.append(
-                    re.sub(
-                        search_pat,
-                        replacement,
-                        line,
-                    )
-                )
+                new_lines.append(re.sub(
+                    search_pat,
+                    replacement,
+                    line,
+                ))
                 changed = True
             else:
                 new_lines.append(line)
@@ -49,7 +47,8 @@ def update_file(file_path, reverse=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Recursively swap 'import re' with 'import regex as re'")
+    parser = argparse.ArgumentParser(
+        description="Recursively swap 'import re' with 'import regex as re'")
     parser.add_argument(
         "-r",
         "--reverse",
@@ -71,8 +70,7 @@ def main():
                 update_file,
                 py_files,
                 [args.reverse] * len(py_files),
-            )
-        )
+            ))
 
     # Filter and print results
     updates = [r for r in results if r]

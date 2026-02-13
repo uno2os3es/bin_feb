@@ -76,6 +76,7 @@ def copy_asset(src, assets_dir):
 
 
 def rewrite_urls(css_text, css_dir, assets_dir):
+
     def repl(match):
         url = match.group(2).strip().strip("\"'")
         if url.startswith("http"):

@@ -23,7 +23,8 @@ def collectfiles(dir):
         path = Path(pth)
         if path.is_symlink():
             continue
-        if path.is_file() and (path.suffix in {".html", ".htm", ".xml", ".svg", ".mhtml"}):
+        if path.is_file() and (path.suffix
+                               in {".html", ".htm", ".xml", ".svg", ".mhtml"}):
             filez.append(path)
     return filez
 
