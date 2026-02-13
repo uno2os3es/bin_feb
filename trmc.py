@@ -40,7 +40,27 @@ class TSRemover:
         for start, end in sorted(to_delete, reverse=True):
             new_source = new_source[:start] + new_source[end:]
 
-        return new_source.decode("utf-8")
+        cleaned = new_source.decode("utf-8")
+        cleaned = self._cleanup_blank_lines(cleaned)
+        return cleaned
+
+    @staticmethod
+    def _cleanup_blank_lines(text: str) -> str:
+        lines = text.splitlines()
+        cleaned = []
+        blank_streak = 0
+        for line in lines:
+            if line.strip() == "":
+                blank_streak += 1
+                if blank_streak <= 2:
+                    cleaned.append("")
+            else:
+                blank_streak = 0
+                cleaned.append(line.rstrip())
+        return "\n".join(cleaned) + "\n"
+
+
+#        return new_source.decode("utf-8")
 
 
 if __name__ == "__main__":

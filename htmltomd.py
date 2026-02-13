@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 from bs4 import BeautifulSoup
-
 # Install: pip install html-to-markdown beautifulsoup4
 from html_to_markdown import Options, convert
 

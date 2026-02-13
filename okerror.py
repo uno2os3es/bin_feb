@@ -1,8 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python
 import shutil
 import subprocess
-from collections import deque
-from multiprocessing import Pool
 from pathlib import Path
 
 ERROR_DIR = Path("error")

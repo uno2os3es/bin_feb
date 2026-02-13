@@ -1,15 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
 import sys
-
-import dh
+from pathlib import Path
 
 
 def split_file_by_delimiter(fname, delim) -> None:
     # Read the file contents
     with open(fname) as f:
         content = f.read()
-    path = dh.Path(fname)
+    path = Path(fname)
     basen = path.stem
     i = 0
     ext = path.suffix

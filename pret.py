@@ -1,11 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
+from time import perf_counter
 from collections import deque
 from multiprocessing import Pool
 from pathlib import Path
-from subprocess import CalledProcessError, run
-from time import perf_counter
-
+from dh import folder_size,format_size,run_command,file_size
 from fastwalk import walk_files
 
 MAX_IN_FLIGHT = 16
@@ -24,35 +22,26 @@ FILE_EXTENSIONS = {
 
 
 def format_file(file_path):
-    try:
-        run(
-            ["prettier", "-w", str(file_path)],
-            check=True,
-        )
+    start=file_size(file_path)
+    print(f"{file_path.name}",end="  ")
+    cmd=f"prettier -w {str(file_path)}"
+    out,err,code=run_command(cmd)
+    if code==0:
+        result=start-file_size(file_path)
+        if int(result)==0:
+            print(f"[OK] no change")
+        elif result<0:
+            print(f"[OK] {abs(format_size(result))} bigger than orig")
+        elif result>0:
+            print(f"[OK] {abs(format_size(result))} smaller than orig")
         return True
-    except (
-        CalledProcessError,
-        FileNotFoundError,
-    ):
+    else:
+        print(f"[ERROR] {err}")
         return False
 
 
-def pooler(files):
-    with Pool(8) as p:
-        pending = deque()
-
-        for f in files:
-            pending.append(p.apply_async(format_file, (f,)))
-
-            if len(pending) >= MAX_IN_FLIGHT:
-                pending.popleft().get()
-
-        while pending:
-            pending.popleft().get()
-
-
 def main() -> None:
-    start = perf_counter()
+    start = folder_size(".")
     jfiles = []
     for pth in walk_files("."):
         path = Path(pth)
@@ -65,8 +54,20 @@ def main() -> None:
         return
 
     print(f"Formatting {len(jfiles)} files usin mp...")
-    pooler(jfiles)
-    print(f"{perf_counter() - start} secs")
+    with Pool(8) as p:
+        pending = deque()
+
+        for f in jfiles:
+            pending.append(p.apply_async(format_file, (f,)))
+
+            if len(pending) >= MAX_IN_FLIGHT:
+                pending.popleft().get()
+
+        while pending:
+            pending.popleft().get()
+
+    end=folder_size(".")
+    print(f"{format_size(start-end)}")
 
 
 if __name__ == "__main__":
