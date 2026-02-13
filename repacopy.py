@@ -7,9 +7,9 @@ then copies package files into a wheel-like structure in ~/tmp/repack
 
 import argparse
 import logging
-from pathlib import Path
 import shutil
 import sys
+from pathlib import Path
 
 # Set up logging
 logging.basicConfig(

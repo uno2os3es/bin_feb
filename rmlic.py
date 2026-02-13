@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
+
 import regex as re
-from dh import BIN_EXT,TXT_EXT, is_binary
+from dh import BIN_EXT, TXT_EXT, is_binary
+
 # -------- CONFIG --------
 LIC_FILE = Path("/sdcard/lic")
 MIN_BLANK_LINES = 3  # Minimum blank lines to separate patterns
-NUM_WORKERS = max(cpu_count(),8)
+NUM_WORKERS = max(cpu_count(), 8)
 EXCLUDE_EXTS = BIN_EXT
 # ------------------------
 
@@ -75,6 +77,7 @@ def should_process_file(file_path: Path) -> bool:
         return False
     else:
         return True
+
 
 def clean_file_worker(args: tuple) -> tuple:
     """Worker function to clean a single file."""

@@ -6,72 +6,73 @@ Replaces the basic html2md executable with a more robust Python solution.
 
 import argparse
 import sys
-from pathlib import Path
 from multiprocessing import Pool, cpu_count
+from pathlib import Path
 from typing import Optional, Tuple
 
-# Install: pip install html-to-markdown beautifulsoup4
-from html_to_markdown import convert, Options
 from bs4 import BeautifulSoup
+
+# Install: pip install html-to-markdown beautifulsoup4
+from html_to_markdown import Options, convert
 
 
 def clean_html(html_content: str) -> str:
     """
     Pre-process HTML to remove scripts, styles, and other non-content elements.
-    
+
     Args:
         html_content: Raw HTML string
-        
+
     Returns:
         Cleaned HTML string
     """
-    soup = BeautifulSoup(html_content, 'html.parser')
-    
+    soup = BeautifulSoup(html_content, "html.parser")
+
     # Remove script tags and their content
-    for script in soup.find_all('script'):
+    for script in soup.find_all("script"):
         script.decompose()
-    
+
     # Remove style tags and their content
-    for style in soup.find_all('style'):
+    for style in soup.find_all("style"):
         style.decompose()
-    
+
     # Remove comment tags
-    for comment in soup.find_all(string=lambda text: isinstance(text, str) and text.strip().startswith('<!--')):
+    for comment in soup.find_all(string=lambda text: isinstance(text, str) and text.strip().startswith("<!--")):
         comment.extract()
-    
+
     # Remove common non-content elements
-    for tag in soup.find_all(['nav', 'footer', 'aside', 'iframe', 'noscript']):
+    for tag in soup.find_all(["nav", "footer", "aside", "iframe", "noscript"]):
         tag.decompose()
-    
+
     # Remove form elements (they don't translate well to Markdown)
-    for form in soup.find_all('form'):
+    for form in soup.find_all("form"):
         form.decompose()
-    
+
     return str(soup)
 
 
 def convert_html_to_md(html_file: Path, options: Optional[Options] = None) -> Tuple[Path, bool]:
     """
     Convert HTML file to Markdown with enhanced handling.
-    
+
     Args:
         html_file: Path to HTML file
         options: Conversion options
-        
+
     Returns:
         Tuple of (output_file_path, success_status)
     """
-    if html_file.suffix.lower() not in ['.html', '.htm']:
+    if html_file.suffix.lower() not in [".html", ".htm"]:
         print(f"Warning: {html_file} doesn't have .html/.htm extension, skipping.")
         return (html_file, False)
-    
+
     try:
         # Read HTML content
-        html_content = html_file.read_text(encoding='utf-8')
-        
+        html_content = html_file.read_text(encoding="utf-8")
+
         # Clean HTML (remove scripts, styles, forms, etc.)
         cleaned_html = clean_html(html_content)
-        
+
         # Configure conversion options
         if options is None:
             options = Options(
@@ -81,28 +82,26 @@ def convert_html_to_md(html_file: Path, options: Optional[Options] = None) -> Tu
                 extract_structured_data=False,  # Skip JSON-LD, Microdata
                 github_flavored=True,  # Use GitHub-flavored Markdown
             )
-        
+
         # Convert to Markdown
         markdown_content = convert(cleaned_html, options=options)
-        
+
         # Post-process: clean up excessive newlines
-        markdown_content = '\n'.join(
-            line for line in markdown_content.split('\n')
-            if line.strip() or line == ''
-        )
-        
+        markdown_content = "\n".join(line for line in markdown_content.split("\n") if line.strip() or line == "")
+
         # Remove excessive blank lines (more than 2 consecutive)
         import re
-        markdown_content = re.sub(r'\n{3,}', '\n\n', markdown_content)
-        
+
+        markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
+
         # Generate output filename
-        md_file = html_file.with_suffix('.md')
-        
+        md_file = html_file.with_suffix(".md")
+
         # Write Markdown content
-        md_file.write_text(markdown_content, encoding='utf-8')
+        md_file.write_text(markdown_content, encoding="utf-8")
         print(f"✓ Converted: {html_file.name} -> {md_file.name}")
         return (md_file, True)
-        
+
     except Exception as e:
         print(f"✗ Error converting {html_file.name}: {e}", file=sys.stderr)
         return (html_file, False)
@@ -111,9 +110,9 @@ def convert_html_to_md(html_file: Path, options: Optional[Options] = None) -> Tu
 def find_html_files(directory: Path, recursive: bool = True) -> list[Path]:
     """Find all HTML files in directory."""
     if recursive:
-        html_files = list(directory.rglob('*.html')) + list(directory.rglob('*.htm'))
+        html_files = list(directory.rglob("*.html")) + list(directory.rglob("*.htm"))
     else:
-        html_files = list(directory.glob('*.html')) + list(directory.glob('*.htm'))
+        html_files = list(directory.glob("*.html")) + list(directory.glob("*.htm"))
     return sorted(html_files)
 
 
@@ -125,7 +124,7 @@ def process_file_wrapper(args: Tuple) -> Tuple[Path, bool]:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Enhanced HTML to Markdown converter with better HTML5/JS/form handling',
+        description="Enhanced HTML to Markdown converter with better HTML5/JS/form handling",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -134,52 +133,31 @@ Examples:
   %(prog)s file.html                # Process single file
   %(prog)s /path/to/directory       # Process directory recursively
   %(prog)s --no-recursive           # Process directory non-recursively
-        """
+        """,
     )
-    
+
     parser.add_argument(
-        'path',
-        nargs='?',
-        default='.',
-        help='HTML file or directory to process (default: current directory)'
+        "path", nargs="?", default=".", help="HTML file or directory to process (default: current directory)"
     )
-    
+
     parser.add_argument(
-        '-r', '--recursive',
-        action='store_true',
-        default=True,
-        help='Process directories recursively (default: True)'
+        "-r", "--recursive", action="store_true", default=True, help="Process directories recursively (default: True)"
     )
-    
+
+    parser.add_argument("--no-recursive", action="store_false", dest="recursive", help="Disable recursive processing")
+
     parser.add_argument(
-        '--no-recursive',
-        action='store_false',
-        dest='recursive',
-        help='Disable recursive processing'
+        "--workers", type=int, default=cpu_count(), help=f"Number of worker processes (default: {cpu_count()})"
     )
-    
+
+    parser.add_argument("--keep-forms", action="store_true", help="Keep form elements (default: remove them)")
+
     parser.add_argument(
-        '--workers',
-        type=int,
-        default=cpu_count(),
-        help=f'Number of worker processes (default: {cpu_count()})'
+        "--github-flavored", action="store_true", default=True, help="Use GitHub-flavored Markdown (default: True)"
     )
-    
-    parser.add_argument(
-        '--keep-forms',
-        action='store_true',
-        help='Keep form elements (default: remove them)'
-    )
-    
-    parser.add_argument(
-        '--github-flavored',
-        action='store_true',
-        default=True,
-        help='Use GitHub-flavored Markdown (default: True)'
-    )
-    
+
     args = parser.parse_args()
-    
+
     # Configure conversion options
     options = Options(
         extract_headers=True,
@@ -188,14 +166,14 @@ Examples:
         extract_structured_data=False,
         github_flavored=args.github_flavored,
     )
-    
+
     # Convert path to Path object
     input_path = Path(args.path).resolve()
-    
+
     if not input_path.exists():
         print(f"Error: Path '{input_path}' does not exist.", file=sys.stderr)
         sys.exit(1)
-    
+
     # Determine files to process
     if input_path.is_file():
         html_files = [input_path]
@@ -208,22 +186,22 @@ Examples:
     else:
         print(f"Error: '{input_path}' is neither a file nor a directory.", file=sys.stderr)
         sys.exit(1)
-    
+
     # Process files
     if len(html_files) == 1:
         convert_html_to_md(html_files[0], options)
     else:
         print(f"Using {args.workers} worker process(es)")
-        
+
         process_args = [(f, options) for f in html_files]
-        
+
         with Pool(processes=args.workers) as pool:
             results = pool.map(process_file_wrapper, process_args)
-        
+
         successful = sum(1 for _, success in results if success)
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print(f"Conversion complete: {successful}/{len(html_files)} files converted successfully")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

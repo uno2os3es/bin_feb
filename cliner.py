@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import mmap
+import re
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
-import re
 
 # -------- CONFIG --------
 LOG_EXT = ".log"
@@ -40,7 +40,6 @@ def clean_line(line: str) -> str:
 
     # Remove multiple consecutive spaces (optional)
     return re.sub(r" {2,}", " ", cleaned)
-
 
 
 def clean_file_small(file_path: Path) -> tuple:

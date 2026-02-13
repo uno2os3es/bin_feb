@@ -6,8 +6,8 @@ import hashlib
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from dh import MIME_TO_EXT, TXT_EXT
 import regex as re
+from dh import MIME_TO_EXT, TXT_EXT
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

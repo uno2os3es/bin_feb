@@ -5,8 +5,8 @@ Renames files and directories according to specified rules.
 
 import argparse
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def get_unique_name(path, base_name):

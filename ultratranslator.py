@@ -1,15 +1,15 @@
 #!/data/data/com.termux/files/usr/bin/python
 import ast
 import io
-from multiprocessing import Pool
-from pathlib import Path
 import shutil
 import tempfile
 import tokenize
+from multiprocessing import Pool
+from pathlib import Path
 
+import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
-import regex as re
 from tqdm import tqdm
 
 DIRECTORY = "."

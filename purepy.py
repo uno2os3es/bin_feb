@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 

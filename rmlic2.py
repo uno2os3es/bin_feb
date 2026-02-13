@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
-from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 from dh import is_binary

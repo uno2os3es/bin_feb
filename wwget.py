@@ -3,13 +3,13 @@
 Parallel resumable file downloader with pause, resume, and auto-recovery.
 """
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
 import signal
 import sys
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 

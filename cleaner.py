@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-from fastwalk import walk_files
 import regex as re
+from fastwalk import walk_files
 
 
 def clean_log(path):

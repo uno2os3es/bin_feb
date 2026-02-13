@@ -4,8 +4,8 @@ import os
 import sys
 from urllib.parse import urljoin, urlparse
 
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
 
 def extract_links(url: str):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from pathlib import Path
 import pydoc
 import sys
+from pathlib import Path
 
 README_CANDIDATES = [
     "README.md",

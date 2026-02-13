@@ -6,8 +6,8 @@ SAFE FOR PYTHON CODE.
 """
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from deep_translator import GoogleTranslator, single_detection
 

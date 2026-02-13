@@ -2,9 +2,9 @@
 # translate en to fa
 
 import os
-from pathlib import Path
 import sys
 import time
+from pathlib import Path
 
 from deep_translator import GoogleTranslator
 from tqdm import tqdm

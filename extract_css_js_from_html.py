@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import os
-from pathlib import Path
 import random
 import string
+from pathlib import Path
 from sys import exit
 from time import perf_counter
 

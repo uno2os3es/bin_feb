@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import argparse
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-import time
+
 from dh import is_image
 
 try:
@@ -105,8 +106,6 @@ def convert_file(file_path: str) -> bool:
     except Exception as e:
         print(f"Error converting '{path.name}': {e}")
         return False
-
-
 
 
 def main() -> None:

@@ -2,8 +2,8 @@
 import os
 import sys
 
-from fontTools.ttLib import TTFont
 import regex as re
+from fontTools.ttLib import TTFont
 from termcolor import cprint
 
 # ---------- helpers ----------

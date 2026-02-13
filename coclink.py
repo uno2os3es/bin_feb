@@ -1,10 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/python
-from datetime import UTC, datetime, timedelta
 import os
+from datetime import UTC, datetime, timedelta
 
+import regex as re
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
-import regex as re
 
 # Load API Key
 load_dotenv()

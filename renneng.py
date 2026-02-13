@@ -2,9 +2,9 @@
 import os
 from pathlib import Path
 
+import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
-import regex as re
 
 # Directory to scan
 DIRECTORY = "."

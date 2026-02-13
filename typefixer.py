@@ -27,7 +27,7 @@ def correct_file_extensions(root_dir=".", dry_run=True) -> None:
             current_path = Path(dirpath) / filename
             if not current_path.is_file():
                 continue
-            if current_path.suffix=="css":
+            if current_path.suffix == "css":
                 continue
             try:
                 mime_type_full = m.from_file(str(current_path))

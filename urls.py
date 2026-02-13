@@ -5,13 +5,13 @@ path: ./extract_urls.py
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import tarfile
 import threading
-from urllib.parse import urlparse, urlunparse
 import zipfile
+from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import urlparse, urlunparse
 
 import regex as re
 

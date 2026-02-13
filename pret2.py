@@ -6,10 +6,12 @@ Excludes .min.js and .min.css files.
 """
 
 import os
-from pathlib import Path
 import shutil
 import subprocess
+from pathlib import Path
+
 from dh import unique_path
+
 # File extensions to format
 EXTENSIONS = {".js", ".css", ".html", ".json", ".mjs", ".cjs", ".ts", ".jsx", ".tsx"}
 
@@ -46,7 +48,7 @@ def move_to_error_folder(file_path: Path) -> None:
     error_dir.mkdir(exist_ok=True)
 
     dest = error_dir / file_path.name
-    dest=unique_path(dest)
+    dest = unique_path(dest)
     shutil.move(str(file_path), str(dest))
     print(f"  ❌ Moved to error folder: {dest}")
 

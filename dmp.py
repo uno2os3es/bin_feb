@@ -3,8 +3,9 @@
 from os.path import relpath
 from pathlib import Path
 
-EXCLUDED = {".git", "tmp", "var", ".cache", "etc","android","bin","config","lib"}
-COUNT=0
+EXCLUDED = {".git", "tmp", "var", ".cache", "etc", "android", "bin", "config", "lib"}
+COUNT = 0
+
 
 def delete_empty_dirs(root: Path) -> None:
     global COUNT
@@ -12,15 +13,15 @@ def delete_empty_dirs(root: Path) -> None:
         if path.is_dir():
             if path.name in EXCLUDED:
                 continue
-            if path.name.startswith("mc") and path.parent.name=="tmp":
+            if path.name.startswith("mc") and path.parent.name == "tmp":
                 continue
             delete_empty_dirs(path)
 
             try:
                 if not any(path.iterdir()):
-#                    print(f"[DELETED] {relpath(path)}")
+                    #                    print(f"[DELETED] {relpath(path)}")
                     path.rmdir()
-                    COUNT+=1
+                    COUNT += 1
             except PermissionError:
                 print(f"[ERR] {relpath(path)}")
             except OSError as e:

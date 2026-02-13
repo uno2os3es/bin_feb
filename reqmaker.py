@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+import subprocess
 from collections.abc import Iterable
 from pathlib import Path
-import subprocess
 
 import regex as re
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from pathlib import Path
 import re
+from pathlib import Path
 
 # -------- CONFIG --------
 LOG_EXT = ".log"
@@ -33,7 +33,6 @@ def clean_line(line: str) -> str:
 
     # Remove multiple consecutive spaces (optional)
     return re.sub(r" {2,}", " ", cleaned)
-
 
 
 def clean_file(file_path: Path) -> None:

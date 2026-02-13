@@ -8,8 +8,8 @@ import json
 import multiprocessing
 import os
 
-from rcssmin import cssmin
 import regex as re
+from rcssmin import cssmin
 
 
 def minify_html(html: str) -> str:
