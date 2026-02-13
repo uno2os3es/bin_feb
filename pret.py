@@ -3,7 +3,7 @@ from time import perf_counter
 from collections import deque
 from multiprocessing import Pool
 from pathlib import Path
-from dh import folder_size,format_size,run_command,file_size
+from dh import folder_size, format_size, run_command, file_size
 from fastwalk import walk_files
 
 MAX_IN_FLIGHT = 16
@@ -22,17 +22,17 @@ FILE_EXTENSIONS = {
 
 
 def format_file(file_path):
-    start=file_size(file_path)
-    print(f"{file_path.name}",end="  ")
-    cmd=f"prettier -w {str(file_path)}"
-    out,err,code=run_command(cmd)
-    if code==0:
-        result=start-file_size(file_path)
-        if int(result)==0:
+    start = file_size(file_path)
+    print(f"{file_path.name}", end="  ")
+    cmd = f"prettier -w {str(file_path)}"
+    out, err, code = run_command(cmd)
+    if code == 0:
+        result = start - file_size(file_path)
+        if int(result) == 0:
             print(f"[OK] no change")
-        elif result<0:
+        elif result < 0:
             print(f"[OK] {abs(format_size(result))} bigger than orig")
-        elif result>0:
+        elif result > 0:
             print(f"[OK] {abs(format_size(result))} smaller than orig")
         return True
     else:
@@ -66,8 +66,8 @@ def main() -> None:
         while pending:
             pending.popleft().get()
 
-    end=folder_size(".")
-    print(f"{format_size(start-end)}")
+    end = folder_size(".")
+    print(f"{format_size(start - end)}")
 
 
 if __name__ == "__main__":

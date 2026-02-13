@@ -25,7 +25,7 @@ def minify_json_file(path: Path, dry_run: bool = False) -> bool:
     minified = json.dumps(
         data,
         separators=(",", ":"),  # remove spaces
-        ensure_ascii=False      # preserve unicode
+        ensure_ascii=False,  # preserve unicode
     )
 
     if original.strip() == minified:
