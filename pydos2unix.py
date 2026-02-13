@@ -26,12 +26,12 @@ from tqdm import tqdm
 def needs_conversion(path: Path) -> bool:
     try:
         with (
-                path.open("rb") as f,
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ,
-                ) as mm,
+            path.open("rb") as f,
+            mmap.mmap(
+                f.fileno(),
+                0,
+                access=mmap.ACCESS_READ,
+            ) as mm,
         ):
             return mm.find(b"\r\n") != -1
     except Exception:
@@ -58,13 +58,13 @@ def convert_in_place(path: Path) -> None:
 def convert_with_temp(path: Path) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     with (
-            path.open(
-                "r",
-                encoding="utf-8",
-                errors="ignore",
-                newline="",
-            ) as src,
-            tmp.open("w", encoding="utf-8", newline="") as dst,
+        path.open(
+            "r",
+            encoding="utf-8",
+            errors="ignore",
+            newline="",
+        ) as src,
+        tmp.open("w", encoding="utf-8", newline="") as dst,
     ):
         for line in src:
             dst.write(line.replace("\r\n", "\n"))
@@ -146,8 +146,7 @@ def worker(args):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Fast dos2unix converter with mmap, tqdm, error logging.")
+    parser = argparse.ArgumentParser(description="Fast dos2unix converter with mmap, tqdm, error logging.")
 
     parser.add_argument(
         "paths",
@@ -192,12 +191,11 @@ def main() -> None:
     tasks = [(p, args.dry_run) for p in files]
 
     if args.parallel > 1:
-        with Pool(args.parallel) as pool, tqdm(total=len(tasks),
-                                               unit="file") as bar:
+        with Pool(args.parallel) as pool, tqdm(total=len(tasks), unit="file") as bar:
             for _ in pool.imap_unordered(
-                    worker,
-                    tasks,
-                    chunksize=args.chunksize,
+                worker,
+                tasks,
+                chunksize=args.chunksize,
             ):
                 bar.update(1)
     else:

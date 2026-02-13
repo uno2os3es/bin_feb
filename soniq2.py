@@ -23,12 +23,12 @@ def sort_and_uniq(file_path):
         if file_size > MB_5:
             # Use mmap for files > 5MB to map file content directly to virtual memory
             with (
-                    open(file_path, "r+b") as f,
-                    mmap.mmap(
-                        f.fileno(),
-                        0,
-                        access=mmap.ACCESS_READ,
-                    ) as mm,
+                open(file_path, "r+b") as f,
+                mmap.mmap(
+                    f.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ,
+                ) as mm,
             ):
                 # Convert bytes to string lines
                 lines = mm.read().decode("utf-8").splitlines()

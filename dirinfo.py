@@ -28,8 +28,7 @@ def scan_directory(path="."):
 
 
 def write_summary(filename=".dirinfo"):
-    total_size, file_count, folder_count, extensions, size_by_ext = scan_directory(
-    )
+    total_size, file_count, folder_count, extensions, size_by_ext = scan_directory()
     with open(filename, "w") as f:
         f.write(f"total size: {total_size} bytes\n")
         f.write(f"extensions: {', '.join(sorted(extensions))}\n")

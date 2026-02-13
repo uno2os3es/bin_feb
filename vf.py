@@ -31,8 +31,7 @@ def cleanup_wheels(whl_files):
             # Track date-based versions
             if "-" in version:  # Date-like version (e.g., 20251103)
                 date_part = version.split("-")[-1]  # Extract the date part
-                if package_name not in latest_versions or date_part > latest_versions[
-                        package_name][0]:
+                if package_name not in latest_versions or date_part > latest_versions[package_name][0]:
                     latest_versions[package_name] = (date_part, version)
 
     # Second pass: Clean up non-latest versions or unwanted variants
@@ -44,9 +43,9 @@ def cleanup_wheels(whl_files):
             python_variant = match.group("python")
 
             # For PyCryptodome
-            if (package_name == "pycryptodome" and python_variant
-                    == "py3-none-any") or (package_name == "matplotlib" and
-                                           python_variant == "py3-none-any"):
+            if (package_name == "pycryptodome" and python_variant == "py3-none-any") or (
+                package_name == "matplotlib" and python_variant == "py3-none-any"
+            ):
                 os.remove(os.path.join(whl_directory, file))
                 print(f"Deleted: {file}")
                 deleted_files += 1

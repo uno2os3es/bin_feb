@@ -78,8 +78,7 @@ def build_groups(root: Path, cache: dict):
             size = st.st_size
             mtime = st.st_mtime
             cached = cache.get(key)
-            if cached and cached.get("size") == size and cached.get(
-                    "mtime") == mtime:
+            if cached and cached.get("size") == size and cached.get("mtime") == mtime:
                 h = cached["hash"]
             else:
                 try:
@@ -186,8 +185,7 @@ def restore(dry_run=False):
         for orig in originals:
             # if original exists and is not a symlink, skip
             if orig.exists() and not orig.is_symlink():
-                print(
-                    f"skipping restore for {orig} (exists and not a symlink)")
+                print(f"skipping restore for {orig} (exists and not a symlink)")
                 continue
             # if it's a symlink, ensure it points to our stored file
             if orig.is_symlink():
@@ -232,8 +230,7 @@ def restore(dry_run=False):
 
 def main():
     ap = argparse.ArgumentParser(
-        description=
-        "Deduplicate files by moving one copy to ~/dups and symlinking duplicates using xxhash."
+        description="Deduplicate files by moving one copy to ~/dups and symlinking duplicates using xxhash."
     )
     ap.add_argument(
         "path",

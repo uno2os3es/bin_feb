@@ -39,8 +39,8 @@ def unzip_file(archive: Path, target_dir: Path) -> bool:
             )
             return result.returncode == 0
         except (
-                subprocess.CalledProcessError,
-                FileNotFoundError,
+            subprocess.CalledProcessError,
+            FileNotFoundError,
         ):
             return False
     if archive.suffix == ".whl":
@@ -54,8 +54,8 @@ def unzip_file(archive: Path, target_dir: Path) -> bool:
             )
             return result.returncode == 0
         except (
-                subprocess.CalledProcessError,
-                FileNotFoundError,
+            subprocess.CalledProcessError,
+            FileNotFoundError,
         ):
             return False
     else:
@@ -69,8 +69,8 @@ def unzip_file(archive: Path, target_dir: Path) -> bool:
             )
             return result.returncode == 0
         except (
-                subprocess.CalledProcessError,
-                FileNotFoundError,
+            subprocess.CalledProcessError,
+            FileNotFoundError,
         ):
             return False
 

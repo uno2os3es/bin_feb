@@ -27,7 +27,9 @@ class PackageRepacker:
         self.output_base.mkdir(parents=True, exist_ok=True)
         self.found_site_packages: list[Path] = []
 
-    def find_site_packages_dirs(self, ) -> list[Path]:
+    def find_site_packages_dirs(
+        self,
+    ) -> list[Path]:
         """Find all site-packages directories starting from the current directory"""
         site_packages_dirs = []
 
@@ -58,37 +60,31 @@ class PackageRepacker:
                             possible_paths = [
                                 venv_dir / "lib" / "python*" / "site-packages",
                                 venv_dir / "lib" / "site-packages",
-                                venv_dir / "Lib" /
-                                "site-packages",  # Windows style, just in case
+                                venv_dir / "Lib" / "site-packages",  # Windows style, just in case
                             ]
 
                             for possible_path in possible_paths:
-                                for site_pkg in possible_path.parent.glob(
-                                        possible_path.name):
+                                for site_pkg in possible_path.parent.glob(possible_path.name):
                                     if site_pkg.exists() and site_pkg.is_dir():
                                         if site_pkg not in site_packages_dirs:
                                             site_packages_dirs.append(site_pkg)
-                                            logger.info(
-                                                f"Found virtualenv site-packages: {site_pkg}"
-                                            )
+                                            logger.info(f"Found virtualenv site-packages: {site_pkg}")
 
                 # Look for site-packages directly (e.g., if running inside a venv)
                 for site_pkg in search_path.rglob("site-packages"):
-                    if site_pkg.is_dir(
-                    ) and site_pkg not in site_packages_dirs:
+                    if site_pkg.is_dir() and site_pkg not in site_packages_dirs:
                         site_packages_dirs.append(site_pkg)
                         logger.info(f"Found site-packages: {site_pkg}")
 
                 # Look for dist-packages (Debian/Ubuntu)
                 for dist_pkg in search_path.rglob("dist-packages"):
-                    if dist_pkg.is_dir(
-                    ) and dist_pkg not in site_packages_dirs:
+                    if dist_pkg.is_dir() and dist_pkg not in site_packages_dirs:
                         site_packages_dirs.append(dist_pkg)
                         logger.info(f"Found dist-packages: {dist_pkg}")
 
             except (
-                    PermissionError,
-                    OSError,
+                PermissionError,
+                OSError,
             ) as e:
                 logger.debug(f"Permission denied scanning {search_path}: {e}")
 
@@ -121,22 +117,20 @@ class PackageRepacker:
         if metadata_file.exists():
             try:
                 with open(
-                        metadata_file,
-                        encoding="utf-8",
+                    metadata_file,
+                    encoding="utf-8",
                 ) as f:
                     for line in f:
                         line = line.strip()
                         if line.startswith("Version:"):
                             metadata["version"] = line.split(":", 1)[1].strip()
                         elif line.startswith("Requires-Python:"):
-                            metadata["requires_python"] = line.split(
-                                ":", 1)[1].strip()
+                            metadata["requires_python"] = line.split(":", 1)[1].strip()
                         elif line.startswith("Requires-Dist:"):
                             dep = line.split(":", 1)[1].strip()
                             metadata["dependencies"].append(dep)
             except Exception as e:
-                logger.warning(
-                    f"Could not read metadata from {metadata_file}: {e}")
+                logger.warning(f"Could not read metadata from {metadata_file}: {e}")
 
         return metadata
 
@@ -160,9 +154,7 @@ class PackageRepacker:
             platform_tag = "any"
             root_is_purelib = "true"
         else:
-            logger.info(
-                f"Detected C extensions for {package_name}; generating platform-specific tags."
-            )
+            logger.info(f"Detected C extensions for {package_name}; generating platform-specific tags.")
             root_is_purelib = "false"
             try:
                 # Use 'packaging' library for the most accurate tags
@@ -172,16 +164,11 @@ class PackageRepacker:
                 python_tag = best_tag.interpreter
                 abi_tag = best_tag.abi
                 platform_tag = best_tag.platform
-                logger.debug(
-                    f"Using 'packaging' lib. Tags: {python_tag}-{abi_tag}-{platform_tag}"
-                )
+                logger.debug(f"Using 'packaging' lib. Tags: {python_tag}-{abi_tag}-{platform_tag}")
             except ImportError:
                 # Fallback if 'packaging' is not installed
-                logger.warning(
-                    "`packaging` library not found. (Install with: pip install packaging)"
-                )
-                logger.warning(
-                    "Falling back to best-guess tags based on current system.")
+                logger.warning("`packaging` library not found. (Install with: pip install packaging)")
+                logger.warning("Falling back to best-guess tags based on current system.")
                 import platform
 
                 python_ver = sys.version_info
@@ -189,8 +176,7 @@ class PackageRepacker:
                 abi_tag = python_tag  # Best guess for modern CPython
                 # e.g., "linux_aarch64"
                 platform_tag = f"{platform.system().lower()} _{platform.machine()} "
-                logger.debug(
-                    f"Fallback tags: {python_tag}-{abi_tag}-{platform_tag}")
+                logger.debug(f"Fallback tags: {python_tag}-{abi_tag}-{platform_tag}")
 
         wheel_name = f"{package_name.replace('-', '_')} -{version} -{python_tag} -{abi_tag} -{platform_tag} "
         wheel_dir = base_output_dir / wheel_name
@@ -259,8 +245,7 @@ class PackageRepacker:
                 dist_info_dir / "RECORD",
             )
         else:
-            logger.warning(
-                f"Could not find original RECORD file at {original_record}")
+            logger.warning(f"Could not find original RECORD file at {original_record}")
 
         return wheel_dir
 
@@ -274,8 +259,7 @@ class PackageRepacker:
         try:
             record_file = dist_info_dir / "RECORD"
             if not record_file.exists():
-                logger.warning(
-                    f"Skipping {dist_info_dir.name}: RECORD file not found")
+                logger.warning(f"Skipping {dist_info_dir.name}: RECORD file not found")
                 return False
 
             # Get package metadata
@@ -283,8 +267,7 @@ class PackageRepacker:
             package_name = metadata["name"]
 
             if not package_name:
-                logger.warning(
-                    f"Could not determine package name for {dist_info_dir}")
+                logger.warning(f"Could not determine package name for {dist_info_dir}")
                 return False
 
             # Read files from RECORD and check for C extensions
@@ -294,8 +277,7 @@ class PackageRepacker:
                 for line in f:
                     file_path_str = line.split(",")[0].strip()
                     # Include all files from RECORD, except the RECORD file itself
-                    if file_path_str and not file_path_str.endswith(
-                            ".dist-info/RECORD"):
+                    if file_path_str and not file_path_str.endswith(".dist-info/RECORD"):
                         # Check for C extensions
                         if file_path_str.endswith(".so"):
                             is_pure_python = False
@@ -320,8 +302,7 @@ class PackageRepacker:
             )
 
             if package_structure_path:
-                logger.info(
-                    f"Copied package files to: {package_structure_path}")
+                logger.info(f"Copied package files to: {package_structure_path}")
                 return True
 
             return False
@@ -341,9 +322,11 @@ class PackageRepacker:
             env_name = "local_env"
             try:
                 # Try to guess env name from path
-                if (".venv" in str(site_packages_dir)
-                        or "venv" in str(site_packages_dir)
-                        or "env" in str(site_packages_dir)):
+                if (
+                    ".venv" in str(site_packages_dir)
+                    or "venv" in str(site_packages_dir)
+                    or "env" in str(site_packages_dir)
+                ):
                     env_name = site_packages_dir.parent.parent.name
             except Exception:
                 pass  # stick with 'local_env'
@@ -357,24 +340,21 @@ class PackageRepacker:
 
             for dist_info_dir in dist_info_dirs:
                 if dist_info_dir.is_dir() and self.copy_package_files(
-                        dist_info_dir,
-                        site_packages_dir,
-                        output_dir,
+                    dist_info_dir,
+                    site_packages_dir,
+                    output_dir,
                 ):
                     package_count += 1
                     total_copied += 1
 
-            logger.info(
-                f"Copied {package_count} packages from {site_packages_dir}")
+            logger.info(f"Copied {package_count} packages from {site_packages_dir}")
 
         logger.info(f"Total packages copied: {total_copied}")
         logger.info(f"Package files saved to: {self.output_base}")
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=
-        "Automatically find and copy Python packages to a wheel structure")
+    parser = argparse.ArgumentParser(description="Automatically find and copy Python packages to a wheel structure")
     parser.add_argument(
         "--output",
         "-o",
@@ -410,19 +390,13 @@ def main():
             if user_site:
                 current_site_packages.append(user_site)
 
-            repacker.found_site_packages = [
-                Path(p) for p in current_site_packages if Path(p).exists()
-            ]
-            logger.info(
-                f"Using current active environment site-packages: {repacker.found_site_packages}"
-            )
+            repacker.found_site_packages = [Path(p) for p in current_site_packages if Path(p).exists()]
+            logger.info(f"Using current active environment site-packages: {repacker.found_site_packages}")
         else:
             # Scan current directory for all site-packages
-            logger.info(
-                "Scanning current directory for site-packages directories...")
+            logger.info("Scanning current directory for site-packages directories...")
             site_packages_dirs = repacker.find_site_packages_dirs()
-            logger.info(
-                f"Found {len(site_packages_dirs)} site-packages directories")
+            logger.info(f"Found {len(site_packages_dirs)} site-packages directories")
 
         if not repacker.found_site_packages:
             logger.error("No site-packages directories found!")

@@ -13,27 +13,6 @@ import sys
 
 from dh import MIME_TO_EXT
 
-# Map common MIME types to extensions
-# MIME_TO_EXT =
-"""{
-    'text/plain': ['.js','.css', '.md'],
-    'text/html': ['.html', '.htm'],
-    'image/jpeg': ['.jpg', '.jpeg'],
-    'image/png': ['.png'],
-    'image/gif': ['.gif'],
-    'application/pdf': ['.pdf'],
-    'application/zip': ['.zip'],
-    'application/x-tar': ['.tar'],
-    'application/gzip': ['.gz'],
-    'audio/mpeg': ['.mp3'],
-    'video/mp4': ['.mp4'],
-    'application/json': ['.json'],
-    'font/ttf',['.ttf'],
-    'font/woff',['.woff'],
-    'font/woff2',['.woff2'],
-    'image/xml-svg',['.svg'],
-"""
-
 
 def get_file_mime(file_path):
     """Return MIME type of a file using the Linux `file` command."""
@@ -46,8 +25,7 @@ def get_file_mime(file_path):
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"Error detecting file type for {file_path}: {e}",
-              file=sys.stderr)
+        print(f"Error detecting file type for {file_path}: {e}", file=sys.stderr)
         return None
 
 
@@ -69,6 +47,8 @@ def check_files(directory, auto_fix=False):
         for name in files:
             file_path = os.path.join(root, name)
             ext = os.path.splitext(name)[1].lower()
+            if ext == ".css":
+                continue
             mime = get_file_mime(file_path)
             print(f"{name} --> {mime}")
             if mime:
@@ -76,8 +56,7 @@ def check_files(directory, auto_fix=False):
                 if expected_exts and ext not in expected_exts:
                     new_path = None
                     if auto_fix:
-                        new_ext = expected_exts[
-                            0]  # pick first expected extension
+                        new_ext = expected_exts[0]  # pick first expected extension
                         new_name = os.path.splitext(name)[0] + new_ext
                         new_path = os.path.join(root, new_name)
                         new_path = safe_rename(file_path, new_path)
@@ -86,8 +65,7 @@ def check_files(directory, auto_fix=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Check and optionally fix mismatched file extensions.")
+    parser = argparse.ArgumentParser(description="Check and optionally fix mismatched file extensions.")
     parser.add_argument(
         "directory",
         nargs="*",
@@ -97,6 +75,7 @@ def main():
     parser.add_argument(
         "-a",
         "--auto-fix",
+        default=True,
         action="store_true",
         help="Automatically fix mismatched extensions",
     )
@@ -111,9 +90,7 @@ def main():
         print("Files with mismatched extensions:")
         for file_path, ext, mime, new_path in mismatches:
             if new_path:
-                print(
-                    f"{file_path} -> extension: {ext}, detected: {mime} [Renamed to {new_path}]"
-                )
+                print(f"{file_path} -> extension: {ext}, detected: {mime} [Renamed to {new_path}]")
             else:
                 print(f"{file_path} -> extension: {ext}, detected: {mime}")
     else:

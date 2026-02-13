@@ -30,13 +30,12 @@ def is_python_file(file_path):
             with open(file_path, encoding="utf-8") as f:
                 first_line = f.readline()
                 # Check for Python shebang
-                if first_line.startswith(
-                        "#!") and "python" in first_line.lower():
+                if first_line.startswith("#!") and "python" in first_line.lower():
                     return True
         except (
-                UnicodeDecodeError,
-                PermissionError,
-                IsADirectoryError,
+            UnicodeDecodeError,
+            PermissionError,
+            IsADirectoryError,
         ):
             # Skip binary files, permission denied, or directories
             return False
@@ -114,8 +113,7 @@ def find_and_process_python_files(root_dir="."):
             continue
 
         # Skip files in excluded directories
-        if any(part in skip_dirs or part.startswith(".")
-               for part in item.parts):
+        if any(part in skip_dirs or part.startswith(".") for part in item.parts):
             continue
 
         # Check if it's a Python file
@@ -147,8 +145,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description=
-        "Replace 'import re' with 'import regex as re' in Python files recursively."
+        description="Replace 'import re' with 'import regex as re' in Python files recursively."
     )
     parser.add_argument(
         "--dry-run",

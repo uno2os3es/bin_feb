@@ -36,11 +36,11 @@ def detect_icon(name: str, mode: int) -> str:
         return "🔗"
     ext = name.lower().split(".")[-1]
     if ext in (
-            "png",
-            "jpg",
-            "jpeg",
-            "gif",
-            "webp",
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+        "webp",
     ):
         return "🖼️"
     if ext in ("py", "sh"):
@@ -55,7 +55,9 @@ def detect_icon(name: str, mode: int) -> str:
 # ------------------------------------------------------------
 
 
-def get_git_status_for_dir(path: str, ) -> dict[str, dict[str, str]]:
+def get_git_status_for_dir(
+    path: str,
+) -> dict[str, dict[str, str]]:
     """Return {filename: {"index": X, "work": Y, "raw": XY}}."""
     try:
         p = subprocess.run(
@@ -129,8 +131,7 @@ class Entry:
 
 def mode_to_string(mode: int) -> str:
     chars = []
-    chars.append(
-        "d" if stat.S_ISDIR(mode) else "l" if stat.S_ISLNK(mode) else "-")
+    chars.append("d" if stat.S_ISDIR(mode) else "l" if stat.S_ISLNK(mode) else "-")
     perms = [
         (stat.S_IRUSR, "r"),
         (stat.S_IWUSR, "w"),
@@ -190,9 +191,7 @@ def output_long(
         if e.git:
             gitmark = f" {e.git['raw']}"
 
-        print(
-            f"{mode_s} {nlink:2} {user:8} {group:8} {size:>6} {tstr} {name}{gitmark}"
-        )
+        print(f"{mode_s} {nlink:2} {user:8} {group:8} {size:>6} {tstr} {name}{gitmark}")
 
 
 # ------------------------------------------------------------
@@ -232,7 +231,7 @@ def output_columns(
         import regex as re
 
         plain = re.sub(r"\x1b\[[0-9;]*m", "", text)
-        return plain[:max_len - 1] + "…"
+        return plain[: max_len - 1] + "…"
 
     rendered = []
     for e in entries:
@@ -245,7 +244,7 @@ def output_columns(
         rendered.append(txt)
 
     for i in range(0, len(rendered), cols):
-        row = rendered[i:i + cols]
+        row = rendered[i : i + cols]
         padded = [r + " " * (col_width - real_len(r)) for r in row]
         print("".join(padded))
 
@@ -343,20 +342,18 @@ def print_entries(entries: list[Entry], args) -> None:
     if args.json:
         out = []
         for e in entries:
-            out.append({
-                "name":
-                e.name,
-                "size":
-                e.stat.st_size,
-                "mode":
-                mode_to_string(e.stat.st_mode),
-                "mtime":
-                e.stat.st_mtime,
-                "git":
-                e.git,
-                "type": ("dir" if stat.S_ISDIR(e.stat.st_mode) else
-                         ("link" if stat.S_ISLNK(e.stat.st_mode) else "file")),
-            })
+            out.append(
+                {
+                    "name": e.name,
+                    "size": e.stat.st_size,
+                    "mode": mode_to_string(e.stat.st_mode),
+                    "mtime": e.stat.st_mtime,
+                    "git": e.git,
+                    "type": (
+                        "dir" if stat.S_ISDIR(e.stat.st_mode) else ("link" if stat.S_ISLNK(e.stat.st_mode) else "file")
+                    ),
+                }
+            )
         print(json.dumps(out, indent=2))
         return
 
@@ -455,13 +452,15 @@ def main() -> None:
                     link_t = os.readlink(fp)
                 except OSError:
                     link_t = None
-            entries.append(Entry(
-                fp,
-                n,
-                st,
-                link_t,
-                gitmap.get(n),
-            ))
+            entries.append(
+                Entry(
+                    fp,
+                    n,
+                    st,
+                    link_t,
+                    gitmap.get(n),
+                )
+            )
 
         print_entries(entries, args)
 

@@ -52,10 +52,7 @@ def get_main_branch_name():
     # Check local branches
     result = run_git_command("git branch -l")
     if result:
-        branches = [
-            b.strip().replace("* ", "") for b in result.stdout.split("\n")
-            if b.strip()
-        ]
+        branches = [b.strip().replace("* ", "") for b in result.stdout.split("\n") if b.strip()]
         for branch in branches:
             if branch in ["main", "master"]:
                 return branch

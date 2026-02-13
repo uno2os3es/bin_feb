@@ -18,13 +18,10 @@ class MultiPartDownloader:
         self.existing_size = 0
 
     def get_file_size(self):
-        response = requests.head(self.url,
-                                 headers=self.headers,
-                                 allow_redirects=True)
+        response = requests.head(self.url, headers=self.headers, allow_redirects=True)
         if "Content-Length" in response.headers:
             self.file_size = int(response.headers["Content-Length"])
-        if "Accept-Ranges" in response.headers and response.headers[
-                "Accept-Ranges"] == "bytes":
+        if "Accept-Ranges" in response.headers and response.headers["Accept-Ranges"] == "bytes":
             self.support_resume = True
         return self.file_size
 
@@ -49,9 +46,7 @@ class MultiPartDownloader:
         if not self.file_size:
             self.get_file_size()
         if not self.support_resume:
-            print(
-                "Server does not support resume. Downloading in single part..."
-            )
+            print("Server does not support resume. Downloading in single part...")
             self.num_threads = 1
 
         existing_size = self.check_existing_file()
@@ -63,16 +58,14 @@ class MultiPartDownloader:
             print("Cannot resume. Starting from scratch.")
             existing_size = 0
 
-        part_size = math.ceil(
-            (self.file_size - existing_size) / self.num_threads)
+        part_size = math.ceil((self.file_size - existing_size) / self.num_threads)
         threads = []
         for i in range(self.num_threads):
             start = existing_size + i * part_size
             end = min(existing_size + (i + 1) * part_size, self.file_size) - 1
             if start >= self.file_size:
                 break
-            thread = threading.Thread(target=self.download_range,
-                                      args=(start, end, i))
+            thread = threading.Thread(target=self.download_range, args=(start, end, i))
             threads.append(thread)
             thread.start()
 

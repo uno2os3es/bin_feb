@@ -46,8 +46,7 @@ def escape_for_regex(text: str) -> str:
     # Escape all special regex characters
     escaped = re.escape(text)
     # Unescape newlines so they match actual newlines
-    return escaped.replace(r"\n",
-                           r"\s*\n\s*")  # Allow whitespace around newlines
+    return escaped.replace(r"\n", r"\s*\n\s*")  # Allow whitespace around newlines
 
 
 def remove_patterns_from_content(content: str, patterns: list[str]) -> str:
@@ -59,10 +58,7 @@ def remove_patterns_from_content(content: str, patterns: list[str]) -> str:
         regex_pattern = escape_for_regex(pattern)
 
         # Try to remove the pattern (case-insensitive, multiline)
-        cleaned = re.sub(regex_pattern,
-                         "",
-                         cleaned,
-                         flags=re.IGNORECASE | re.MULTILINE)
+        cleaned = re.sub(regex_pattern, "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
 
     return cleaned
 
@@ -93,8 +89,7 @@ def clean_file_worker(args: tuple) -> tuple:
             original_content = f.read()
 
         # Remove patterns
-        cleaned_content = remove_patterns_from_content(original_content,
-                                                       patterns)
+        cleaned_content = remove_patterns_from_content(original_content, patterns)
 
         # Only write if content changed
         if cleaned_content != original_content:
@@ -126,9 +121,7 @@ def main():
 
     # Find all text files recursively
     cwd = Path.cwd()
-    all_files = [
-        f for f in cwd.rglob("*") if f.is_file() and should_process_file(f)
-    ]
+    all_files = [f for f in cwd.rglob("*") if f.is_file() and should_process_file(f)]
 
     if not all_files:
         print("No files to process.")

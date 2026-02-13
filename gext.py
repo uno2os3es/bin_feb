@@ -54,11 +54,11 @@ class EntityExtractor(ast.NodeVisitor):
         code_slice = self.source_lines[start_line:end_line]
         # Handle slicing start and end columns for accurate extraction
         if node.col_offset is not None:
-            code_slice[0] = code_slice[0][node.col_offset:]
+            code_slice[0] = code_slice[0][node.col_offset :]
         if node.end_col_offset is not None and node.end_col_offset > 0:
             last_line = code_slice[-1]
             # Adjust the last line content to stop at end_col_offset
-            code_slice[-1] = last_line[:node.end_col_offset]
+            code_slice[-1] = last_line[: node.end_col_offset]
         return "".join(code_slice)
 
     def _extract_and_save(
@@ -71,21 +71,22 @@ class EntityExtractor(ast.NodeVisitor):
         entity_code = self._get_source_slice(node)
         scope_prefix = "_".join(self.scope_stack)
         full_name = f"{scope_prefix}_{name}" if scope_prefix else name
-        self.entities.append({
-            "name": name,
-            "full_name": full_name,
-            "type": entity_type,
-            "code": entity_code,
-            "path": str(self.original_path),
-            "is_constant": entity_type in ("constant"),
-            "is_class": entity_type in ("class"),
-            "is_function": entity_type in ("function"),
-        })
+        self.entities.append(
+            {
+                "name": name,
+                "full_name": full_name,
+                "type": entity_type,
+                "code": entity_code,
+                "path": str(self.original_path),
+                "is_constant": entity_type in ("constant"),
+                "is_class": entity_type in ("class"),
+                "is_function": entity_type in ("function"),
+            }
+        )
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
         # Handle function or method definition
-        entity_type = "method" if self.scope_stack and self.scope_stack[
-            -1].startswith("class_") else "function"
+        entity_type = "method" if self.scope_stack and self.scope_stack[-1].startswith("class_") else "function"
         if entity_type == "function":
             self._extract_and_save(node, entity_type, node.name)
             self.scope_stack.append(f"func_{node.name}")
@@ -94,8 +95,7 @@ class EntityExtractor(ast.NodeVisitor):
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
         # Handle async function or method definition
-        entity_type = "method" if self.scope_stack and self.scope_stack[
-            -1].startswith("class_") else "function"
+        entity_type = "method" if self.scope_stack and self.scope_stack[-1].startswith("class_") else "function"
         if entity_type == "function":
             self._extract_and_save(node, entity_type, node.name)
             self.scope_stack.append(f"async_func_{node.name}")
@@ -112,13 +112,12 @@ class EntityExtractor(ast.NodeVisitor):
     def visit_Assign(self, node: ast.Assign):
         # Check for module-level or class-level simple assignments (potential constants)
         if not self.scope_stack:  # Module level assignment
-            if len(node.targets) == 1 and isinstance(node.targets[0],
-                                                     ast.Name):
+            if len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
                 target_name = node.targets[0].id
                 # Check for common constant naming conventions (all caps)
                 if re.match(
-                        r"^[A-Z_][A-Z0-9_]*$",
-                        target_name,
+                    r"^[A-Z_][A-Z0-9_]*$",
+                    target_name,
                 ):
                     self._extract_and_save(
                         node,
@@ -176,8 +175,7 @@ def save_entity(entity: dict[str, Any]):
 # --- Processing Functions ---
 
 
-def extract_entities_from_content(content: str,
-                                  path: Path) -> list[dict[str, Any]]:
+def extract_entities_from_content(content: str, path: Path) -> list[dict[str, Any]]:
     """Parses content using AST and extracts entities."""
     try:
         tree = ast.parse(content)
@@ -193,16 +191,18 @@ def extract_entities_from_content(content: str,
         return []
 
 
-def is_python_file_no_extension(path: Path, ) -> bool:
+def is_python_file_no_extension(
+    path: Path,
+) -> bool:
     """Heuristically checks if a file with no extension might be a Python file."""
     if path.suffix:
         return False
     # Check if the file starts with a Python shebang or contains common Python keywords
     try:
         with open(
-                path,
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             first_lines = "".join(f.readlines(1024))
             if re.match(r"#!\s*/.*python", first_lines):
@@ -214,7 +214,9 @@ def is_python_file_no_extension(path: Path, ) -> bool:
     return False
 
 
-def process_single_file(path: Path, ) -> list[dict[str, Any]]:
+def process_single_file(
+    path: Path,
+) -> list[dict[str, Any]]:
     """Reads a file and extracts entities."""
     try:
         if path.suffix == ".py" or is_python_file_no_extension(path):
@@ -226,15 +228,16 @@ def process_single_file(path: Path, ) -> list[dict[str, Any]]:
         return []
 
 
-def process_archive(path: Path, ) -> list[dict[str, Any]]:
+def process_archive(
+    path: Path,
+) -> list[dict[str, Any]]:
     """Handles compressed files (.zip, .tar.*, .whl) and extracts entities from Python files within."""
     entities = []
     # 1. Handle ZST-only files (often used for single compressed files)
     if path.suffix == ".zst":
         try:
             dctx = zstd.ZstdDecompressor()
-            content = dctx.decompress(path.read_bytes()).decode(
-                "utf-8", errors="ignore")
+            content = dctx.decompress(path.read_bytes()).decode("utf-8", errors="ignore")
             return extract_entities_from_content(content, path)
         except Exception as e:
             print(f"Error decompressing ZST file {path}: {e}")
@@ -256,17 +259,20 @@ def process_archive(path: Path, ) -> list[dict[str, Any]]:
                                 extract_entities_from_content(
                                     content,
                                     virtual_path,
-                                ))
+                                )
+                            )
         except Exception as e:
             print(f"Error processing ZIP/WHL archive {path}: {e}")
     elif any(
-            path.name.endswith(ext) for ext in [
-                ".tar",
-                ".tar.gz",
-                ".tgz",
-                ".tar.zst",
-                ".tar.xz",
-            ]):
+        path.name.endswith(ext)
+        for ext in [
+            ".tar",
+            ".tar.gz",
+            ".tgz",
+            ".tar.zst",
+            ".tar.xz",
+        ]
+    ):
         mode_map = {
             ".tar.gz": "r:gz",
             ".tgz": "r:gz",
@@ -294,7 +300,8 @@ def process_archive(path: Path, ) -> list[dict[str, Any]]:
                                 extract_entities_from_content(
                                     content,
                                     virtual_path,
-                                ))
+                                )
+                            )
         except tarfile.ReadError:
             # Not a valid archive, or wrong compression mode
             pass
@@ -303,7 +310,9 @@ def process_archive(path: Path, ) -> list[dict[str, Any]]:
     return entities
 
 
-def worker_process(path_str: str, ) -> list[dict[str, Any]]:
+def worker_process(
+    path_str: str,
+) -> list[dict[str, Any]]:
     """Worker function for the multiprocessing pool."""
     path = Path(path_str)
     if path.name.endswith(ARCHIVE_EXTENSIONS):
@@ -331,18 +340,14 @@ def main():
             if path.is_relative_to(OUTPUT_DIR):
                 continue
             # Check if it's a python file or an archive
-            is_archive = path.suffix in ARCHIVE_EXTENSIONS or any(
-                path.name.endswith(ext) for ext in ARCHIVE_EXTENSIONS)
-            is_py = path.suffix in ALLOWED_PYTHON_EXTENSIONS or is_python_file_no_extension(
-                path)
+            is_archive = path.suffix in ARCHIVE_EXTENSIONS or any(path.name.endswith(ext) for ext in ARCHIVE_EXTENSIONS)
+            is_py = path.suffix in ALLOWED_PYTHON_EXTENSIONS or is_python_file_no_extension(path)
             if is_archive or is_py:
                 files_to_process.append(str(path))
     if not files_to_process:
         print("No Python files or archives found to process.")
         return
-    print(
-        f"Found {len(files_to_process)} relevant files/archives. Starting multiprocessing pool..."
-    )
+    print(f"Found {len(files_to_process)} relevant files/archives. Starting multiprocessing pool...")
     # 2. Process files in parallel
     num_cpus = cpu_count()
     all_entities = []
@@ -359,9 +364,7 @@ def main():
     for entity in all_entities:
         save_entity(entity)
     print("\n\nAll tasks finished successfully!")
-    print(
-        f"Results are saved in the '{OUTPUT_DIR}' folder, organized by entity type (class, function, constant)."
-    )
+    print(f"Results are saved in the '{OUTPUT_DIR}' folder, organized by entity type (class, function, constant).")
 
 
 if __name__ == "__main__":

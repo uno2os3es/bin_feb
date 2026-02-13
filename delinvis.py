@@ -40,9 +40,9 @@ def clean_file(path: str) -> None:
     shutil.copy2(path, backup_path)
 
     with open(
-            path,
-            encoding="utf-8",
-            errors="ignore",
+        path,
+        encoding="utf-8",
+        errors="ignore",
     ) as f:
         data = f.read()
 
@@ -57,10 +57,10 @@ def clean_file(path: str) -> None:
 
     cleaned = clean_text(data)
     with open(
-            path,
-            "w",
-            encoding="utf-8",
-            errors="ignore",
+        path,
+        "w",
+        encoding="utf-8",
+        errors="ignore",
     ) as f:
         f.write(cleaned)
 

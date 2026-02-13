@@ -58,7 +58,7 @@ def main() -> None:
         pending = deque()
 
         for f in jfiles:
-            pending.append(p.apply_async(format_file, (f, )))
+            pending.append(p.apply_async(format_file, (f,)))
 
             if len(pending) >= MAX_IN_FLIGHT:
                 pending.popleft().get()

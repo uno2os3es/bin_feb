@@ -73,12 +73,10 @@ def morse_to_text(morse):
 def encrypt_file(input_filename, output_filename) -> None:
     """Read file and convert to Morse code."""
     try:
-        with pathlib.Path(input_filename).open("r",
-                                               encoding="utf-8") as infile:
+        with pathlib.Path(input_filename).open("r", encoding="utf-8") as infile:
             content = infile.read()
         morse_content = text_to_morse(content)
-        with pathlib.Path(output_filename).open("w",
-                                                encoding="utf-8") as outfile:
+        with pathlib.Path(output_filename).open("w", encoding="utf-8") as outfile:
             outfile.write(morse_content)
     except FileNotFoundError:
         sys.exit(1)
@@ -89,12 +87,10 @@ def encrypt_file(input_filename, output_filename) -> None:
 def decrypt_file(input_filename, output_filename) -> None:
     """Read Morse code file and convert to text."""
     try:
-        with pathlib.Path(input_filename).open("r",
-                                               encoding="utf-8") as infile:
+        with pathlib.Path(input_filename).open("r", encoding="utf-8") as infile:
             morse_content = infile.read()
         text_content = morse_to_text(morse_content)
-        with pathlib.Path(output_filename).open("w",
-                                                encoding="utf-8") as outfile:
+        with pathlib.Path(output_filename).open("w", encoding="utf-8") as outfile:
             outfile.write(text_content)
     except FileNotFoundError:
         sys.exit(1)
@@ -103,8 +99,7 @@ def decrypt_file(input_filename, output_filename) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Morse Code Encryptor/Decryptor")
+    parser = argparse.ArgumentParser(description="Morse Code Encryptor/Decryptor")
     parser.add_argument("input_file", help="Input file name")
     parser.add_argument("output_file", help="Output file name")
     parser.add_argument(

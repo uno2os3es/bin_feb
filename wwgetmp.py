@@ -79,8 +79,7 @@ def download_part(
 
     for attempt in range(MAX_RETRIES):
         try:
-            with requests.get(url, headers=headers, stream=True,
-                              timeout=15) as r:
+            with requests.get(url, headers=headers, stream=True, timeout=15) as r:
                 r.raise_for_status()
                 mode = "ab" if os.path.exists(part_path) else "wb"
                 with open(part_path, mode) as f:
@@ -136,7 +135,8 @@ def download(url: str, output: str, workers: int):
                         start,
                         end,
                         meta,
-                    ))
+                    )
+                )
 
             for f in as_completed(futures):
                 f.result()

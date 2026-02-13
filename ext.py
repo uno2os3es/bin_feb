@@ -28,9 +28,9 @@ def is_python_script(path: str) -> bool:
         return True
     try:
         with open(
-                path,
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             line = f.readline()
         return line.startswith("#!") and "python" in line.lower()
@@ -60,19 +60,20 @@ def is_constant_name(name: str) -> bool:
 
 
 def extract_from_file(
-    path: str, ) -> tuple[
-        str,
-        dict[str, str],  # top-level classes
-        dict[str, str],  # top-level functions
-        dict[str, str],  # nested classes
-        dict[str, str],  # nested functions
-        dict[str, str],  # top-level constants
-    ]:
+    path: str,
+) -> tuple[
+    str,
+    dict[str, str],  # top-level classes
+    dict[str, str],  # top-level functions
+    dict[str, str],  # nested classes
+    dict[str, str],  # nested functions
+    dict[str, str],  # top-level constants
+]:
     try:
         with open(
-                path,
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             source = f.read()
         tree = ast.parse(source)
@@ -113,12 +114,9 @@ def extract_from_file(
             if not isinstance(parent, ast.Module):
                 continue
 
-            if isinstance(node, ast.Assign) and len(
-                    node.targets) == 1 and isinstance(node.targets[0],
-                                                      ast.Name):
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
                 name = node.targets[0].id
-            elif isinstance(node, ast.AnnAssign) and isinstance(
-                    node.target, ast.Name):
+            elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
                 name = node.target.id
             else:
                 continue

@@ -37,9 +37,9 @@ def clean_file(
 
     try:
         with open(
-                path,
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             lines = f.readlines()
 
@@ -49,10 +49,10 @@ def clean_file(
             return False, 0, ""
 
         with open(
-                path,
-                "w",
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            "w",
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             f.writelines(cleaned)
 

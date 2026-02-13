@@ -102,8 +102,7 @@ def merge_html_content(html_files: list[Path]) -> str:
                 soup = BeautifulSoup(f.read(), "html.parser")
 
                 # Extract body content
-                content = soup.body.decode_contents() if soup.body else str(
-                    soup)
+                content = soup.body.decode_contents() if soup.body else str(soup)
 
                 # Create section with file reference
                 section_html = f"""
@@ -120,9 +119,9 @@ def merge_html_content(html_files: list[Path]) -> str:
     return "\n".join(merged_sections)
 
 
-def create_template_html(html_files: list[Path],
-                         output_file: str = "template.html",
-                         title: str = "Merged HTML Template") -> bool:
+def create_template_html(
+    html_files: list[Path], output_file: str = "template.html", title: str = "Merged HTML Template"
+) -> bool:
     """
     Create template HTML file from all HTML files in directory.
 
@@ -303,9 +302,7 @@ def main():
         print(f"   ... and {len(html_files) - 10} more")
 
     # Create template
-    success = create_template_html(html_files,
-                                   output_file="template.html",
-                                   title="Merged HTML Template")
+    success = create_template_html(html_files, output_file="template.html", title="Merged HTML Template")
 
     if success:
         print("\n" + "=" * 60)
@@ -323,8 +320,7 @@ if __name__ == "__main__":
         import subprocess
         import sys
 
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "beautifulsoup4"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "beautifulsoup4"])
         from bs4 import BeautifulSoup
 
     main()

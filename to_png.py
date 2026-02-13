@@ -1,11 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/python3.12
 from __future__ import annotations
 
-import argparse
-import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-
+import dh
 try:
     import cv2
     import numpy as np
@@ -16,15 +14,6 @@ except ImportError:
 
     USE_CV2 = False
 
-SF = {
-    ".png",
-    ".bmp",
-    ".tiff",
-    ".webp",
-    ".ico",
-    ".jpg",
-    ".jpeg",
-}
 IGNORED_DIRS = {
     ".git",
     "dist",
@@ -39,7 +28,7 @@ def convert_file(file_path: str) -> bool:
     """Convert an image to JPG, handling transparency with a white background."""
     path = Path(file_path)
 
-    if not path.is_file() or path.suffix.lower() not in SF:
+    if not path.is_file() or path.suffix.lower() not in dh.IMG_EXT:
         print(f"Skipping: {path.name} (Unsupported format or not a file)")
         return False
 
@@ -51,8 +40,7 @@ def convert_file(file_path: str) -> bool:
 
     # Ask before overwriting
     if output_path.exists():
-        response = input(f"'{output_path.name}' exists. Overwrite? (y/n): "
-                         ).strip().lower()
+        response = input(f"'{output_path.name}' exists. Overwrite? (y/n): ").strip().lower()
         if response != "y":
             return False
 
@@ -72,12 +60,9 @@ def convert_file(file_path: str) -> bool:
                     dtype=np.uint8,
                 )
                 alpha = a.astype(float) / 255.0
-                img_b = (b.astype(float) * alpha + white_bg.astype(float) *
-                         (1 - alpha)).astype(np.uint8)
-                img_g = (g.astype(float) * alpha + white_bg.astype(float) *
-                         (1 - alpha)).astype(np.uint8)
-                img_r = (r.astype(float) * alpha + white_bg.astype(float) *
-                         (1 - alpha)).astype(np.uint8)
+                img_b = (b.astype(float) * alpha + white_bg.astype(float) * (1 - alpha)).astype(np.uint8)
+                img_g = (g.astype(float) * alpha + white_bg.astype(float) * (1 - alpha)).astype(np.uint8)
+                img_r = (r.astype(float) * alpha + white_bg.astype(float) * (1 - alpha)).astype(np.uint8)
                 final_img = cv2.merge((img_b, img_g, img_r))
             else:
                 final_img = img
@@ -91,7 +76,6 @@ def convert_file(file_path: str) -> bool:
                 ],
             )
         else:
-            # Pillow logic
             img = Image.open(path)
             if img.mode in ("RGBA", "LA"):
                 background = Image.new(
@@ -119,29 +103,15 @@ def convert_file(file_path: str) -> bool:
         return False
 
 
-def is_image(path: Path) -> bool:
-    if path.suffix in SF:
-        return True
-    return None
-
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="jpg")
-    p.add_argument("files", nargs="*")
-    args = p.parse_args()
-    start_time = time.perf_counter()
+    start_size = dh.folder_size(".")
 
-    if args.files:
-        files = [
-            Path(f) for f in args.files
-            if Path(f).is_file() and is_image(Path(f))
-        ]
-    else:
-        files = [
-            f for f in Path(".").rglob("*")
-            if f.is_file() and not any(part in IGNORED_DIRS
-                                       for part in f.parts) and is_image(f)
-        ]
+    files = [
+        f
+        for f in Path(".").rglob("*")
+        if f.is_file() and not any(part in IGNORED_DIRS for part in f.parts) and dh.is_image(f)
+    ]
 
     if not files:
         print("No image files detected.")
@@ -158,9 +128,11 @@ def main() -> None:
     changed_count = sum(1 for r in results if r)
     print(f"Done. {changed_count} files modified.")
 
-    duration = time.perf_counter() - start_time
-    print(f"Total Runtime: {duration:.4f} seconds")
-
+    result = dh.folder_size(".") - start_size
+    if result<0:
+        print(f"size reduced: - {dh.format_size(abs(result))} ")
+    else:
+        print(f"size increased: + {dh.format_size(abs(result))} ")
 
 if __name__ == "__main__":
     main()

@@ -37,8 +37,7 @@ def clean_html(html_content: str) -> str:
         style.decompose()
 
     # Remove comment tags
-    for comment in soup.find_all(string=lambda text: isinstance(text, str) and
-                                 text.strip().startswith("<!--")):
+    for comment in soup.find_all(string=lambda text: isinstance(text, str) and text.strip().startswith("<!--")):
         comment.extract()
 
     # Remove common non-content elements
@@ -52,8 +51,7 @@ def clean_html(html_content: str) -> str:
     return str(soup)
 
 
-def convert_html_to_md(html_file: Path,
-                       options: Optional[Options] = None) -> Tuple[Path, bool]:
+def convert_html_to_md(html_file: Path, options: Optional[Options] = None) -> Tuple[Path, bool]:
     """
     Convert HTML file to Markdown with enhanced handling.
 
@@ -65,9 +63,7 @@ def convert_html_to_md(html_file: Path,
         Tuple of (output_file_path, success_status)
     """
     if html_file.suffix.lower() not in [".html", ".htm"]:
-        print(
-            f"Warning: {html_file} doesn't have .html/.htm extension, skipping."
-        )
+        print(f"Warning: {html_file} doesn't have .html/.htm extension, skipping.")
         return (html_file, False)
 
     try:
@@ -91,9 +87,7 @@ def convert_html_to_md(html_file: Path,
         markdown_content = convert(cleaned_html, options=options)
 
         # Post-process: clean up excessive newlines
-        markdown_content = "\n".join(line
-                                     for line in markdown_content.split("\n")
-                                     if line.strip() or line == "")
+        markdown_content = "\n".join(line for line in markdown_content.split("\n") if line.strip() or line == "")
 
         # Remove excessive blank lines (more than 2 consecutive)
         import re
@@ -116,11 +110,9 @@ def convert_html_to_md(html_file: Path,
 def find_html_files(directory: Path, recursive: bool = True) -> list[Path]:
     """Find all HTML files in directory."""
     if recursive:
-        html_files = list(directory.rglob("*.html")) + list(
-            directory.rglob("*.htm"))
+        html_files = list(directory.rglob("*.html")) + list(directory.rglob("*.htm"))
     else:
-        html_files = list(directory.glob("*.html")) + list(
-            directory.glob("*.htm"))
+        html_files = list(directory.glob("*.html")) + list(directory.glob("*.htm"))
     return sorted(html_files)
 
 
@@ -132,8 +124,7 @@ def process_file_wrapper(args: Tuple) -> Tuple[Path, bool]:
 
 def main():
     parser = argparse.ArgumentParser(
-        description=
-        "Enhanced HTML to Markdown converter with better HTML5/JS/form handling",
+        description="Enhanced HTML to Markdown converter with better HTML5/JS/form handling",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -146,36 +137,24 @@ Examples:
     )
 
     parser.add_argument(
-        "path",
-        nargs="?",
-        default=".",
-        help="HTML file or directory to process (default: current directory)")
-
-    parser.add_argument("-r",
-                        "--recursive",
-                        action="store_true",
-                        default=True,
-                        help="Process directories recursively (default: True)")
-
-    parser.add_argument("--no-recursive",
-                        action="store_false",
-                        dest="recursive",
-                        help="Disable recursive processing")
+        "path", nargs="?", default=".", help="HTML file or directory to process (default: current directory)"
+    )
 
     parser.add_argument(
-        "--workers",
-        type=int,
-        default=cpu_count(),
-        help=f"Number of worker processes (default: {cpu_count()})")
+        "-r", "--recursive", action="store_true", default=True, help="Process directories recursively (default: True)"
+    )
 
-    parser.add_argument("--keep-forms",
-                        action="store_true",
-                        help="Keep form elements (default: remove them)")
+    parser.add_argument("--no-recursive", action="store_false", dest="recursive", help="Disable recursive processing")
 
-    parser.add_argument("--github-flavored",
-                        action="store_true",
-                        default=True,
-                        help="Use GitHub-flavored Markdown (default: True)")
+    parser.add_argument(
+        "--workers", type=int, default=cpu_count(), help=f"Number of worker processes (default: {cpu_count()})"
+    )
+
+    parser.add_argument("--keep-forms", action="store_true", help="Keep form elements (default: remove them)")
+
+    parser.add_argument(
+        "--github-flavored", action="store_true", default=True, help="Use GitHub-flavored Markdown (default: True)"
+    )
 
     args = parser.parse_args()
 
@@ -205,8 +184,7 @@ Examples:
             sys.exit(0)
         print(f"Found {len(html_files)} HTML file(s) to process")
     else:
-        print(f"Error: '{input_path}' is neither a file nor a directory.",
-              file=sys.stderr)
+        print(f"Error: '{input_path}' is neither a file nor a directory.", file=sys.stderr)
         sys.exit(1)
 
     # Process files
@@ -222,9 +200,7 @@ Examples:
 
         successful = sum(1 for _, success in results if success)
         print(f"\n{'=' * 50}")
-        print(
-            f"Conversion complete: {successful}/{len(html_files)} files converted successfully"
-        )
+        print(f"Conversion complete: {successful}/{len(html_files)} files converted successfully")
 
 
 if __name__ == "__main__":

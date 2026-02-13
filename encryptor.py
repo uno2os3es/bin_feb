@@ -12,9 +12,7 @@ from fastwalk import walk_files
 
 def random_key(length=32):
     # AES requires 16, 24, or 32 bytes
-    return "".join(
-        random.choice(string.ascii_letters + string.digits)
-        for _ in range(length))
+    return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
 
 def encrypt_file(file_path, key):

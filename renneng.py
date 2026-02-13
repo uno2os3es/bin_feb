@@ -22,8 +22,7 @@ def translate_if_needed(name: str) -> str:
         return name
 
     try:
-        translated = GoogleTranslator(source="auto",
-                                      target="en").translate(base)
+        translated = GoogleTranslator(source="auto", target="en").translate(base)
         return translated + ext
     except Exception as e:
         print(f"Translation error for '{name}': {e}")

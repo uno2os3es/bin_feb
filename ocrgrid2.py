@@ -41,8 +41,7 @@ def prepare_image_for_ocr(img_path: Path):
     gray = cv2.fastNlMeansDenoising(gray, h=15)
 
     # Threshold
-    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                   cv2.THRESH_BINARY, 31, 2)
+    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
 
     # Deskew (crucial for OCR)
     coords = cv2.findNonZero(thresh)
@@ -52,7 +51,7 @@ def prepare_image_for_ocr(img_path: Path):
     if angle < -45:
         angle = 90 + angle
 
-    (h, w) = thresh.shape
+    h, w = thresh.shape
     M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
     return cv2.warpAffine(thresh, M, (w, h), flags=cv2.INTER_CUBIC)
 
@@ -78,9 +77,7 @@ def run_tesseract_on_image(img, oem, psm):
 # MAIN PIPELINE
 # -----------------------------
 def main():
-    image_files = [
-        f for f in Path(".").iterdir() if f.suffix.lower() in IMG_EXT
-    ]
+    image_files = [f for f in Path(".").iterdir() if f.suffix.lower() in IMG_EXT]
 
     all_results = []
 
@@ -90,8 +87,7 @@ def main():
         processed = prepare_image_for_ocr(img_path)
 
         for oem, psm in itertools.product(OEM_OPTIONS, PSM_OPTIONS):
-            text, config, duration, error = run_tesseract_on_image(
-                processed, oem, psm)
+            text, config, duration, error = run_tesseract_on_image(processed, oem, psm)
 
             result = {
                 "image": img_path.name,

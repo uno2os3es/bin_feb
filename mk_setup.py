@@ -27,8 +27,7 @@ def load_root(input_path: Path) -> Path:
         extract_wheel(input_path, tmp)
         return tmp
 
-    raise SystemExit(
-        "Input must be a .whl file or an unzipped wheel directory")
+    raise SystemExit("Input must be a .whl file or an unzipped wheel directory")
 
 
 def read_metadata(root: Path) -> dict:
@@ -60,10 +59,12 @@ def find_extensions(root: Path) -> list[str]:
 def generate_setup_py(meta: dict, extensions: list[str]) -> str:
     ext_block = (
         "from setuptools import Extension\n\n"
-        "ext_modules = [\n" +
-        "\n".join(f'    Extension("{m}", sources=["{m.replace(".", "/")}.*"]),'
-                  for m in extensions) +
-        "\n]\n" if extensions else "ext_modules = []\n")
+        "ext_modules = [\n"
+        + "\n".join(f'    Extension("{m}", sources=["{m.replace(".", "/")}.*"]),' for m in extensions)
+        + "\n]\n"
+        if extensions
+        else "ext_modules = []\n"
+    )
 
     return f"""\
 from setuptools import setup, find_packages
@@ -89,8 +90,7 @@ build-backend = "setuptools.build_meta"
 
 def main() -> None:
     if len(sys.argv) != 2:
-        raise SystemExit(
-            "Usage: python mk_setuppy.py <wheel.whl | unzipped-dir>")
+        raise SystemExit("Usage: python mk_setuppy.py <wheel.whl | unzipped-dir>")
 
     input_path = Path(sys.argv[1]).resolve()
     root = load_root(input_path)
@@ -107,8 +107,7 @@ def main() -> None:
     (out_dir / "pyproject.toml").write_text(generate_pyproject_toml())
 
     print(f"✔ setup.py generated for {meta['name']}")
-    print("✔ binary extensions detected"
-          if extensions else "✔ pure Python package")
+    print("✔ binary extensions detected" if extensions else "✔ pure Python package")
 
 
 if __name__ == "__main__":

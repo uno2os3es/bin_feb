@@ -8,33 +8,56 @@ from fastwalk import walk, walk_files
 from xxhash import xxh64
 
 
-def check_nested(path1, path2):
-    return bool(str(path1) in str(path2) or str(path2) in str(path1))
+
+from pathlib import Path
+
+
+def is_nested(path1: Path, path2: Path) -> bool:
+    """
+    Return True if one directory is inside the other.
+    """
+    try:
+        path1.resolve().relative_to(path2.resolve())
+        return True
+    except ValueError:
+        pass
+
+    try:
+        path2.resolve().relative_to(path1.resolve())
+        return True
+    except ValueError:
+        pass
+
+    return False
 
 
 def hash_folder(folder_path):
-    filez = []
-    if len(os.listdir(folder_path)) == 0:
-        return ""
     hasher = xxh64()
+    files = []
+
     for pth in walk_files(str(folder_path)):
         path = Path(pth)
         if path.is_symlink():
             continue
         if path.is_file():
-            filez.append(path)
-        if not filez:
-            return ""
-        for file in filez:
-            try:
-                with file.open("rb") as f:
-                    while chunk := f.read(8192):
-                        hasher.update(chunk)
-            except OSError:
-                # Skip files that can't be read
-                continue
+            files.append(path)
+
+    if not files:
+        return ""
+
+    # IMPORTANT: deterministic order
+    for file in sorted(files):
+        rel = file.relative_to(folder_path)
+        hasher.update(str(rel).encode())
+        try:
+            with file.open("rb") as f:
+                while chunk := f.read(8192):
+                    hasher.update(chunk)
+        except OSError:
+            continue
 
     return hasher.hexdigest()
+
 
 
 def find_duplicate_folders(root_dir):
@@ -54,14 +77,18 @@ if __name__ == "__main__":
 
     root_dir = "."
     duplicates = find_duplicate_folders(root_dir)
+
+
     if duplicates:
-        for hsh in duplicates:
-            for paths in duplicates.values():
-                for n in range(0, len(paths) - 1):
-                    if not check_nested(paths[n], paths[n + 1]):
-                        #                    shutil.rmtree(paths[n])
-                        print(f"{paths[n]} shuold be removed.")
-                        cleaned[hsh].append(paths)
+        for hsh, paths in duplicates.items():
+            for i in range(len(paths)):
+                for j in range(i + 1, len(paths)):
+                    p1 = Path(paths[i])
+                    p2 = Path(paths[j])
+
+                    if not is_nested(p1, p2):
+                        print(f"{p1} should be removed.")
+                        cleaned[hsh].append(str(p1))
 
         with open("/sdcard/dupdirs.json", "w") as fo:
             json.dump(cleaned, fo)

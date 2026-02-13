@@ -46,9 +46,7 @@ def load_known_packages():
         try:
             with open(PIP_LIST_PATH) as f:
                 KNOWN_PACKAGES = {
-                    line.strip().split("==")[0].split(">")[0].split("<")
-                    [0].lower()
-                    for line in f if line.strip()
+                    line.strip().split("==")[0].split(">")[0].split("<")[0].lower() for line in f if line.strip()
                 }
         except Exception:
             pass
@@ -62,9 +60,9 @@ def is_python_file(path):
     if not path.suffix or path.suffix == ".py":
         try:
             with open(
-                    path,
-                    encoding="utf-8",
-                    errors="ignore",
+                path,
+                encoding="utf-8",
+                errors="ignore",
             ) as f:
                 first_line = f.readline()
                 # Check shebang
@@ -74,9 +72,9 @@ def is_python_file(path):
                 # Check for import-like content
                 content = f.read(1024)
                 if re.search(
-                        r"\bimport\b|\bfrom\b\s+\w",
-                        content,
-                        re.I,
+                    r"\bimport\b|\bfrom\b\s+\w",
+                    content,
+                    re.I,
                 ):
                     return True
         except:
@@ -124,9 +122,9 @@ def get_imports_from_file(file_path):
     """Extract imports from single Python file."""
     try:
         with open(
-                file_path,
-                encoding="utf-8",
-                errors="ignore",
+            file_path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             content = f.read()
 
@@ -156,8 +154,7 @@ def handle_compressed_file(archive_path):
                             "utf-8",
                             errors="ignore",
                         )
-                        imports = extract_imports_from_ast(
-                            content) or extract_imports_regex(content)
+                        imports = extract_imports_from_ast(content) or extract_imports_regex(content)
                         for imp in imports:
                             all_imports[imp] += 1
 
@@ -172,8 +169,7 @@ def handle_compressed_file(archive_path):
                                 "utf-8",
                                 errors="ignore",
                             )
-                            imports = extract_imports_from_ast(
-                                content) or extract_imports_regex(content)
+                            imports = extract_imports_from_ast(content) or extract_imports_regex(content)
                             for imp in imports:
                                 all_imports[imp] += 1
 
@@ -188,8 +184,7 @@ def handle_compressed_file(archive_path):
                                 "utf-8",
                                 errors="ignore",
                             )
-                            imports = extract_imports_from_ast(
-                                content) or extract_imports_regex(content)
+                            imports = extract_imports_from_ast(content) or extract_imports_regex(content)
                             for imp in imports:
                                 all_imports[imp] += 1
 
@@ -204,8 +199,7 @@ def handle_compressed_file(archive_path):
                                 "utf-8",
                                 errors="ignore",
                             )
-                            imports = extract_imports_from_ast(
-                                content) or extract_imports_regex(content)
+                            imports = extract_imports_from_ast(content) or extract_imports_regex(content)
                             for imp in imports:
                                 all_imports[imp] += 1
 
@@ -216,12 +210,12 @@ def handle_compressed_file(archive_path):
 
                 dctx = zstd.ZstdDecompressor()
                 with (
-                        open(path, "rb") as f,
-                        dctx.stream_reader(f) as reader,
-                        tarfile.open(
-                            fileobj=reader,
-                            mode="r",
-                        ) as tf,
+                    open(path, "rb") as f,
+                    dctx.stream_reader(f) as reader,
+                    tarfile.open(
+                        fileobj=reader,
+                        mode="r",
+                    ) as tf,
                 ):
                     for member in tf.getmembers():
                         if is_python_file(member.name) and not member.isdir():
@@ -231,8 +225,7 @@ def handle_compressed_file(archive_path):
                                     "utf-8",
                                     errors="ignore",
                                 )
-                                imports = extract_imports_from_ast(
-                                    content) or extract_imports_regex(content)
+                                imports = extract_imports_from_ast(content) or extract_imports_regex(content)
                                 for imp in imports:
                                     all_imports[imp] += 1
             except ImportError:
@@ -250,8 +243,7 @@ def handle_compressed_file(archive_path):
                     text=True,
                 )
                 for line in result.stdout.splitlines():
-                    if ".py" in line or ("python" in line.lower()
-                                         and "bin" not in line.lower()):
+                    if ".py" in line or ("python" in line.lower() and "bin" not in line.lower()):
                         pass  # Would need extraction, skipping for offline
             except:
                 pass
@@ -280,8 +272,8 @@ def walk_directory(root_path):
             elif path.is_file() and path.suffix.lower() in COMPRESSED_EXTS:
                 archive_imports = handle_compressed_file(path)
                 for (
-                        imp,
-                        count,
+                    imp,
+                    count,
                 ) in archive_imports.items():
                     all_imports[imp] += count
 
@@ -294,9 +286,7 @@ def walk_directory(root_path):
 def generate_requirements(imports_count):
     """Generate requirements.txt filtered by known packages and excluding stdlib."""
     filtered = {
-        pkg: count
-        for pkg, count in imports_count.items()
-        if pkg in KNOWN_PACKAGES and pkg not in STDLIB_MODULES
+        pkg: count for pkg, count in imports_count.items() if pkg in KNOWN_PACKAGES and pkg not in STDLIB_MODULES
     }
 
     # Sort by frequency
@@ -311,17 +301,15 @@ def generate_requirements(imports_count):
             # Normalize package name (common fixes)
             norm_pkg = pkg.replace("_", "-")
             if norm_pkg in {
-                    "numpy",
-                    "pandas",
-                    "matplotlib",
+                "numpy",
+                "pandas",
+                "matplotlib",
             }:
                 f.write(f"{norm_pkg}\n")
             else:
                 f.write(f"{norm_pkg}\n")
 
-    print(
-        f"Generated requirements.txt with {len(sorted_imports)} packages (stdlib excluded)"
-    )
+    print(f"Generated requirements.txt with {len(sorted_imports)} packages (stdlib excluded)")
     print("Top 10 most used packages:")
     for pkg, count in sorted_imports[:10]:
         print(f"  {pkg}: {count} files")
@@ -334,9 +322,7 @@ def main():
     print("Scanning current directory...")
     imports_count = walk_directory(".")
 
-    print(
-        f"Found {sum(imports_count.values())} total imports across {len(imports_count)} packages"
-    )
+    print(f"Found {sum(imports_count.values())} total imports across {len(imports_count)} packages")
 
     generate_requirements(imports_count)
 

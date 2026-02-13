@@ -49,9 +49,7 @@ class FileSimilarityDetector:
         with ThreadPoolExecutor() as pool:
             futures = [pool.submit(self.hash_file, f) for f in files]
 
-            for fut in tqdm(as_completed(futures),
-                            total=len(futures),
-                            desc="Hashing"):
+            for fut in tqdm(as_completed(futures), total=len(futures), desc="Hashing"):
                 path, xh, sh = fut.result()
                 if not xh or not sh:
                     continue
@@ -60,10 +58,7 @@ class FileSimilarityDetector:
                 self.duplicates[xh].append(path)
 
         # keep only true duplicates
-        self.duplicates = {
-            h: paths
-            for h, paths in self.duplicates.items() if len(paths) > 1
-        }
+        self.duplicates = {h: paths for h, paths in self.duplicates.items() if len(paths) > 1}
 
     # ---------- similarity ----------
 
@@ -82,12 +77,11 @@ class FileSimilarityDetector:
             visited.add(p1)
             h1 = self.file_hashes[p1]["ssdeep"]
 
-            for p2 in candidates[i + 1:]:
+            for p2 in candidates[i + 1 :]:
                 if p2 in visited:
                     continue
 
-                if ssdeep.compare(h1,
-                                  self.file_hashes[p2]["ssdeep"]) >= threshold:
+                if ssdeep.compare(h1, self.file_hashes[p2]["ssdeep"]) >= threshold:
                     group.append(p2)
                     visited.add(p2)
 
@@ -142,20 +136,12 @@ class FileSimilarityDetector:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Detect duplicate and similar files")
-    parser.add_argument("threshold",
-                        type=int,
-                        help="Similarity threshold (0-100)")
+    parser = argparse.ArgumentParser(description="Detect duplicate and similar files")
+    parser.add_argument("threshold", type=int, help="Similarity threshold (0-100)")
     parser.add_argument(
-        "-m",
-        "--move",
-        action="store_true",
-        help="Keep one file per similarity group and delete the rest")
-    parser.add_argument("-o",
-                        "--output",
-                        default="output",
-                        help="Output directory (copy mode only)")
+        "-m", "--move", action="store_true", help="Keep one file per similarity group and delete the rest"
+    )
+    parser.add_argument("-o", "--output", default="output", help="Output directory (copy mode only)")
     args = parser.parse_args()
 
     detector = FileSimilarityDetector()

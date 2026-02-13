@@ -124,8 +124,7 @@ def auto_delete_duplicates(dups) -> None:
 
 def report_duplicates(dups):
     dup_count = sum(len(files) - 1 for files in dups.values())
-    dup_size = sum(
-        Path(f).stat().st_size for files in dups.values() for f in files[1:])
+    dup_size = sum(Path(f).stat().st_size for files in dups.values() for f in files[1:])
     print("\n📊 Report:")
     print(f"   • Duplicate groups: {len(dups)}")
     print(f"   • Total duplicate files: {dup_count}")

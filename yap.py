@@ -44,6 +44,7 @@ def is_python_file(path: Path) -> bool:
 
 def format_single_file(file: Path, args) -> bool:
     """Core formatting logic using Lazy Imports."""
+    start=file.stat().st_size
     try:
         original_code = file.read_text(encoding="utf-8")
         code = original_code
@@ -70,6 +71,7 @@ def format_single_file(file: Path, args) -> bool:
 
             with contextlib.suppress(black.NothingChanged):
                 code = black.format_str(code, mode=black.Mode(line_length=120))
+                end=file.stat().st_size
         elif args.autopep:
             import autopep8
 
@@ -83,7 +85,7 @@ def format_single_file(file: Path, args) -> bool:
         # 4. Write back only if changed
         if len(code) != len(original_code):
             file.write_text(code, encoding="utf-8")
-            print(f"[OK]  {file.name}")
+            print(f"[OK]  {file.name} {start - end}")
             return True
         else:
             print(f"[NO CHNGE]  {file.name}")
@@ -97,8 +99,7 @@ def format_single_file(file: Path, args) -> bool:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(
-        description="Fast Python API-based formatter (Lazy Loading)")
+    p = argparse.ArgumentParser(description="Fast Python API-based formatter (Lazy Loading)")
     p.add_argument(
         "-b",
         "--black",
@@ -130,9 +131,12 @@ def main() -> None:
     files = []
     for pth in walk_files("."):
         path = Path(pth)
-        if (path.is_file()
-                and not any(part in IGNORED_DIRS for part in path.parts)
-                and is_python_file(path) and not path.is_symlink()):
+        if (
+            path.is_file()
+            and not any(part in IGNORED_DIRS for part in path.parts)
+            and is_python_file(path)
+            and not path.is_symlink()
+        ):
             files.append(path)
 
     if not files:
@@ -151,7 +155,8 @@ def main() -> None:
                         (name),
                         (args),
                     ),
-                ))
+                )
+            )
             if len(pending) >= MAX_IN_FLIGHT:
                 pending.popleft().get()
         while pending:

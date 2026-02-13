@@ -16,8 +16,7 @@ def find_license_files() -> None:
             fn = str(dh.get_fname(file))
             ext = str(dh.get_ext(file))
 
-            if fn.lower().startswith("license") and (ext.lower() in EXT
-                                                     or not ext):
+            if fn.lower().startswith("license") and (ext.lower() in EXT or not ext):
                 print(fn, ext)
                 lf.append(file)
 

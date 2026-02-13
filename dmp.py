@@ -3,9 +3,7 @@
 from os.path import relpath
 from pathlib import Path
 
-EXCLUDED = {
-    ".git", "tmp", "var", ".cache", "etc", "android", "bin", "config", "lib"
-}
+EXCLUDED = {".git", "tmp", "var", ".cache", "etc", "android", "bin", "config", "lib"}
 COUNT = 0
 
 

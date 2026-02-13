@@ -45,7 +45,9 @@ def content_hash(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def extract_from_html(html: str, ) -> Iterable[tuple[str, bytes]]:
+def extract_from_html(
+    html: str,
+) -> Iterable[tuple[str, bytes]]:
     for match in DATA_URL_RE.finditer(html):
         mime = match.group("mime")
         raw_data = match.group("data")

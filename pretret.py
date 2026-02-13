@@ -14,8 +14,7 @@ def process_file(fp):
     if not fp.exists():
         return (False, fp)
     ret = subprocess.run(
-        ["prettier", "-w",
-         str(fp).replace("/storage/emulated/0", "/sdcard")],
+        ["prettier", "-w", str(fp).replace("/storage/emulated/0", "/sdcard")],
         check=True,
     )
     if ret:

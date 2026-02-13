@@ -20,18 +20,13 @@ except ImportError:
 
 IGNORED_DIRS = {
     ".git",
-    "dist",
-    "build",
-    "__pycache__",
-    ".venv",
-    "node_modules",
 }
 
 
 def convert_file(file_path: str) -> bool:
     """Convert an image to JPG, handling transparency with a white background."""
     path = Path(file_path)
-
+    SF = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"}
     if not path.is_file() or path.suffix.lower() not in SF:
         print(f"Skipping: {path.name} (Unsupported format or not a file)")
         return False
@@ -44,8 +39,7 @@ def convert_file(file_path: str) -> bool:
 
     # Ask before overwriting
     if output_path.exists():
-        response = input(f"'{output_path.name}' exists. Overwrite? (y/n): "
-                         ).strip().lower()
+        response = input(f"'{output_path.name}' exists. Overwrite? (y/n): ").strip().lower()
         if response != "y":
             return False
 
@@ -65,12 +59,9 @@ def convert_file(file_path: str) -> bool:
                     dtype=np.uint8,
                 )
                 alpha = a.astype(float) / 255.0
-                img_b = (b.astype(float) * alpha + white_bg.astype(float) *
-                         (1 - alpha)).astype(np.uint8)
-                img_g = (g.astype(float) * alpha + white_bg.astype(float) *
-                         (1 - alpha)).astype(np.uint8)
-                img_r = (r.astype(float) * alpha + white_bg.astype(float) *
-                         (1 - alpha)).astype(np.uint8)
+                img_b = (b.astype(float) * alpha + white_bg.astype(float) * (1 - alpha)).astype(np.uint8)
+                img_g = (g.astype(float) * alpha + white_bg.astype(float) * (1 - alpha)).astype(np.uint8)
+                img_r = (r.astype(float) * alpha + white_bg.astype(float) * (1 - alpha)).astype(np.uint8)
                 final_img = cv2.merge((img_b, img_g, img_r))
             else:
                 final_img = img
@@ -119,15 +110,12 @@ def main() -> None:
     start_time = time.perf_counter()
 
     if args.files:
-        files = [
-            Path(f) for f in args.files
-            if Path(f).is_file() and is_image(Path(f))
-        ]
+        files = [Path(f) for f in args.files if Path(f).is_file() and is_image(Path(f))]
     else:
         files = [
-            f for f in Path(".").rglob("*")
-            if f.is_file() and not any(part in IGNORED_DIRS
-                                       for part in f.parts) and is_image(f)
+            f
+            for f in Path(".").rglob("*")
+            if f.is_file() and not any(part in IGNORED_DIRS for part in f.parts)
         ]
 
     if not files:

@@ -8,9 +8,9 @@ OUTPUT_FILE = "/sdcard/all2.txt"
 def read_file(path):
     try:
         with open(
-                path,
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             return f.read()
     except Exception:
@@ -24,8 +24,7 @@ def collect_files(root):
         for fname in filenames:
             full = os.path.join(dirpath, fname)
             # skip output file itself
-            if os.path.abspath(full) == os.path.abspath(
-                    OUTPUT_FILE) or "license" not in str(fname).lower():
+            if os.path.abspath(full) == os.path.abspath(OUTPUT_FILE) or "license" not in str(fname).lower():
                 continue
             yield full
 

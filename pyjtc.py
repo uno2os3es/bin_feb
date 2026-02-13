@@ -39,12 +39,12 @@ def process_file(filepath, inplace=False, keep_strings=False):
     _, ext = os.path.splitext(filepath)
     ext = ext[1:].lower()
     if ext not in [
-            "hpp",
-            "h",
-            "c",
-            "cpp",
-            "py",
-            "sh",
+        "hpp",
+        "h",
+        "c",
+        "cpp",
+        "py",
+        "sh",
     ]:
         print(f"Unsupported file type: {ext}")
         return
@@ -63,8 +63,7 @@ def process_file(filepath, inplace=False, keep_strings=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description=
-        "Remove comments and docstrings from code files, optionally keeping strings."
+        description="Remove comments and docstrings from code files, optionally keeping strings."
     )
     parser.add_argument(
         "files",

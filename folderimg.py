@@ -6,8 +6,6 @@ from pathlib import Path
 import dh
 from PIL import Image
 
-# ---------- CONFIG ----------
-IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 PHASH_W = 0.5
 DHASH_W = 0.3
@@ -16,11 +14,6 @@ AHASH_W = 0.2
 MAX_SCORE = 10.0  # lower = stricter
 OUT_PREFIX = "group_"
 # ----------------------------
-
-
-def is_image(p: Path) -> bool:
-    return p.is_file() and p.suffix.lower() in IMAGE_EXTS
-
 
 def compute_hashes(path: Path):
     try:
@@ -36,14 +29,16 @@ def compute_hashes(path: Path):
 
 
 def similarity_score(h1, h2) -> float:
-    return ((h1["phash"] - h2["phash"]) * PHASH_W +
-            (h1["dhash"] - h2["dhash"]) * DHASH_W +
-            (h1["ahash"] - h2["ahash"]) * AHASH_W)
+    return (
+        (h1["phash"] - h2["phash"]) * PHASH_W
+        + (h1["dhash"] - h2["dhash"]) * DHASH_W
+        + (h1["ahash"] - h2["ahash"]) * AHASH_W
+    )
 
 
 def main():
     cwd = Path.cwd()
-    images = [p for p in cwd.iterdir() if is_image(p)]
+    images = [p for p in cwd.iterdir() if dh.is_image(p)]
 
     if not images:
         print("No images found.")

@@ -18,8 +18,8 @@ def replace_in_files(search_text, replace_text, dry_run=False):
 
             try:
                 with open(
-                        file_path,
-                        encoding="utf-8",
+                    file_path,
+                    encoding="utf-8",
                 ) as f:
                     lines = f.readlines()
 
@@ -30,9 +30,7 @@ def replace_in_files(search_text, replace_text, dry_run=False):
                     if pattern.search(line):
                         new_line = pattern.sub(replace_text, line)
                         if dry_run:
-                            print(
-                                f"[DRY RUN] Match found in {file_path} on line {i + 1}:"
-                            )
+                            print(f"[DRY RUN] Match found in {file_path} on line {i + 1}:")
                             print(f"  - Old: {line.strip()}")
                             print(f"  + New: {new_line.strip()}")
                         new_lines.append(new_line)
@@ -42,23 +40,22 @@ def replace_in_files(search_text, replace_text, dry_run=False):
 
                 if changed and not dry_run:
                     with open(
-                            file_path,
-                            "w",
-                            encoding="utf-8",
+                        file_path,
+                        "w",
+                        encoding="utf-8",
                     ) as f:
                         f.writelines(new_lines)
                     print(f"Updated: {file_path}")
 
             except (
-                    UnicodeDecodeError,
-                    PermissionError,
+                UnicodeDecodeError,
+                PermissionError,
             ):
                 continue
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Recursively replace text in files.")
+    parser = argparse.ArgumentParser(description="Recursively replace text in files.")
     parser.add_argument("search", help="The text to search for")
     parser.add_argument("replace", help="The replacement text")
     parser.add_argument(

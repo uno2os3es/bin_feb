@@ -120,9 +120,7 @@ def main():
 
     print(f"Found {len(log_files)} log file(s).")
     print(f"Using {NUM_WORKERS} worker(s).")
-    print(
-        f"Files larger than {MMAP_THRESHOLD / (1024 * 1024):.1f} MB will use mmap.\n"
-    )
+    print(f"Files larger than {MMAP_THRESHOLD / (1024 * 1024):.1f} MB will use mmap.\n")
     print("Cleaning...\n")
 
     # Process files in parallel
@@ -141,9 +139,7 @@ def main():
             print(f"✗ Error: {file_path} - {message}")
             error_count += 1
 
-    print(
-        f"\nDone. Successfully processed {success_count}/{len(log_files)} file(s)."
-    )
+    print(f"\nDone. Successfully processed {success_count}/{len(log_files)} file(s).")
     if error_count > 0:
         print(f"Failed: {error_count} file(s).")
 

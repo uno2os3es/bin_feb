@@ -32,8 +32,8 @@ def format_file(file_path):
         return True
 
     except (
-            subprocess.CalledProcessError,
-            FileNotFoundError,
+        subprocess.CalledProcessError,
+        FileNotFoundError,
     ):
         print(f"[ERR] {res.stderr!s} {file_path.name}")
         return False
@@ -56,7 +56,7 @@ def main() -> None:
 
     pool = Pool(6)
     for f in cfiles:
-        pool.apply_async(format_file, ((f), ))
+        pool.apply_async(format_file, ((f),))
     pool.close()
     pool.join()
     cprint(f"{perf_counter() - start} secs", "blue")

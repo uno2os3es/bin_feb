@@ -2,7 +2,9 @@
 import subprocess
 
 
-def create_unpinned_requirements(output_file="req.txt", ):
+def create_unpinned_requirements(
+    output_file="req.txt",
+):
     """Runs pip freeze and saves only package names to output_file."""
     try:
         # Run pip freeze and capture output
@@ -22,17 +24,14 @@ def create_unpinned_requirements(output_file="req.txt", ):
 
             # Split at the first occurrence of any version/link operator
             # We use a simple partition for '==' as it is the pip freeze default
-            pkg = line.split("==")[0].split(">=")[0].split("<=")[0].split(
-                "~=")[0].split(" @ ")[0]
+            pkg = line.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].split(" @ ")[0]
             package_names.append(pkg.strip())
 
         # Save to req.txt
         with open(output_file, "w", encoding="utf-8") as f:
             f.write("\n".join(package_names) + "\n")
 
-        print(
-            f"Successfully saved {len(package_names)} package names to {output_file}."
-        )
+        print(f"Successfully saved {len(package_names)} package names to {output_file}.")
 
     except subprocess.CalledProcessError as e:
         print(f"Error running pip freeze: {e}")

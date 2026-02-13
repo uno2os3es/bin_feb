@@ -23,8 +23,7 @@ def install_js2py():
         import subprocess
 
         try:
-            subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", "js2py"])
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "js2py"])
             print("✅ js2py installed successfully")
             return True
         except subprocess.CalledProcessError:
@@ -47,8 +46,7 @@ def convert_with_js2py(js_file: Path, outfile: Path) -> bool:
         return (False, f"js2py conversion error: {e!s}")
 
 
-def convert_with_openai(js_code: str,
-                        api_key: str | None = None) -> tuple[bool, str]:
+def convert_with_openai(js_code: str, api_key: str | None = None) -> tuple[bool, str]:
     """
     Convert JavaScript to Python using OpenAI API.
 
@@ -62,9 +60,7 @@ def convert_with_openai(js_code: str,
     try:
         import openai
     except ImportError:
-        return (
-            False,
-            "OpenAI library not installed. Install with: pip install openai")
+        return (False, "OpenAI library not installed. Install with: pip install openai")
 
     # Get API key from parameter or environment
     api_key = api_key or os.getenv("OPENAI_API_KEY")
@@ -89,15 +85,10 @@ python code:"""
             model="gpt-4",
             messages=[
                 {
-                    "role":
-                    "system",
-                    "content":
-                    "You are an expert programmer who converts JavaScript to Python accurately.",
+                    "role": "system",
+                    "content": "You are an expert programmer who converts JavaScript to Python accurately.",
                 },
-                {
-                    "role": "user",
-                    "content": prompt
-                },
+                {"role": "user", "content": prompt},
             ],
             temperature=0.3,
             max_tokens=2000,
@@ -107,8 +98,7 @@ python code:"""
 
         # Extract code from markdown if present
         if "```python" in python_code:
-            python_code = re.search(r"```python\n(.*?)```", python_code,
-                                    re.DOTALL)
+            python_code = re.search(r"```python\n(.*?)```", python_code, re.DOTALL)
             if python_code:
                 python_code = python_code.group(1)
         elif "```" in python_code:
@@ -143,14 +133,11 @@ def simple_js_to_python(js_code: str) -> str:
     python_code = re.sub(r"\b(null|undefined)\b", "None", python_code)
 
     # Function declarations
-    python_code = re.sub(r"\bfunction\s+(\w+)\s*\((.*?)\)\s*{", r"def \1(\2):",
-                         python_code)
+    python_code = re.sub(r"\bfunction\s+(\w+)\s*\((.*?)\)\s*{", r"def \1(\2):", python_code)
 
     # Arrow functions (simple cases)
-    python_code = re.sub(r"const\s+(\w+)\s*=\s*\((.*?)\)\s*=>\s*{",
-                         r"def \1(\2):", python_code)
-    python_code = re.sub(r"(\w+)\s*=\s*\((.*?)\)\s*=>\s*{", r"def \1(\2):",
-                         python_code)
+    python_code = re.sub(r"const\s+(\w+)\s*=\s*\((.*?)\)\s*=>\s*{", r"def \1(\2):", python_code)
+    python_code = re.sub(r"(\w+)\s*=\s*\((.*?)\)\s*=>\s*{", r"def \1(\2):", python_code)
 
     # Comments
     python_code = re.sub(r"//", "#", python_code)
@@ -164,8 +151,7 @@ def simple_js_to_python(js_code: str) -> str:
 
     # Control structures
     python_code = re.sub(r"\bif\s*\((.*?)\)\s*{", r"if \1:", python_code)
-    python_code = re.sub(r"\belse\s+if\s*\((.*?)\)\s*{", r"elif \1:",
-                         python_code)
+    python_code = re.sub(r"\belse\s+if\s*\((.*?)\)\s*{", r"elif \1:", python_code)
     python_code = re.sub(r"\belse\s*{", r"else:", python_code)
     python_code = re.sub(r"\bwhile\s*\((.*?)\)\s*{", r"while \1:", python_code)
 
@@ -271,8 +257,7 @@ def main():
 
     parser.add_argument(
         "--api-key",
-        help=
-        "OpenAI API key (for openai method, or set OPENAI_API_KEY env var)",
+        help="OpenAI API key (for openai method, or set OPENAI_API_KEY env var)",
     )
     args = parser.parse_args()
 

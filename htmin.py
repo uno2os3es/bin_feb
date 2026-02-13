@@ -9,7 +9,6 @@ from time import perf_counter
 import htmlmin
 from fastwalk import walk_files
 
-
 # fmt: off
 def process_file(file: Path) -> bool:
     try:

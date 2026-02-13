@@ -83,5 +83,5 @@ def rename_html_files(root: Path):
 
 
 if __name__ == "__main__":
-    dir = sys.argv[1] or "."
-    rename_html_files(Path(dir))
+    dir = Path().cwd()
+    rename_html_files(dir)

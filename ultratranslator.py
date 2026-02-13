@@ -21,7 +21,7 @@ def is_english(text: str) -> bool:
 
 
 def chunk_text(text: str, size: int = 800) -> list[str]:
-    return [text[i:i + size] for i in range(0, len(text), size)]
+    return [text[i : i + size] for i in range(0, len(text), size)]
 
 
 def translate_chunk(chunk: str) -> str:
@@ -41,10 +41,10 @@ def translate_text(text: str) -> str:
 
 def safe_overwrite(filepath: Path, content: str) -> None:
     with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            delete=False,
-            dir=filepath.parent,
+        mode="w",
+        encoding="utf-8",
+        delete=False,
+        dir=filepath.parent,
     ) as tmp:
         tmp.write(content)
         tmp_path = Path(tmp.name)
@@ -54,12 +54,14 @@ def safe_overwrite(filepath: Path, content: str) -> None:
 # ---------- PYTHON-SAFE TRANSLATION ----------
 
 
-def extract_docstrings(tree: ast.AST, ) -> dict[int, str]:
+def extract_docstrings(
+    tree: ast.AST,
+) -> dict[int, str]:
     docstrings = {}
 
     for node in ast.walk(tree):
         if isinstance(
-                node,
+            node,
             (
                 ast.Module,
                 ast.FunctionDef,
@@ -113,12 +115,12 @@ def process_files(directory: str) -> None:
         suffix = fp.suffix.lower()
 
         if suffix not in {
-                ".txt",
-                ".md",
-                ".srt",
-                ".json",
-                ".html",
-                ".py",
+            ".txt",
+            ".md",
+            ".srt",
+            ".json",
+            ".html",
+            ".py",
         }:
             continue
 
@@ -130,8 +132,7 @@ def process_files(directory: str) -> None:
         if is_english(original.strip()):
             continue
 
-        translated = translate_python_file(
-            original) if suffix == ".py" else translate_text(original)
+        translated = translate_python_file(original) if suffix == ".py" else translate_text(original)
 
         if translated.strip() == original.strip():
             continue

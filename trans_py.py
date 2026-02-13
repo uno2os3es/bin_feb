@@ -108,7 +108,7 @@ def process_file(filepath):
     # Process docstrings
     for node in ast.walk(parsed):
         if isinstance(
-                node,
+            node,
             (
                 ast.FunctionDef,
                 ast.AsyncFunctionDef,
@@ -123,8 +123,8 @@ def process_file(filepath):
                 for lookback in range(3):
                     possible = doc_start - lookback
                     if possible >= 0 and (
-                            lines[possible].lstrip().startswith('"""')
-                            or lines[possible].lstrip().startswith("'''")):
+                        lines[possible].lstrip().startswith('"""') or lines[possible].lstrip().startswith("'''")
+                    ):
                         docstring_line = possible
                         break
                 else:
@@ -132,13 +132,11 @@ def process_file(filepath):
 
                 doc_lines = []
                 line_idx = docstring_line
-                quote_type = '"""' if lines[line_idx].lstrip().startswith(
-                    '"""') else "'''"
+                quote_type = '"""' if lines[line_idx].lstrip().startswith('"""') else "'''"
                 # Accumulate lines until the closing triple-quote
                 while True:
                     doc_lines.append(lines[line_idx])
-                    if lines[line_idx].rstrip().endswith(
-                            quote_type) and line_idx != docstring_line:
+                    if lines[line_idx].rstrip().endswith(quote_type) and line_idx != docstring_line:
                         break
                     line_idx += 1
                 doc_block = "\n".join(doc_lines)
@@ -186,8 +184,7 @@ def find_py_files(root="."):
     files = []
     for dirpath, _, filenames in os.walk(root):
         for fname in filenames:
-            if fname.endswith(PYTHON_EXT) and get_size(
-                    os.path.join(dirpath, fname)) != 0:
+            if fname.endswith(PYTHON_EXT) and get_size(os.path.join(dirpath, fname)) != 0:
                 files.append(os.path.join(dirpath, fname))
     return files
 

@@ -17,7 +17,9 @@ LOG_FILE = "/sdcard/reqdist.txt"
 removed_lines_accumulator = []
 
 
-def clean_text(text: str, ) -> tuple[str, list[str]]:
+def clean_text(
+    text: str,
+) -> tuple[str, list[str]]:
     with open("/sdcard/meta.txt", "a") as fmeta:
         fmeta.write(text)
 
@@ -39,9 +41,9 @@ def clean_file(path: str) -> None:
     """Remove lines from a normal file and log them."""
     try:
         with open(
-                path,
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             original = f.read()
     except Exception:
@@ -58,8 +60,8 @@ def process_zip(path: str) -> None:
     """Rewrite a zip/whl file with cleaned metadata."""
     tmp = tempfile.mktemp(suffix=".zip")
     with (
-            zipfile.ZipFile(path, "r") as zin,
-            zipfile.ZipFile(tmp, "w") as zout,
+        zipfile.ZipFile(path, "r") as zin,
+        zipfile.ZipFile(tmp, "w") as zout,
     ):
         for item in zin.infolist():
             data = zin.read(item.filename)
@@ -112,13 +114,15 @@ def main() -> None:
             full_path = os.path.join(root, name)
             if name in TARGET_FILES:
                 clean_file(full_path)
-            elif name.lower().endswith((
+            elif name.lower().endswith(
+                (
                     ".zip",
                     ".whl",
                     ".tar.gz",
                     ".tgz",
                     ".tar",
-            )):
+                )
+            ):
                 dispatch_archive(full_path)
 
     # 2. Handle the collected output
@@ -128,13 +132,9 @@ def main() -> None:
             with open(LOG_FILE, "a", encoding="utf-8") as f:
                 for line in removed_lines_accumulator:
                     f.write(line + "\n")
-            print(
-                f"--- Saved {len(removed_lines_accumulator)} lines to {LOG_FILE} ---"
-            )
+            print(f"--- Saved {len(removed_lines_accumulator)} lines to {LOG_FILE} ---")
         except PermissionError:
-            print(
-                f"Warning: Could not write to {LOG_FILE}. Check Termux storage permissions."
-            )
+            print(f"Warning: Could not write to {LOG_FILE}. Check Termux storage permissions.")
 
         # Print to console
         print("\nRemoved Lines:")

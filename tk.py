@@ -44,8 +44,8 @@ def scan_directory(directory="."):
 
             # Check for extension-based language detection
             for (
-                    lang,
-                    extensions,
+                lang,
+                extensions,
             ) in LANG_EXTENSIONS.items():
                 if file_extension in extensions:
                     code, comments, blanks = count_lines_of_code(

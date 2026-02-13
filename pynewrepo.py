@@ -99,8 +99,7 @@ class GitHubRepoManager:
 
     def _init_local_repo(self):
         """Initialize local git repository."""
-        print(
-            f"\n📦 Initializing local git repository in {self.current_dir}...")
+        print(f"\n📦 Initializing local git repository in {self.current_dir}...")
         returncode, _stdout, stderr = self._run_command(
             ["git", "init"],
             capture_output=True,
@@ -181,9 +180,7 @@ class GitHubRepoManager:
 
         # Filter out . git directory
         files = [f for f in files if f.name != ".git"]
-        hidden_files = [
-            f for f in hidden_files if f.name not in [".git", ".", ".."]
-        ]
+        hidden_files = [f for f in hidden_files if f.name not in [".git", ".", ".."]]
 
         has_content = len(files) > 0 or len(hidden_files) > 0
 
@@ -243,9 +240,7 @@ class GitHubRepoManager:
                 print("✓ Remote 'origin' already configured correctly")
                 return
             else:
-                print(
-                    f"Updating remote URL from {current_url} to {self.repo_url}"
-                )
+                print(f"Updating remote URL from {current_url} to {self.repo_url}")
                 self._run_command(
                     [
                         "git",
@@ -292,15 +287,10 @@ class GitHubRepoManager:
             print(f"stdout: {stdout}")
             print(f"stderr: {stderr}")
             if "permission denied" in stderr.lower():
-                print(
-                    "Error:  Permission denied.  Check your GitHub credentials."
-                )
+                print("Error:  Permission denied.  Check your GitHub credentials.")
                 sys.exit(1)
-            elif "not found" in stderr.lower(
-            ) or "does not appear" in stderr.lower():
-                print(
-                    f"Note: Remote branch '{branch}' doesn't exist yet (creating on push)"
-                )
+            elif "not found" in stderr.lower() or "does not appear" in stderr.lower():
+                print(f"Note: Remote branch '{branch}' doesn't exist yet (creating on push)")
             else:
                 print(f"Warning: Push encountered an issue: {stderr}")
 
@@ -427,9 +417,7 @@ class GitHubRepoManager:
 
                 print("\n" + "=" * 60)
                 print("✅ Success! Repository created and pushed to GitHub")
-                print(
-                    f"Repository URL: https://github.com/{self.github_username}/{self.repo_name}"
-                )
+                print(f"Repository URL: https://github.com/{self.github_username}/{self.repo_name}")
                 print("=" * 60)
             else:
                 print("\n❌ Failed to create repository on GitHub")
@@ -442,8 +430,7 @@ class GitHubRepoManager:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description=
-        "Create a GitHub repository using gh CLI and auto-commit with current date/time"
+        description="Create a GitHub repository using gh CLI and auto-commit with current date/time"
     )
     parser.add_argument(
         "-n",

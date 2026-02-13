@@ -57,7 +57,8 @@ def fetch_trending(timeframe: str) -> list[Repo]:
                 stars=stars,
                 language=language,
                 timeframe=timeframe,
-            ))
+            )
+        )
 
     return repos
 

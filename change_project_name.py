@@ -30,9 +30,9 @@ def replace_in_file(path: str, old: str, new: str) -> None:
     """Why: update file content safely."""
     try:
         with open(
-                path,
-                encoding="utf-8",
-                errors="ignore",
+            path,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             text = f.read()
     except (UnicodeDecodeError, PermissionError):

@@ -57,9 +57,7 @@ def find_duplicates(directory="."):
             try:
                 size = os.path.getsize(filepath)
                 if size < MIN_FILE_SIZE:
-                    print(
-                        f"[DEBUG] Skipping file under {MIN_FILE_SIZE} bytes: {filepath}"
-                    )
+                    print(f"[DEBUG] Skipping file under {MIN_FILE_SIZE} bytes: {filepath}")
                     skipped_count += 1
                     continue
 
@@ -68,21 +66,14 @@ def find_duplicates(directory="."):
             except OSError as e:
                 print(f"[ERROR] Accessing {filepath}: {e}")
 
-    print(
-        f"[INFO] Scanned {file_count + skipped_count} files ({skipped_count} skipped due to size)"
-    )
-    print(
-        f"[INFO] Found {file_count} files that qualify for duplicate analysis")
+    print(f"[INFO] Scanned {file_count + skipped_count} files ({skipped_count} skipped due to size)")
+    print(f"[INFO] Found {file_count} files that qualify for duplicate analysis")
 
     # Second pass: check hash for files with the same size
     hash_map = defaultdict(list)
-    potential_duplicates = [
-        files for files in size_map.values() if len(files) > 1
-    ]
+    potential_duplicates = [files for files in size_map.values() if len(files) > 1]
 
-    print(
-        f"[INFO] Checking {sum(len(files) for files in potential_duplicates)} potential duplicates..."
-    )
+    print(f"[INFO] Checking {sum(len(files) for files in potential_duplicates)} potential duplicates...")
 
     for files in potential_duplicates:
         for filepath in files:
@@ -127,12 +118,14 @@ def create_symlinks(duplicates, dry_run=False):
 
             if not dry_run:
                 # Backup original file info
-                backup_data["operations"].append({
-                    "symlink": duplicate_abs,
-                    "target": keeper_abs,
-                    "original_existed": True,
-                    "size": file_size,
-                })
+                backup_data["operations"].append(
+                    {
+                        "symlink": duplicate_abs,
+                        "target": keeper_abs,
+                        "original_existed": True,
+                        "size": file_size,
+                    }
+                )
 
                 try:
                     # Remove the duplicate
@@ -144,9 +137,7 @@ def create_symlinks(duplicates, dry_run=False):
                 except OSError as e:
                     print(f"  [ERROR] {e}")
             else:
-                print(
-                    f"  [DRY RUN] Would replace {duplicate} with symlink to {keeper}"
-                )
+                print(f"  [DRY RUN] Would replace {duplicate} with symlink to {keeper}")
                 symlink_count += 1
                 total_saved += file_size
 
@@ -175,8 +166,7 @@ def reverse_symlinks(backup_file=BACKUP_FILE):
     with open(backup_file) as f:
         backup_data = json.load(f)
 
-    print(
-        f"[INFO] Restoring from backup created at: {backup_data['timestamp']}")
+    print(f"[INFO] Restoring from backup created at: {backup_data['timestamp']}")
     print(f"[INFO] Operations to reverse: {len(backup_data['operations'])}")
 
     restored_count = 0
@@ -216,9 +206,7 @@ def reverse_symlinks(backup_file=BACKUP_FILE):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=
-        "Find duplicate files and replace with symlinks (reversible)")
+    parser = argparse.ArgumentParser(description="Find duplicate files and replace with symlinks (reversible)")
     parser.add_argument(
         "directory",
         nargs="?",
@@ -253,9 +241,7 @@ def main():
             return
 
         print(f"\n[INFO] Found {len(duplicates)} groups of duplicates")
-        print(
-            f"[INFO] Total duplicate files: {sum(len(files) - 1 for files in duplicates.values())}"
-        )
+        print(f"[INFO] Total duplicate files: {sum(len(files) - 1 for files in duplicates.values())}")
 
         if args.dry_run:
             print("\n[INFO] [DRY RUN MODE - No changes will be made]")

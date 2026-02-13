@@ -35,8 +35,7 @@ def ensure_gitignore() -> None:
         print("Copying global .gitignore_global to local .gitignore...")
         shutil.copy(global_gitignore, repo_gitignore)
     else:
-        print(
-            "No local .gitignore and no ~/.gitignore_global found. Skipping.")
+        print("No local .gitignore and no ~/.gitignore_global found. Skipping.")
 
 
 def find_python_scripts_without_extension():
@@ -52,13 +51,12 @@ def find_python_scripts_without_extension():
             path = os.path.join(root, f)
             try:
                 with open(
-                        path,
-                        encoding="utf-8",
-                        errors="ignore",
+                    path,
+                    encoding="utf-8",
+                    errors="ignore",
                 ) as file:
                     first_line = file.readline().strip()
-                    if first_line.startswith(
-                            "#!") and "python" in first_line.lower():
+                    if first_line.startswith("#!") and "python" in first_line.lower():
                         py_files.append(path)
             except (OSError, UnicodeDecodeError):
                 continue

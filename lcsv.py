@@ -17,9 +17,9 @@ def process_file(filepath):
     counter = Counter()
     try:
         with open(
-                filepath,
-                encoding="utf-8",
-                errors="ignore",
+            filepath,
+            encoding="utf-8",
+            errors="ignore",
         ) as f:
             for line in f:
                 line = line.strip()
@@ -67,24 +67,24 @@ def collect_lines_for_extension(ext, files):
     with ThreadPoolExecutor() as executor:
         futures = {executor.submit(process_file, f): f for f in files}
         for future in tqdm(
-                as_completed(futures),
-                total=len(futures),
-                desc=f"Processing .{ext}  files",
+            as_completed(futures),
+            total=len(futures),
+            desc=f"Processing .{ext}  files",
         ):
             global_counter.update(future.result())
 
     output_file = f"{ext}.csv"
     with open(
-            output_file,
-            "w",
-            newline="",
-            encoding="utf-8",
+        output_file,
+        "w",
+        newline="",
+        encoding="utf-8",
     ) as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["number_of_appearance", "line"])
         for (
-                line,
-                count,
+            line,
+            count,
         ) in global_counter.most_common():
             if count >= 2:
                 writer.writerow([count, line])

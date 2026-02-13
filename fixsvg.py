@@ -38,7 +38,7 @@ def main():
     with Pool(8) as p:
         pending = deque()
         for f in files:
-            pending.append(p.apply_async(process_file, ((f), )))
+            pending.append(p.apply_async(process_file, ((f),)))
             if len(pending) > 32:
                 pending.popleft().get()
         while pending:

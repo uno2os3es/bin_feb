@@ -46,8 +46,7 @@ def find_distributions(site_dirs):
         if not sd.exists():
             continue
         for p in sd.iterdir():
-            if p.is_dir() and (p.name.endswith(".dist-info")
-                               or p.name.endswith(".egg-info")):
+            if p.is_dir() and (p.name.endswith(".dist-info") or p.name.endswith(".egg-info")):
                 key = p.name.rsplit(".", 1)[0].lower()
                 dists[key] = p
     return dists
@@ -86,8 +85,9 @@ def read_record_list(distinfo_dir):
     rec = distinfo_dir / "RECORD"
     if rec.exists():
         return [
-            l.strip().split(",", 1)[0] for l in rec.read_text(
-                encoding="utf-8", errors="ignore").splitlines() if l.strip()
+            l.strip().split(",", 1)[0]
+            for l in rec.read_text(encoding="utf-8", errors="ignore").splitlines()
+            if l.strip()
         ]
     return None
 
@@ -99,10 +99,10 @@ def find_script_paths(prefix, script_names):
         return out
     for s in script_names:
         for alt in (
-                s,
-                s + ".py",
-                s + "-script.py",
-                s + ".sh",
+            s,
+            s + ".py",
+            s + "-script.py",
+            s + ".sh",
         ):
             ap = bin_dir / alt
             if ap.exists():
@@ -133,8 +133,7 @@ def detect_wheel_tags():
         )
     else:
         cache = getattr(sys.implementation, "cache_tag", None)
-        py_tag, abi_tag = cache.split(
-            "-", 1) if cache and "-" in cache else (f"py{mj} ", "none")
+        py_tag, abi_tag = cache.split("-", 1) if cache and "-" in cache else (f"py{mj} ", "none")
     plat = sysconfig.get_platform().replace("-", "_").replace(".", "_")
     return py_tag, abi_tag, plat
 
@@ -146,14 +145,11 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
     base = distinfo_path.parent
     rec_list = read_record_list(distinfo_path)
     if not rec_list:
-        print(
-            f"[-] Error: Could not find RECORD for {distinfo_path.name}. Skipping."
-        )
+        print(f"[-] Error: Could not find RECORD for {distinfo_path.name}. Skipping.")
         return
 
     md = parse_metadata_from_distinfo(distinfo_path)
-    dist_name = (md.get("Name")
-                 or distinfo_path.name.split("-", 1)[0]).replace("-", "_")
+    dist_name = (md.get("Name") or distinfo_path.name.split("-", 1)[0]).replace("-", "_")
     md.get("Version") or "0.0.0"
 
     collected_files = []  # List of (source_path, internal_zip_path)
@@ -174,10 +170,12 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
                 for root, _, files in os.walk(src):
                     for fn in files:
                         s_path = Path(root) / fn
-                        collected_files.append((
-                            s_path,
-                            s_path.relative_to(base).as_posix(),
-                        ))
+                        collected_files.append(
+                            (
+                                s_path,
+                                s_path.relative_to(base).as_posix(),
+                            )
+                        )
             else:
                 collected_files.append((src, rel))
         else:
@@ -204,8 +202,7 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
         ".dylib",
         ".sl",
     }
-    is_platform = any(s.suffix.lower() in native_exts
-                      for s, _ in collected_files)
+    is_platform = any(s.suffix.lower() in native_exts for s, _ in collected_files)
     wheel_tag = f"{py_tag}-{abi_tag}-{plat_tag}" if is_platform else "py3-none-any"
 
     # Write Zip
@@ -213,9 +210,9 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
     record_lines = []
 
     with zipfile.ZipFile(
-            wheel_out_path,
-            "w",
-            compression=zipfile.ZIP_DEFLATED,
+        wheel_out_path,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
     ) as zf:
         for src, rel in collected_files:
             zf.write(src, arcname=rel)
@@ -241,8 +238,7 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Repack packages into .whl files directly.")
+    parser = argparse.ArgumentParser(description="Repack packages into .whl files directly.")
     parser.add_argument(
         "packages",
         nargs="*",
@@ -275,8 +271,7 @@ def main():
     for distinfo in to_do:
         try:
             md = parse_metadata_from_distinfo(distinfo)
-            name = (md.get("Name")
-                    or distinfo.name.split("-", 1)[0]).replace("-", "_")
+            name = (md.get("Name") or distinfo.name.split("-", 1)[0]).replace("-", "_")
             ver = md.get("Version") or "0"
 
             # Simple check for platform tags for filename

@@ -26,25 +26,21 @@ def normalize_permissions(homedir: str) -> None:
             if path.is_dir():
                 if current_perm != DIR_PERM:
                     os.chmod(path, DIR_PERM)
-                    print(
-                        f"Set permissions for directory: {path} from {oct(current_perm)} to {oct(DIR_PERM)}"
-                    )
+                    print(f"Set permissions for directory: {path} from {oct(current_perm)} to {oct(DIR_PERM)}")
 
             elif path.is_file():
                 if current_perm != FILE_PERM:
                     os.chmod(path, FILE_PERM)
-                    print(
-                        f"Set permissions for file: {path} from {oct(current_perm)} to {oct(FILE_PERM)}"
-                    )
+                    print(f"Set permissions for file: {path} from {oct(current_perm)} to {oct(FILE_PERM)}")
                 try:
                     for encod in [
-                            "utf-8",
-                            "windows-1251",
+                        "utf-8",
+                        "windows-1251",
                     ]:
                         with open(
-                                path,
-                                errors="ignore",
-                                encoding=encod,
+                            path,
+                            errors="ignore",
+                            encoding=encod,
                         ) as f:
                             h10 = f.read()
                             print(f"{h10!s}")

@@ -21,9 +21,9 @@ def is_python_file(filepath):
             if first_line.startswith("#!") and "python" in first_line:
                 return True
             # Check for common Python file markers (e.g., encoding, import, #noqa)
-            if first_line.startswith("#") and ("python" in first_line
-                                               or "encoding" in first_line
-                                               or "noqa" in first_line):
+            if first_line.startswith("#") and (
+                "python" in first_line or "encoding" in first_line or "noqa" in first_line
+            ):
                 return True
             # Check if the first non-comment line is an import statement
             f.seek(0)
@@ -53,12 +53,17 @@ def process_file(filepath):
                 lines.insert(1, "\n")
         else:
             # Only add shebang if the file contains Python code
-            has_python_code = any(line.strip().startswith((
-                "import ",
-                "from ",
-                "def ",
-                "class ",
-            )) for line in lines)
+            has_python_code = any(
+                line.strip().startswith(
+                    (
+                        "import ",
+                        "from ",
+                        "def ",
+                        "class ",
+                    )
+                )
+                for line in lines
+            )
             if has_python_code:
                 lines.insert(0, TARGET_SHEBANG + "\n")
                 lines.insert(1, "\n")

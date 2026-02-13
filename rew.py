@@ -61,8 +61,7 @@ def find_distributions(site_dirs):
     dists = {}
     for sd in site_dirs:
         for p in sd.iterdir():
-            if p.is_dir() and (p.name.endswith(".dist-info")
-                               or p.name.endswith(".egg-info")):
+            if p.is_dir() and (p.name.endswith(".dist-info") or p.name.endswith(".egg-info")):
                 # distribution folder name: <name>-<version>.dist-info or <name>.egg-info or <name>-<version>.egg-info
                 key = p.name.rsplit(".")[0]  # remove suffix
                 # normalize key (lowercase) for matching
@@ -87,19 +86,20 @@ def parse_metadata_from_distinfo(distinfo_dir):
     if ep.exists():
         config = ConfigParser()
         try:
-            config.read_string("[DEFAULT]\n" + ep.read_text(
-                encoding="utf-8",
-                errors="ignore",
-            ))
+            config.read_string(
+                "[DEFAULT]\n"
+                + ep.read_text(
+                    encoding="utf-8",
+                    errors="ignore",
+                )
+            )
         except Exception:
             # Try using a proper ConfigParser read
             config.read(ep)
-        if config.has_section("console_scripts") or config.has_option(
-                "console_scripts", ""):
+        if config.has_section("console_scripts") or config.has_option("console_scripts", ""):
             # configparser handling is messy because entry_points format is not a real INI always
             # We'll parse manually
-            lines = ep.read_text(encoding="utf-8",
-                                 errors="ignore").splitlines()
+            lines = ep.read_text(encoding="utf-8", errors="ignore").splitlines()
             section = None
             console = []
             for ln in lines:
@@ -107,8 +107,7 @@ def parse_metadata_from_distinfo(distinfo_dir):
                 if ln.startswith("[") and ln.endswith("]"):
                     section = ln[1:-1].strip()
                     continue
-                if section == "console_scripts" and ln and not ln.startswith(
-                        "#"):
+                if section == "console_scripts" and ln and not ln.startswith("#"):
                     # format: name = module:callable
                     left = ln.split("=", 1)[0].strip()
                     console.append(left)
@@ -120,28 +119,28 @@ def read_record_list(distinfo_dir):
     rec = distinfo_dir / "RECORD"
     if rec.exists():
         return [
-            l.strip().split(",", 1)[0] for l in rec.read_text(
-                encoding="utf-8", errors="ignore").splitlines() if l.strip()
+            l.strip().split(",", 1)[0]
+            for l in rec.read_text(encoding="utf-8", errors="ignore").splitlines()
+            if l.strip()
         ]
     # egg-info fallback
     for p in [
-            distinfo_dir / "installed-files.txt",
-            distinfo_dir / "installed_files.txt",
+        distinfo_dir / "installed-files.txt",
+        distinfo_dir / "installed_files.txt",
     ]:
         if p.exists():
             return [
-                l.strip() for l in p.read_text(
+                l.strip()
+                for l in p.read_text(
                     encoding="utf-8",
                     errors="ignore",
-                ).splitlines() if l.strip()
+                ).splitlines()
+                if l.strip()
             ]
     # If none, try top_level.txt to guess top-level packages
     tt = distinfo_dir / "top_level.txt"
     if tt.exists():
-        return [
-            l.strip() for l in tt.read_text(
-                encoding="utf-8", errors="ignore").splitlines() if l.strip()
-        ]
+        return [l.strip() for l in tt.read_text(encoding="utf-8", errors="ignore").splitlines() if l.strip()]
     return None
 
 
@@ -157,10 +156,10 @@ def find_script_paths(prefix, script_names):
         else:
             # sometimes scripts have .py suffix or are wrappers with -script.py
             for alt in (
-                    s,
-                    s + ".py",
-                    s + "-script.py",
-                    s + ".sh",
+                s,
+                s + ".py",
+                s + "-script.py",
+                s + ".sh",
             ):
                 ap = bin_dir / alt
                 if ap.exists():
@@ -212,22 +211,26 @@ def collect_files_for_dist(distinfo_path, site_dirs, prefix):
                     if c.exists():
                         if c.is_dir():
                             for (
-                                    root,
-                                    _dirs,
-                                    files,
+                                root,
+                                _dirs,
+                                files,
                             ) in os.walk(c):
                                 for fn in files:
                                     s = Path(root) / fn
                                     rel = s.relative_to(base)
-                                    collected.append((
-                                        s,
-                                        Path(rel),
-                                    ))
+                                    collected.append(
+                                        (
+                                            s,
+                                            Path(rel),
+                                        )
+                                    )
                         else:
-                            collected.append((
-                                c,
-                                Path(c.relative_to(base)),
-                            ))
+                            collected.append(
+                                (
+                                    c,
+                                    Path(c.relative_to(base)),
+                                )
+                            )
         else:
             for rel in rec_list:
                 # Skip metadata RECORD entries that might be absolute or empty
@@ -237,17 +240,19 @@ def collect_files_for_dist(distinfo_path, site_dirs, prefix):
                 if src.exists():
                     if src.is_dir():
                         for (
-                                root,
-                                _dirs,
-                                files,
+                            root,
+                            _dirs,
+                            files,
                         ) in os.walk(src):
                             for fn in files:
                                 s = Path(root) / fn
                                 relp = s.relative_to(base)
-                                collected.append((
-                                    s,
-                                    Path(relp),
-                                ))
+                                collected.append(
+                                    (
+                                        s,
+                                        Path(relp),
+                                    )
+                                )
                     else:
                         collected.append((src, Path(rel)))
                 else:
@@ -256,9 +261,9 @@ def collect_files_for_dist(distinfo_path, site_dirs, prefix):
                     if alt.exists():
                         if alt.is_dir():
                             for (
-                                    root,
-                                    _dirs,
-                                    files,
+                                root,
+                                _dirs,
+                                files,
                             ) in os.walk(alt):
                                 for fn in files:
                                     s = Path(root) / fn
@@ -272,31 +277,35 @@ def collect_files_for_dist(distinfo_path, site_dirs, prefix):
         added = set()
         if tl.exists():
             tops = [
-                l.strip() for l in tl.read_text(
+                l.strip()
+                for l in tl.read_text(
                     encoding="utf-8",
                     errors="ignore",
-                ).splitlines() if l.strip()
+                ).splitlines()
+                if l.strip()
             ]
             for name in tops:
                 for cand in (
-                        base / name,
-                        base / (name + ".py"),
+                    base / name,
+                    base / (name + ".py"),
                 ):
                     if cand.exists():
                         if cand.is_dir():
                             for (
-                                    root,
-                                    _dirs,
-                                    files,
+                                root,
+                                _dirs,
+                                files,
                             ) in os.walk(cand):
                                 for fn in files:
                                     s = Path(root) / fn
                                     rel = s.relative_to(base)
                                     if rel not in added:
-                                        collected.append((
-                                            s,
-                                            rel,
-                                        ))
+                                        collected.append(
+                                            (
+                                                s,
+                                                rel,
+                                            )
+                                        )
                                         added.add(rel)
                         else:
                             rel = cand.relative_to(base)
@@ -400,9 +409,9 @@ def build_wheel_from_tree(
     # Now create the wheel zip
     wheel_out_path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(
-            wheel_out_path,
-            "w",
-            compression=zipfile.ZIP_DEFLATED,
+        wheel_out_path,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
     ) as zf:
         for root, _dirs, files in os.walk(workdir):
             for fn in files:
@@ -416,9 +425,7 @@ def build_wheel_from_tree(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Repack installed packages into .whl files (Termux-aware)."
-    )
+    parser = argparse.ArgumentParser(description="Repack installed packages into .whl files (Termux-aware).")
     parser.add_argument(
         "packages",
         nargs="*",
@@ -458,8 +465,7 @@ def main() -> None:
             found = None
             for k, p in dists.items():
                 # k is like 'mypkg-1.2.3' or 'mypkg'
-                if k == key or k.startswith(key +
-                                            "-") or k.split("-")[0] == key:
+                if k == key or k.startswith(key + "-") or k.split("-")[0] == key:
                     found = p
                     break
             if not found:
@@ -488,8 +494,7 @@ def main() -> None:
             # try metadata
             md = parse_metadata_from_distinfo(distinfo)
             dist_name = md.get("Name") or base.split("-", 1)[0]
-            version = md.get("Version") or (base.split("-", 1)[1]
-                                            if "-" in base else "0")
+            version = md.get("Version") or (base.split("-", 1)[1] if "-" in base else "0")
             print(f"Repacking {dist_name} {version} ...")
 
             items, md = collect_files_for_dist(distinfo, site_dirs, prefix)

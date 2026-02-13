@@ -55,7 +55,7 @@ def group_similar_files(hashes, threshold):
             continue
         group = [f1]
         visited.add(f1)
-        for f2 in files[i + 1:]:
+        for f2 in files[i + 1 :]:
             if f2 in visited:
                 continue
             score = ssdeep.compare(hashes[f1], hashes[f2])
@@ -83,8 +83,7 @@ def write_report(groups, format="csv", output_dir="output") -> None:
     pathlib.Path(output_dir).mkdir(exist_ok=True, parents=True)
     if format == "csv":
         report_file = os.path.join(output_dir, "similar_report.csv")
-        with pathlib.Path(report_file).open("w", encoding="utf-8",
-                                            newline="") as csvfile:
+        with pathlib.Path(report_file).open("w", encoding="utf-8", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Group", "File"])
             for idx, group in enumerate(groups, start=1):
@@ -93,10 +92,7 @@ def write_report(groups, format="csv", output_dir="output") -> None:
         print(f"CSV report written to {report_file}")
     elif format == "json":
         report_file = os.path.join(output_dir, "similar_report.json")
-        data = {
-            f"group_{idx}": group
-            for idx, group in enumerate(groups, start=1)
-        }
+        data = {f"group_{idx}": group for idx, group in enumerate(groups, start=1)}
         with pathlib.Path(report_file).open("w", encoding="utf-8") as jf:
             json.dump(data, jf, indent=2)
         print(f"JSON report written to {report_file}")
@@ -119,8 +115,7 @@ def write_matrix(hashes, threshold, output_dir="output", pretty=False) -> None:
     matrix_file = os.path.join(output_dir, "similarity_matrix.csv")
     table = [["File", *files]]
 
-    with pathlib.Path(matrix_file).open("w", encoding="utf-8",
-                                        newline="") as csvfile:
+    with pathlib.Path(matrix_file).open("w", encoding="utf-8", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["File", *files])
         for f1 in files:
@@ -142,9 +137,7 @@ def write_matrix(hashes, threshold, output_dir="output", pretty=False) -> None:
             # Apply colorization to table cells
             colored_table = []
             for row in table[1:]:
-                colored_row = [row[0]] + [
-                    colorize_score(cell, threshold) for cell in row[1:]
-                ]
+                colored_row = [row[0]] + [colorize_score(cell, threshold) for cell in row[1:]]
                 colored_table.append(colored_row)
             print(tabulate(colored_table, headers=table[0], tablefmt="grid"))
         else:
@@ -153,11 +146,8 @@ def write_matrix(hashes, threshold, output_dir="output", pretty=False) -> None:
             print(header)
             print("-" * len(header))
             for row in table[1:]:
-                formatted = [row[0]] + [
-                    colorize_score(cell, threshold) for cell in row[1:]
-                ]
-                print(" | ".join(
-                    str(x) if x != "" else "." for x in formatted))
+                formatted = [row[0]] + [colorize_score(cell, threshold) for cell in row[1:]]
+                print(" | ".join(str(x) if x != "" else "." for x in formatted))
 
 
 def main() -> None:

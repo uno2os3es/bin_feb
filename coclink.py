@@ -37,15 +37,16 @@ def get_videos(youtube, channel_id):
         for item in response.get("items", []):
             video_id = item["id"]["videoId"]
             # Fetch full description (search only gives a snippet)
-            video_details = youtube.videos().list(part="snippet",
-                                                  id=video_id).execute()
+            video_details = youtube.videos().list(part="snippet", id=video_id).execute()
 
             snippet = video_details["items"][0]["snippet"]
-            videos.append({
-                "title": snippet["title"],
-                "description": snippet["description"],
-                "url": f"https://www.youtube.com/watch?v={video_id}",
-            })
+            videos.append(
+                {
+                    "title": snippet["title"],
+                    "description": snippet["description"],
+                    "url": f"https://www.youtube.com/watch?v={video_id}",
+                }
+            )
 
         request = youtube.search().list_next(request, response)
         if len(videos) > 100:
@@ -58,10 +59,7 @@ def extract_th18_links(description):
     pattern = r"(https?://link\.clashofclans\.com/[^\s]+)"
     links = re.findall(pattern, description)
     # Filter for TH18 context or actual layout IDs containing TH18
-    return [
-        l for l in links
-        if "TH18" in l.upper() or "TH18" in description.upper()
-    ]
+    return [l for l in links if "TH18" in l.upper() or "TH18" in description.upper()]
 
 
 def create_html(channel_name, base_data):
@@ -119,11 +117,13 @@ def main():
         for v in vids:
             links = extract_th18_links(v["description"])
             if links:
-                results.append({
-                    "title": v["title"],
-                    "video_url": v["url"],
-                    "links": list(set(links)),  # Unique links
-                })
+                results.append(
+                    {
+                        "title": v["title"],
+                        "video_url": v["url"],
+                        "links": list(set(links)),  # Unique links
+                    }
+                )
 
         if results:
             create_html(name, results)

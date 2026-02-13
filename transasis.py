@@ -20,14 +20,13 @@ def chunk_text(text, chunk_size=CHUNK_SIZE):
     """Split text into chunks of approx chunk_size words."""
     words = text.split()
     for i in range(0, len(words), chunk_size):
-        yield " ".join(words[i:i + chunk_size])
+        yield " ".join(words[i : i + chunk_size])
 
 
 def translate_text(text):
     """Translate text using deep-translator."""
     try:
-        return GoogleTranslator(source="auto",
-                                target=TARGET_LANGUAGE).translate(text)
+        return GoogleTranslator(source="auto", target=TARGET_LANGUAGE).translate(text)
     except Exception as e:
         print(f"Error translating text chunk: {e}")
         return text
