@@ -10,7 +10,6 @@ from multiprocessing import Pool, cpu_count
 from pathlib import Path
 
 from bs4 import BeautifulSoup
-
 # Install: pip install html-to-markdown beautifulsoup4
 from html_to_markdown import Options, convert
 

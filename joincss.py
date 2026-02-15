@@ -5,8 +5,9 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from dh import atomic_write
+
 import regex as re
+from dh import atomic_write
 
 LOCAL_FONT_BASE = Path("/sdcard/_static/fonts")
 FONT_EXTS = {".woff", ".woff2", ".ttf", ".otf", ".eot"}

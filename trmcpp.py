@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+import subprocess
 import sys
-from pathlib import Path
 from multiprocessing import Pool
+from pathlib import Path
+
+import tree_sitter_cpp as tscpp
 from termcolor import cprint
 from tree_sitter import Language, Parser
-import tree_sitter_cpp as tscpp
-import subprocess
 
 
 class TSCppRemover:

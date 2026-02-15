@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
-import zipfile
-import tarfile
 import lzma
-from pathlib import Path
 import shutil
+import tarfile
+import zipfile
+from pathlib import Path
 from sys import argv
+
+from dh import unique_path
 
 
 def whl_to_tar_xz(whl_path: Path):
-    target = whl_path.with_suffix("").with_suffix(".tar.xz")
+    target = whl_path.with_suffix(".tar.xz")
 
     if target.exists():
-        print(f"[SKIP] {target.name} already exists")
-        return
+        target=unique_path(target)
 
     print(f"[WHL → TAR.XZ] {whl_path.name}")
 
@@ -29,18 +30,18 @@ def whl_to_tar_xz(whl_path: Path):
                         tarinfo.size = member.file_size
                         tf.addfile(tarinfo, source)
 
-        print(f"[OK] Created {target.name}")
+        print(f"[OK] {target.name}")
 
     except Exception as e:
         print(f"[ERROR] {whl_path.name}: {e}")
 
 
 def tar_xz_to_whl(tar_path: Path):
-    target = tar_path.with_suffix("").with_suffix(".whl")
+    target = tar_path.with_suffix(".whl")
 
     if target.exists():
         print(f"[SKIP] {target.name} already exists")
-        return
+        target=unique_path(target)
 
     print(f"[TAR.XZ → WHL] {tar_path.name}")
 
@@ -57,7 +58,7 @@ def tar_xz_to_whl(tar_path: Path):
 
                     zf.writestr(member.name, extracted.read())
 
-        print(f"[OK] Created {target.name}")
+        print(f"[OK] {target.name}")
 
     except Exception as e:
         print(f"[ERROR] {tar_path.name}: {e}")

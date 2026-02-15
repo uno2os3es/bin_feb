@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 
 def falpha(root_dir="."):

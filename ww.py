@@ -11,7 +11,7 @@ subprocess.run(
         "pack",
         str(target_dir),
         "-d",
-        "/data/data/com.termux/files/home/tmp/whl",
+        "/sdcard/whl",
     ],
     check=False,
 )

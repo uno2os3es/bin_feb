@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-TERMUX_PYTHON = "#!/data/data/com.termux/files/usr/bin/python\n"
+TERMUX_PYTHON = "#!/data/data/com.termux/files/usr/bin/env python3\n"
 TERMUX_BASH = "#!/data/data/com.termux/files/usr/bin/bash\n"
 
 

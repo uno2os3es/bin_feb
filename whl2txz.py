@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
-import zipfile
-import tarfile
 import lzma
-from pathlib import Path
 import shutil
 import sys
+import tarfile
+import zipfile
+from pathlib import Path
+
+from dh import unique_path
 
 
 def whl_to_tar_xz(whl_path: Path):
-    target = whl_path.with_suffix("").with_suffix(".tar.xz")
+    target = whl_path.with_suffix(".tar.xz")
 
     if target.exists():
-        print(f"[SKIP] {target.name} already exists")
-        return
+        target=unique_path(target)
 
     print(f"[WHL → TAR.XZ] {whl_path.name}")
 
@@ -36,11 +37,10 @@ def whl_to_tar_xz(whl_path: Path):
 
 
 def tar_xz_to_whl(tar_path: Path):
-    target = tar_path.with_suffix("").with_suffix(".whl")
+    target = tar_path.with_suffix(".whl")
 
     if target.exists():
-        print(f"[SKIP] {target.name} already exists")
-        return
+        target=unique_path(target)
 
     print(f"[TAR.XZ → WHL] {tar_path.name}")
 
@@ -70,9 +70,11 @@ def main():
         if path.is_file():
             if path.suffix == ".whl":
                 whl_to_tar_xz(path)
+                path.unlink()
+            if path.suffix == ".tar.xz":
+                tar_xz_to_whl(path)
+                path.unlink()
 
-#            elif path.name.endswith(".tar.xz"):
-#                tar_xz_to_whl(path)
 
 
 if __name__ == "__main__":

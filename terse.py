@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-from sys import exit,argv
+from sys import argv, exit
 
 from dh import file_size, format_size, run_command
 from termcolor import cprint

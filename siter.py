@@ -30,7 +30,7 @@ class WheelBuilder:
 
         self.venv_root = self._find_venv_root()
         self.bin_dir = self._find_bin_dir()
-        self.share_dir = Path("/data/data/com.termux/files/usr/share") #self.venv_root / "share" if self.venv_root else None
+        self.share_dir = self.venv_root / "share" if self.venv_root else None
 
     def _find_venv_root(self) -> Path | None:
         current = self.site_packages

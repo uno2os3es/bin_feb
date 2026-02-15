@@ -3,9 +3,10 @@ import ast
 import sys
 from multiprocessing import Pool
 from pathlib import Path
-from fastwalk import walk_files
+
 import tree_sitter_python as tspython
 from dh import folder_size, format_size
+from fastwalk import walk_files
 from termcolor import cprint
 from tree_sitter import Language, Parser
 

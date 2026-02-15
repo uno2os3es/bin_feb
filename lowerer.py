@@ -1,18 +1,12 @@
 #!/usr/bin/env python3
-import sys
-from time import perf_counter
-
+from sys import argv
+from pathlib import Path
 
 def main():
-    start = perf_counter()
-    contents = ""
-    with open(sys.argv[1]) as f:
-        contents = f.read()
-
-    with open(sys.argv[1], "w") as fo:
-        fo.write(contents.lower())
-
-    print(f"{perf_counter() - start} sec")
+    fn=Path(argv[1])
+    content = fn.read_text()
+    lower_content = content.lower()
+    fn.write_text(lower_content)
 
 
 if __name__ == "__main__":
