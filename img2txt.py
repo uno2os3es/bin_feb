@@ -1,9 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
+import os
 from pathlib import Path
 from sys import argv
 
-from dh import IMG_EXT
 from PIL import Image, ImageFilter, ImageOps
 from pytesseract import image_to_string
 
@@ -20,25 +19,24 @@ def preprocess_image(img):
 
 def extract_text(image_path):
     img = Image.open(image_path)
-    img = preprocess_image(img)
+    #    img = preprocess_image(img)
     return image_to_string(img, lang="eng", config="--oem 1 --psm 6")
 
 
 def main() -> None:
-    path = Path(argv[1])
-    if path.is_symlink():
-        return
-    if path.suffix not in IMG_EXT:
-        return
-    print(f"processing {path.name}")
-    text = extract_text(path)
-    if text:
-        txtfile = Path(str(path.parent) + "/" + str(path.stem) + ".txt")
-        with open(txtfile, "w", encoding="utf-8") as f:
-            f.write(text)
-        print(f"{txtfile} created.")
-    else:
-        print("no text")
+    dir = Path().cwd()
+    for pth in os.listdir(dir):
+        path = Path(pth)
+        if path.suffix in {".jpg", ".png"}:
+            print(f"processing {path.name}")
+            text = extract_text(path)
+            if text:
+                txtfile = path.with_suffix(".txt")
+                with open(txtfile, "w", encoding="utf-8") as f:
+                    f.write(text)
+                print(f"{txtfile} created.")
+            else:
+                print("no text")
 
 
 if __name__ == "__main__":

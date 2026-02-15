@@ -44,7 +44,7 @@ def is_python_file(path: Path) -> bool:
 
 def format_single_file(file: Path, args) -> bool:
     """Core formatting logic using Lazy Imports."""
-    start=file.stat().st_size
+    start = file.stat().st_size
     try:
         original_code = file.read_text(encoding="utf-8")
         code = original_code
@@ -71,7 +71,7 @@ def format_single_file(file: Path, args) -> bool:
 
             with contextlib.suppress(black.NothingChanged):
                 code = black.format_str(code, mode=black.Mode(line_length=120))
-                end=file.stat().st_size
+                end = file.stat().st_size
         elif args.autopep:
             import autopep8
 
@@ -127,9 +127,9 @@ def main() -> None:
     args = p.parse_args()
 
     start_time = perf_counter()
-
+    dir = Path().cwd()
     files = []
-    for pth in walk_files("."):
+    for pth in walk_files(dir):
         path = Path(pth)
         if (
             path.is_file()

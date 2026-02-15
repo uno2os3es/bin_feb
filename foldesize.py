@@ -1,97 +1,261 @@
-#!/data/data/com.termux/files/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/python
+import math
 import os
+import shutil
 from pathlib import Path
 
-from dh import unique_path
+
+def get_all_files_in_root_only(root_path):
+    """Get all files ONLY from root directory, not subdirectories."""
+    files_info = []
+
+    try:
+        # Only scan files in the root directory, not subdirectories
+        for item in os.listdir(root_path):
+            filepath = os.path.join(root_path, item)
+
+            # Only process files, skip directories
+            if os.path.isfile(filepath) and not os.path.islink(filepath):
+                try:
+                    size = os.path.getsize(filepath)
+                    files_info.append({"path": filepath, "name": item, "size": size})
+                except OSError as e:
+                    print(f"Error accessing {filepath}: {e}")
+    except Exception as e:
+        print(f"Error scanning directory: {e}")
+
+    return files_info
 
 
-def get_all_files(root_dir):
-    """Recursively collect all files with their sizes."""
-    files = []
-    for root, _dirs, filenames in os.walk(root_dir):
-        for filename in filenames:
-            filepath = os.path.join(root, filename)
-            try:
-                size = os.path.getsize(filepath)
-                files.append((filepath, size))
-            except OSError:
-                continue
-    return sorted(files, key=lambda x: x[1])
+def convert_size(size_bytes):
+    """Convert bytes to human-readable format."""
+    if size_bytes == 0:
+        return "0B"
+
+    units = ["B", "KB", "MB", "GB", "TB"]
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return f"{s}{units[i]}"
 
 
-def create_size_folders(base_dir, target_count=100):
-    """Create folder names like '1k-100k', '100k-300k' based on sizes."""
-    folders = []
-    size = 1000  # Start from 1k
-    while len(folders) < target_count:
-        next_size = size * 2 if size < 100000 else size + 200000  # Exponential then linear growth
-        folder_name = f"{size // 1000}k-{next_size // 1000}k"
-        folders.append((size, next_size, folder_name))
-        size = next_size
-    for _, _, folder_name in folders:
-        folder_path = os.path.join(base_dir, folder_name)
-        os.makedirs(folder_path, exist_ok=True)
-    return folders[web:1]
+def calculate_optimal_files_per_folder(total_files, target_folders=None):
+    """Dynamically calculate optimal number of files per folder."""
+    if target_folders:
+        return math.ceil(total_files / target_folders)
+
+    if total_files <= 100:
+        return 10
+    elif total_files <= 500:
+        return 25
+    elif total_files <= 1000:
+        return 50
+    elif total_files <= 5000:
+        return 100
+    else:
+        return 200
 
 
-def distribute_files(files, folders, base_dir):
-    """Distribute sorted files into folders evenly."""
-    num_folders = len(folders)
-    len(files) // num_folders
-    len(files) % num_folders
+def analyze_size_distribution(files_info):
+    """Analyze file size distribution."""
+    if not files_info:
+        return {}
 
-    folder_idx = 0
-    for i in range(len(files)):
-        filepath, size = files[i]
-        min_size, max_size, _folder_name = folders[folder_idx]
+    sizes = [f["size"] for f in files_info]
 
-        # Move file if size fits, else find suitable folder
-        if min_size <= size < max_size:
-            pass  # Good fit
-        else:
-            # Find best matching folder
-            best_folder = 0
-            for j, (min_s, max_s, _) in enumerate(folders):
-                if min_s <= size < max_s:
-                    best_folder = j
-                    break
-            folder_idx = best_folder
+    return {
+        "min": min(sizes),
+        "max": max(sizes),
+        "avg": sum(sizes) / len(sizes),
+        "total": sum(sizes),
+        "count": len(sizes),
+    }
 
-        dest_folder = os.path.join(base_dir, folders[folder_idx][2])
-        dest_path = os.path.join(
-            dest_folder,
-            os.path.basename(filepath),
-        )
+
+def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_mb=None):
+    """
+    Organize files into folders directly in root_path and MOVE them.
+    Creates folders like: size_1KB_to_100KB_(50_files)
+
+    Args:
+        root_path: Directory to scan and create folders in
+        target_folders: Target number of folders (optional)
+        max_folder_size_mb: Maximum size per folder in MB (optional)
+    """
+
+    print("=" * 70)
+    print("File Organization - Direct to Root Path (No Subdirectories)")
+    print("=" * 70)
+
+    # Convert root_path to absolute path
+    root_path = os.path.abspath(root_path)
+
+    print(f"\nRoot directory: {root_path}")
+    print(f"Mode: Files will be moved into organized folders in root path")
+
+    # Step 1: Collect all files from root directory only
+    print("\n[1/5] Scanning files in root directory...")
+    files_info = get_all_files_in_root_only(root_path)
+
+    if not files_info:
+        print("No files found in root directory!")
+        return
+
+    # Step 2: Analyze distribution
+    print("[2/5] Analyzing file size distribution...")
+    stats = analyze_size_distribution(files_info)
+
+    print(f"\nFile Statistics:")
+    print(f"  Total files: {stats['count']}")
+    print(f"  Total size: {convert_size(stats['total'])}")
+    print(f"  Average size: {convert_size(stats['avg'])}")
+    print(f"  Size range: {convert_size(stats['min'])} - {convert_size(stats['max'])}")
+
+    # Step 3: Sort files by size
+    print("\n[3/5] Sorting files by size...")
+    files_info.sort(key=lambda x: x["size"])
+
+    # Step 4: Calculate optimal grouping
+    print("[4/5] Calculating optimal folder distribution...")
+
+    if max_folder_size_mb:
+        max_size_bytes = max_folder_size_mb * 1024 * 1024
+        folders = []
+        current_folder = []
+        current_size = 0
+
+        for file_info in files_info:
+            if current_size + file_info["size"] > max_size_bytes and current_folder:
+                folders.append(current_folder)
+                current_folder = []
+                current_size = 0
+
+            current_folder.append(file_info)
+            current_size += file_info["size"]
+
+        if current_folder:
+            folders.append(current_folder)
+
+        files_per_folder = None
+    else:
+        files_per_folder = calculate_optimal_files_per_folder(stats["count"], target_folders)
+
+        num_folders = math.ceil(stats["count"] / files_per_folder)
+        folders = []
+
+        for i in range(num_folders):
+            start_idx = i * files_per_folder
+            end_idx = min(start_idx + files_per_folder, stats["count"])
+            folders.append(files_info[start_idx:end_idx])
+
+    print(f"\nOrganization Plan:")
+    print(f"  Number of folders to create: {len(folders)}")
+    if files_per_folder:
+        print(f"  Files per folder: ~{files_per_folder}")
+    if max_folder_size_mb:
+        print(f"  Max folder size: {max_folder_size_mb} MB")
+    print(f"  Folders will be created directly in: {root_path}")
+
+    # Confirm before proceeding
+    #    print("\n" + "!" * 70)
+    #    print("WARNING: Files will be MOVED into organized folders in root path!")
+    #    print("!" * 70)
+    #    response = input("\nDo you want to continue? (yes/no): ").strip().lower()
+
+    #    if response not in ['yes', 'y']:
+    #        print("Operation cancelled.")
+    #        return
+
+    # Step 5: Create folders and move files
+    print("\n[5/5] Creating folders and moving files...")
+
+    moved_count = 0
+    error_count = 0
+    created_folders = []
+
+    for idx, folder_files in enumerate(folders, 1):
+        if not folder_files:
+            continue
+
+        min_size = folder_files[0]["size"]
+        max_size = folder_files[-1]["size"]
+        total_size = sum(f["size"] for f in folder_files)
+
+        # Create folder name with size range
+        folder_name = f"size_{convert_size(min_size)}_to_{convert_size(max_size)}_({len(folder_files)}_files)"
+
+        # Sanitize folder name (remove invalid characters)
+        folder_name = "".join(c for c in folder_name if c not in r'<>:"/\|?*')
+
+        # Create folder directly in root path
+        folder_path = os.path.join(root_path, folder_name)
 
         try:
-            dest_path = unique_path(dest_path)
-            shutil.move(filepath, dest_path)
-            print(f"Moved {os.path.basename(filepath)} ({size} bytes) to {folders[folder_idx][2]}")
-        except Exception as e:
-            print(f"Failed to move {filepath}: {e}")
+            os.makedirs(folder_path, exist_ok=True)
+            created_folders.append(folder_name)
 
-        # Distribute evenly
-        folder_idx = (folder_idx + 1) % num_folders
+            print(f"\n  Folder {idx}/{len(folders)}: {folder_name}")
+            print(f"    Files: {len(folder_files)}")
+            print(f"    Size range: {convert_size(min_size)} - {convert_size(max_size)}")
+            print(f"    Total size: {convert_size(total_size)}")
+
+            # Move files to folder
+            for file_info in folder_files:
+                src = file_info["path"]
+                dst = os.path.join(folder_path, file_info["name"])
+
+                # Handle duplicate filenames
+                counter = 1
+                base_name, ext = os.path.splitext(file_info["name"])
+                while os.path.exists(dst):
+                    dst = os.path.join(folder_path, f"{base_name}_{counter}{ext}")
+                    counter += 1
+
+                try:
+                    shutil.move(src, dst)
+                    moved_count += 1
+                except Exception as e:
+                    print(f"      Error moving {file_info['name']}: {e}")
+                    error_count += 1
+
+        except Exception as e:
+            print(f"  Error creating folder {folder_name}: {e}")
+            error_count += len(folder_files)
+
+    print("\n" + "=" * 70)
+    print(f"✓ Organization complete!")
+    print(f"  Root directory: {root_path}")
+    print(f"  Folders created: {len(created_folders)}")
+    print(f"  Files moved: {moved_count}")
+    print(f"  Errors: {error_count}")
+    print("\nCreated folders:")
+    for folder in created_folders:
+        print(f"  - {folder}")
+    print("=" * 70)
 
 
 def main():
-    base_dir = Path(".").resolve()
-    print(f"Processing files in: {base_dir}")
+    """Main function with configuration options."""
 
-    files = get_all_files(base_dir)
-    if not files:
-        print("No files found.")
-        return
+    # Configuration
+    ROOT_PATH = "."  # Current directory
 
-    print(f"Found {len(files)} files.")
+    # Choose ONE strategy:
 
-    # Create enough folders for even distribution
-    num_folders = min(20, (len(files) + 99) // 100)  # ~100 files per folder
-    folders = create_size_folders(base_dir, num_folders)
+    # Strategy 1: Automatic (recommended)
+    organize_files_in_root(root_path=ROOT_PATH)
 
-    print(f"Created {len(folders)} size-based folders.")
-    distribute_files(files, folders, base_dir)
-    print("Folderization complete!")
+    # Strategy 2: Target specific number of folders
+    # organize_files_in_root(
+    #     root_path=ROOT_PATH,
+    #     target_folders=5
+    # )
+
+    # Strategy 3: Limit folder size
+    # organize_files_in_root(
+    #     root_path=ROOT_PATH,
+    #     max_folder_size_mb=100
+    # )
 
 
 if __name__ == "__main__":

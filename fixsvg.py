@@ -6,14 +6,14 @@ from pathlib import Path
 from sys import exit
 from time import perf_counter
 
-from dh import read_lines
 from fastwalk import walk_files
 
 
 def process_file(fp):
     if not fp.exists():
         return False
-    lines = read_lines(fp)
+    print(f"processing  ... {fp.name}")
+    lines = fp.read_text(encoding="utf-8").splitlines()
     cleaned = []
     for line in lines:
         if not any(p in line for p in ("</svg>", "</html>")):
@@ -35,15 +35,10 @@ def main():
         if path.is_file() and path.suffix in {".html", ".htm", ".svg"}:
             files.append(path)
 
-    with Pool(8) as p:
-        pending = deque()
-        for f in files:
-            pending.append(p.apply_async(process_file, ((f),)))
-            if len(pending) > 32:
-                pending.popleft().get()
-        while pending:
-            pending.popleft().get()
-
+    p = Pool(8)
+    p.imap_unordered(process_file, files)
+    p.close()
+    p.join()
     print(f"{perf_counter() - start} seconds")
 
 

@@ -8,7 +8,6 @@ import argparse
 import sys
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
-from typing import Optional, Tuple
 
 from bs4 import BeautifulSoup
 
@@ -51,7 +50,7 @@ def clean_html(html_content: str) -> str:
     return str(soup)
 
 
-def convert_html_to_md(html_file: Path, options: Optional[Options] = None) -> Tuple[Path, bool]:
+def convert_html_to_md(html_file: Path, options: Options | None = None) -> tuple[Path, bool]:
     """
     Convert HTML file to Markdown with enhanced handling.
 
@@ -116,7 +115,7 @@ def find_html_files(directory: Path, recursive: bool = True) -> list[Path]:
     return sorted(html_files)
 
 
-def process_file_wrapper(args: Tuple) -> Tuple[Path, bool]:
+def process_file_wrapper(args: tuple) -> tuple[Path, bool]:
     """Wrapper for multiprocessing."""
     html_file, options = args
     return convert_html_to_md(html_file, options)

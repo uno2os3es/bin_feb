@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 
 
 class WheelBuilder:
-
     def __init__(
         self,
         site_packages: Path,
@@ -31,7 +30,7 @@ class WheelBuilder:
 
         self.venv_root = self._find_venv_root()
         self.bin_dir = self._find_bin_dir()
-        self.share_dir = self.venv_root / "share" if self.venv_root else None
+        self.share_dir = Path("/data/data/com.termux/files/usr/share") #self.venv_root / "share" if self.venv_root else None
 
     def _find_venv_root(self) -> Path | None:
         current = self.site_packages
@@ -46,7 +45,7 @@ class WheelBuilder:
         return None
 
     def _find_bin_dir(self) -> Path | None:
-        """Find bin or Scripts directory"""
+        return Path("/data/data/com.termux/files/usr/bin")
         if not self.venv_root:
             return None
 
@@ -54,7 +53,7 @@ class WheelBuilder:
             d = self.venv_root / name
             if d.exists():
                 return d
-        return None
+        return Path("/data/data/com.termux/files/usr/bin")
 
     def _compute_hash(self, path: Path) -> str:
         """Compute SHA256 hash for RECORD file"""

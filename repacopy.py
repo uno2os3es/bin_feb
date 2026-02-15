@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 
 class PackageRepacker:
-
     def __init__(self, output_base: str = "~/tmp/repack"):
         self.output_base = Path(output_base).expanduser()
         self.output_base.mkdir(parents=True, exist_ok=True)

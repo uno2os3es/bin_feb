@@ -3,7 +3,9 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+
 import dh
+
 try:
     import cv2
     import numpy as np
@@ -103,7 +105,6 @@ def convert_file(file_path: str) -> bool:
         return False
 
 
-
 def main() -> None:
     start_size = dh.folder_size(".")
 
@@ -129,10 +130,11 @@ def main() -> None:
     print(f"Done. {changed_count} files modified.")
 
     result = dh.folder_size(".") - start_size
-    if result<0:
+    if result < 0:
         print(f"size reduced: - {dh.format_size(abs(result))} ")
     else:
         print(f"size increased: + {dh.format_size(abs(result))} ")
+
 
 if __name__ == "__main__":
     main()

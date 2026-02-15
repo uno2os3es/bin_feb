@@ -5,7 +5,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-
+from dh import atomic_write
 import regex as re
 
 LOCAL_FONT_BASE = Path("/sdcard/_static/fonts")
@@ -84,20 +84,6 @@ def read_css(files):
         chunks.append((file, "\n".join(cleaned).strip()))
 
     return charset_line, chunks
-
-
-def atomic_write(path, content):
-    path = Path(path)
-    tmp = tempfile.NamedTemporaryFile(delete=False, dir=str(path.parent), mode="w", encoding="utf-8")
-    try:
-        tmp.write(content)
-        tmp.flush()
-        os.fsync(tmp.fileno())
-        tmp.close()
-        os.replace(tmp.name, path)
-    finally:
-        with contextlib.suppress(OSError):
-            os.unlink(tmp.name)
 
 
 def join_css(files, output):

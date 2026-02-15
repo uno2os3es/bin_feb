@@ -61,7 +61,7 @@ def process_zip(path: str) -> None:
     tmp = tempfile.mktemp(suffix=".zip")
     with (
         zipfile.ZipFile(path, "r") as zin,
-        zipfile.ZipFile(tmp, "w") as zout,
+        zipfiled.ZipFile(tmp, "w") as zout,
     ):
         for item in zin.infolist():
             data = zin.read(item.filename)
@@ -123,6 +123,7 @@ def main() -> None:
                     ".tar",
                 )
             ):
+#                continue
                 dispatch_archive(full_path)
 
     # 2. Handle the collected output

@@ -10,14 +10,13 @@ import ssdeep
 import xxhash
 from tqdm import tqdm
 
-
 EXCLUDE_DIRS = {".git", "__pycache__", "node_modules"}
 
 
 class FileSimilarityDetector:
     def __init__(self, root_dir="."):
         self.root_dir = Path(root_dir)
-        self.file_hashes = {}        # path -> {"xxhash": ..., "ssdeep": ...}
+        self.file_hashes = {}  # path -> {"xxhash": ..., "ssdeep": ...}
         self.duplicates = defaultdict(list)  # xxhash -> [paths]
 
     # ---------- scanning ----------
@@ -58,9 +57,7 @@ class FileSimilarityDetector:
                 self.duplicates[xh].append(path)
 
         # keep only true duplicates
-        self.duplicates = {
-            h: paths for h, paths in self.duplicates.items() if len(paths) > 1
-        }
+        self.duplicates = {h: paths for h, paths in self.duplicates.items() if len(paths) > 1}
 
     # ---------- similarity ----------
 
@@ -99,7 +96,7 @@ class FileSimilarityDetector:
         out.mkdir(exist_ok=True)
 
         for idx, group in enumerate(groups, 1):
-            survivor = Path(group[0])
+            Path(group[0])
 
             if move:
                 # KEEP ONE, DELETE REST
@@ -135,15 +132,14 @@ class FileSimilarityDetector:
 
 # ---------- CLI ----------
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="Detect duplicate and similar files"
-    )
+    parser = argparse.ArgumentParser(description="Detect duplicate and similar files")
     parser.add_argument("threshold", type=int, help="Similarity threshold (0-100)")
-    parser.add_argument("-m", "--move", action="store_true",
-                        help="Keep one file per similarity group and delete the rest")
-    parser.add_argument("-o", "--output", default="output",
-                        help="Output directory (copy mode only)")
+    parser.add_argument(
+        "-m", "--move", action="store_true", help="Keep one file per similarity group and delete the rest"
+    )
+    parser.add_argument("-o", "--output", default="output", help="Output directory (copy mode only)")
     args = parser.parse_args()
 
     detector = FileSimilarityDetector()

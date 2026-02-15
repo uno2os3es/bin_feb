@@ -1,7 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python
 from collections import Counter
 from pathlib import Path
-from typing import List
 
 
 def levenshtein_distance(a: str, b: str) -> int:
@@ -28,7 +27,7 @@ def similarity(a: str, b: str) -> float:
     return 1 - dist / max_len if max_len else 1.0
 
 
-def group_similar(names: List[str], threshold: float = 0.8):
+def group_similar(names: list[str], threshold: float = 0.8):
     groups = []
     used = set()
 

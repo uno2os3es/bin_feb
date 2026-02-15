@@ -12,7 +12,6 @@ from pathlib import Path
 
 
 class GitHubRepoManager:
-
     def __init__(self):
         """Initialize the GitHub Repository Manager."""
         self.repo_dir = Path.cwd()

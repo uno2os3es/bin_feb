@@ -6,7 +6,6 @@ from pathlib import Path
 import dh
 from PIL import Image
 
-
 PHASH_W = 0.5
 DHASH_W = 0.3
 AHASH_W = 0.2
@@ -14,6 +13,7 @@ AHASH_W = 0.2
 MAX_SCORE = 10.0  # lower = stricter
 OUT_PREFIX = "group_"
 # ----------------------------
+
 
 def compute_hashes(path: Path):
     try:

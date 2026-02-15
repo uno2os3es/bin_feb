@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from time import perf_counter
 from collections import deque
 from multiprocessing import Pool
 from pathlib import Path
-from dh import folder_size, format_size, run_command, file_size
+
+from dh import file_size, folder_size, format_size, run_command
 from fastwalk import walk_files
 
 MAX_IN_FLIGHT = 16
@@ -24,12 +24,12 @@ FILE_EXTENSIONS = {
 def format_file(file_path):
     start = file_size(file_path)
     print(f"{file_path.name}", end="  ")
-    cmd = f"prettier -w {str(file_path)}"
-    out, err, code = run_command(cmd)
+    cmd = f"prettier -w {file_path!s}"
+    _out, err, code = run_command(cmd)
     if code == 0:
         result = start - file_size(file_path)
         if int(result) == 0:
-            print(f"[OK] no change")
+            print("[OK] no change")
         elif result < 0:
             print(f"[OK] {format_size(abs(result))} bigger than orig")
         elif result > 0:

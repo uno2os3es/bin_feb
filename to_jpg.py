@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import argparse
 import time
-from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Pool
 from pathlib import Path
 
-from dh import is_image
+from dh import folder_size, format_size, is_image, unique_path
 
 try:
     import cv2
@@ -26,22 +26,19 @@ IGNORED_DIRS = {
 def convert_file(file_path: str) -> bool:
     """Convert an image to JPG, handling transparency with a white background."""
     path = Path(file_path)
-    SF = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"}
-    if not path.is_file() or path.suffix.lower() not in SF:
+    if not path.is_file():
         print(f"Skipping: {path.name} (Unsupported format or not a file)")
         return False
 
     # If already JPG, nothing to do
-    if path.suffix.lower() in {".jpg", ".jpeg"}:
+    if path.suffix.lower() == ".jpg":
         return True
 
     output_path = path.with_suffix(".jpg")
 
     # Ask before overwriting
     if output_path.exists():
-        response = input(f"'{output_path.name}' exists. Overwrite? (y/n): ").strip().lower()
-        if response != "y":
-            return False
+        ouput_path = unique_path(output_path)
 
     try:
         if USE_CV2:
@@ -107,15 +104,15 @@ def main() -> None:
     p = argparse.ArgumentParser(description="jpg")
     p.add_argument("files", nargs="*")
     args = p.parse_args()
-    start_time = time.perf_counter()
+    start_size = folder_size(".")
 
     if args.files:
-        files = [Path(f) for f in args.files if Path(f).is_file() and is_image(Path(f))]
+        files = [Path(f) for f in args.files if Path(f).is_file() and is_image(f)]
     else:
         files = [
             f
             for f in Path(".").rglob("*")
-            if f.is_file() and not any(part in IGNORED_DIRS for part in f.parts)
+            if f.is_file() and is_image(f) and not any(part in IGNORED_DIRS for part in f.parts)
         ]
 
     if not files:
@@ -124,17 +121,12 @@ def main() -> None:
 
     print(f"converting {len(files)} files...")
 
-    # Step 2: Parallel Execution
-    # map handles the distribution; lambda passes the context
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        results = list(executor.map(convert_file, files))
-
-    # Step 3: Reporting
-    changed_count = sum(1 for r in results if r)
-    print(f"Done. {changed_count} files modified.")
-
-    duration = time.perf_counter() - start_time
-    print(f"Total Runtime: {duration:.4f} seconds")
+    pool = Pool(8)
+    pool.imap_unordered(convert_file, files)
+    pool.close()
+    pool.join()
+    end_size = folder_size(".")
+    print(f"{format_size(abs(end_size - start_size))}")
 
 
 if __name__ == "__main__":

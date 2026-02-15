@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import os
-import sys
 import unicodedata
 from html.parser import HTMLParser
 from pathlib import Path
 
 
 class TitleParser(HTMLParser):
-
     def __init__(self):
         super().__init__()
         self.in_title = False

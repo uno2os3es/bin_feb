@@ -3,10 +3,10 @@ from collections import deque
 from multiprocessing import Pool
 from pathlib import Path
 from sys import exit
-from termcolor import cprint
 
-from dh import run_command, folder_size, format_size, file_size
+from dh import file_size, folder_size, format_size, run_command
 from fastwalk import walk_files
+from termcolor import cprint
 
 
 def process_file(fp):

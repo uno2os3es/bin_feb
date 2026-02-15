@@ -9,7 +9,6 @@ from pathlib import Path
 
 
 class SourceCleaner:
-
     def __init__(self, backup: bool = True, dry_run: bool = False, verbose: bool = False):
         self.backup = backup
         self.dry_run = dry_run

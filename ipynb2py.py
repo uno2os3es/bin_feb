@@ -7,7 +7,7 @@ import nbformat
 if __name__ == "__main__":
     fn = Path(sys.argv[1])
 
-    with open(fn, "r", encoding="utf-8") as f:
+    with open(fn, encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
 
     fo = fn.with_suffix(".py")

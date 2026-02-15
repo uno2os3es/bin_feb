@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import ast
-import sys
 from pathlib import Path
 
 TARGET_FUNCS = {
@@ -21,29 +20,26 @@ class RegexFixer(ast.NodeTransformer):
         self.generic_visit(node)
 
         # Check if function is re.<func>
-        if isinstance(node.func, ast.Attribute):
-            if (
-                isinstance(node.func.value, ast.Name)
-                and node.func.value.id == "re"
-                and node.func.attr in TARGET_FUNCS
-                and node.args
-            ):
-                first_arg = node.args[0]
+        if isinstance(node.func, ast.Attribute) and (
+            isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "re"
+            and node.func.attr in TARGET_FUNCS
+            and node.args
+        ):
+            first_arg = node.args[0]
 
-                if isinstance(first_arg, ast.Constant) and isinstance(
-                    first_arg.value, str
-                ):
-                    original = first_arg.value
+            if isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str):
+                original = first_arg.value
 
-                    # Escape backslashes properly
-                    fixed = original.encode("unicode_escape").decode("ascii")
+                # Escape backslashes properly
+                fixed = original.encode("unicode_escape").decode("ascii")
 
-                    # Restore already-valid escapes like \n \t
-                    fixed = fixed.replace("\\\\n", "\\n")
-                    fixed = fixed.replace("\\\\t", "\\t")
-                    fixed = fixed.replace("\\\\r", "\\r")
+                # Restore already-valid escapes like \n \t
+                fixed = fixed.replace("\\\\n", "\\n")
+                fixed = fixed.replace("\\\\t", "\\t")
+                fixed = fixed.replace("\\\\r", "\\r")
 
-                    node.args[0] = ast.Constant(value=fixed)
+                node.args[0] = ast.Constant(value=fixed)
 
         return node
 

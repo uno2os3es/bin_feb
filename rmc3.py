@@ -176,7 +176,6 @@ class DocstringRemover:
 
 
 class DocstringValidator:
-
     @staticmethod
     def has_syntax_errors(file_path: Path) -> tuple[bool, str | None]:
         try:

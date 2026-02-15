@@ -423,7 +423,6 @@ class JalaliCalendar:
 
 
 class JalaliDateFormatter:
-
     @staticmethod
     def format(date: JalaliDate, time: datetime, fmt: str) -> str:
         output = fmt

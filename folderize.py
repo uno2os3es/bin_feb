@@ -1,17 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/python
-import os
-import pathlib
+from pathlib import Path
 import shutil
 
 
-def folderize_files_alphabetically(root_dir="."):
+def falpha(root_dir="."):
     """
     Recursively organize files into alphabetical folders.
     - Creates folders A-Z and 0-9 based on first character
     - Checks if file exists before moving
     - Renames duplicates with numeric index (1), (2), etc.
     """
-    root_path = pathlib.Path(root_dir).resolve()
+    root_path = Path(root_dir).resolve()
 
     # Get all files recursively
     all_files = [f for f in root_path.rglob("*") if f.is_file()]
@@ -83,6 +82,6 @@ def get_unique_filename(dest_path):
 
 
 if __name__ == "__main__":
-    # Run in current directory
-    folderize_files_alphabetically(".")
-    print("\nFile organization complete!")
+    falpha(".")
+    for k in os.listdir("."):
+        print(k)

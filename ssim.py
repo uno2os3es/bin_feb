@@ -14,7 +14,6 @@ EXCLUDE_DIRS = {".git", "__pycache__", "node_modules"}
 
 
 class FileSimilarityDetector:
-
     def __init__(self, root_dir="."):
         self.root_dir = Path(root_dir)
         self.file_hashes = {}  # path -> {"xxhash": ..., "ssdeep": ...}

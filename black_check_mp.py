@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/python
+import ast
 import os
 import shutil
-import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
@@ -35,12 +35,19 @@ def black_check(file_path: Path) -> tuple[Path, bool]:
     Returns (file_path, passed_bool)
     """
     print(f"[OK] {file_path}")
+    """
     result = subprocess.run(
         ["black", "--check", "--quiet", str(file_path)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     return file_path, result.returncode == 0
+    """
+    try:
+        ast.parse(file_pathp.read_text(encoding="utf-8"))
+        return file_path, True
+    except:
+        return file_path, False
 
 
 def collect_python_files() -> list[Path]:

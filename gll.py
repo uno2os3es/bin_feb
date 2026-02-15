@@ -7,8 +7,7 @@ from pathlib import Path
 def main() -> int:
     if len(sys.argv) < 3:
         print(
-            f"get from line X to Y of a file:\n"
-            f"Usage: {sys.argv[0]} <filename> <start_line> [end_line]",
+            f"get from line X to Y of a file:\nUsage: {sys.argv[0]} <filename> <start_line> [end_line]",
             file=sys.stderr,
         )
         return 1
@@ -35,18 +34,16 @@ def main() -> int:
     stem = path.stem
     ext = path.suffix
 
-    if end == -1:
-        outname = f"{stem}__{start}_end{ext}"
-    else:
-        outname = f"{stem}__{start}_{end}{ext}"
+    outname = f"{stem}__{start}_end{ext}" if end == -1 else f"{stem}__{start}_{end}{ext}"
 
     # In your C++ code you override it with a fixed name:
     outname = "all.xtx"
 
     try:
-        with path.open("r", encoding="utf-8", errors="replace") as infile, \
-             open(outname, "w", encoding="utf-8") as outfile:
-
+        with (
+            path.open("r", encoding="utf-8", errors="replace") as infile,
+            open(outname, "w", encoding="utf-8") as outfile,
+        ):
             for lineno, line in enumerate(infile, start=1):
                 if lineno < start:
                     continue

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import contextlib
 import os
 import subprocess
 from multiprocessing import Pool, cpu_count
@@ -23,8 +24,7 @@ def minify_with_jq(path: Path):
 
         result = subprocess.run(
             ["jq", "-c", ".", str(path)],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
         )
 
         if result.returncode != 0:
@@ -49,10 +49,8 @@ def minify_with_jq(path: Path):
 
     finally:
         if tmp_path.exists():
-            try:
+            with contextlib.suppress(Exception):
                 tmp_path.unlink()
-            except Exception:
-                pass
 
 
 def collect_json_files(root: Path):

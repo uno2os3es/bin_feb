@@ -4,26 +4,20 @@ import shutil
 from pathlib import Path
 
 from dh import unique_path
+from fastwalk import walk_files
 
 
 def get_all_files(root_dir):
-    """Recursively collect all files with their sizes."""
     files = []
-    for root, dirs, filenames in os.walk(root_dir):
-        # Skip the size folders we're creating
-        dirs[:] = [d for d in dirs if not d.endswith("k-")]
-        for filename in filenames:
-            filepath = os.path.join(root, filename)
-            try:
-                size = os.path.getsize(filepath)
-                files.append((filepath, size))
-            except OSError:
-                continue
+    for pth in walk_files(root_dir):
+        path = Path(pth)
+        if path.is_file():
+            size = path.stat().st_size
+            files.append((path, size))
     return sorted(files, key=lambda x: x[1])
 
 
 def calculate_optimal_folders(files):
-    """Calculate number of folders: (max-min)/target_range_per_folder."""
     if len(files) < 2:
         return 1
 
@@ -31,8 +25,6 @@ def calculate_optimal_folders(files):
     max_size, min_size = max(sizes), min(sizes)
     range_size = max_size - min_size
 
-    # Target ~100 files per folder, but use range-based calculation
-    # Adjust divisor for desired granularity
     target_range_per_folder = range_size / 100
     num_folders = max(
         1,
@@ -43,7 +35,6 @@ def calculate_optimal_folders(files):
 
 
 def create_range_folders(base_dir, files, num_folders):
-    """Create folders with actual min-max size ranges for files they'll contain."""
     sizes = sorted([size for _, size in files])
 
     folder_ranges = []
@@ -58,7 +49,6 @@ def create_range_folders(base_dir, files, num_folders):
         if folder_files:
             min_size, max_size = min(folder_files), max(folder_files)
 
-            # Format as human-readable: 1k-100k, 100k-1M, etc.
             def format_size(size):
                 if size < 1000:
                     return f"{size}B"
@@ -81,7 +71,6 @@ def create_range_folders(base_dir, files, num_folders):
 
 
 def distribute_files(files, folders, base_dir):
-    """Distribute files into their size-range folders."""
     size_to_folder = {}
     for (
         min_size,
@@ -92,7 +81,6 @@ def distribute_files(files, folders, base_dir):
 
     moved_count = 0
     for filepath, size in files:
-        # Find matching folder
         for (
             min_size,
             max_size,
@@ -123,7 +111,7 @@ def main():
     base_dir = Path(".").resolve()
     print(f"Processing files in: {base_dir}")
 
-    files = get_all_files(str(base_dir))
+    files = get_all_files(base_dir)
     if not files:
         print("No files found.")
         return

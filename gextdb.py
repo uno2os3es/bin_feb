@@ -20,7 +20,6 @@ ALLOWED_PYTHON_EXTENSIONS = (
 
 
 class EntityExtractor(ast.NodeVisitor):
-
     def __init__(
         self,
         source_content: str,

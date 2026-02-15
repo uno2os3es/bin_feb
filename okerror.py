@@ -38,8 +38,7 @@ def black_check(file_path: Path) -> bool:
     """
     result = subprocess.run(
         ["black", "--check", str(file_path)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
     )
     return result.returncode == 0
 

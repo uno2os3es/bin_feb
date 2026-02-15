@@ -6,6 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import xxhash
+from dh import folder_size, format_size
 
 # ----------------------------------------
 # GLOBAL STORAGE
@@ -138,7 +139,7 @@ def report_duplicates(dups):
 
 def main() -> None:
     target = Path.cwd()  # Always current directory
-
+    start = folder_size(target)
     all_files = collect_all_files(target)
     size_groups = group_by_size(all_files)
     duplicates = hash_groups_in_parallel(size_groups)
@@ -148,6 +149,9 @@ def main() -> None:
         auto_delete_duplicates(duplicates)
     else:
         print("\n✅ No duplicates found.")
+    end = folder_size(target)
+    if start - end != 0:
+        print(f"{format_size(abs(start - end))}")
 
 
 if __name__ == "__main__":

@@ -108,7 +108,6 @@ def get_git_status_for_dir(
 
 
 class Entry:
-
     def __init__(
         self,
         path: str,

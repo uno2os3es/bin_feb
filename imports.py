@@ -16,7 +16,6 @@ def get_py_files(start_path):
 
 
 class ImportVisitor(ast.NodeVisitor):
-
     def __init__(self):
         self.imports = set()
 

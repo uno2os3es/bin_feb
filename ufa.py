@@ -10,7 +10,6 @@ Examples:
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
 
 
@@ -22,14 +21,13 @@ def unicode_unescape(text: str) -> str:
 
 
 def process_file(input_file: Path) -> None:
-    with open(input_file, "r") as f:
+    with open(input_file) as f:
         lines = f.readlines()
         for line in lines:
             nl = "\\u" + str(line.strip())
             decoded = unicode_unescape(nl)
             print(nl)
             print(decoded)
-    return
 
 
 def main() -> None:

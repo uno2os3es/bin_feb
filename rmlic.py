@@ -73,10 +73,7 @@ def should_process_file(file_path: Path) -> bool:
 
     if file_path.name.startswith("."):
         return False
-    if is_binary(file_path):
-        return False
-    else:
-        return True
+    return not is_binary(file_path)
 
 
 def clean_file_worker(args: tuple) -> tuple:
