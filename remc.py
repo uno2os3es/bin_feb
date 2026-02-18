@@ -1,14 +1,15 @@
-#!/data/data/com.termux/files/usr/bin/python
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Remove multi-line docstrings from Python files recursively or from a single file.
 Handles docstrings in classes, functions, and modules.
 """
 
 import ast
-import re
 import shutil
 import sys
 from pathlib import Path
+
+import regex as re
 
 
 class DocstringRemover:

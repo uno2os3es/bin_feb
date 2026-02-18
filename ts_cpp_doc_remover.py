@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 import subprocess
 import sys
 from multiprocessing import Pool
@@ -23,7 +23,6 @@ class TSCppRemover:
         def walk(node):
             if node.type == "comment":
                 to_delete.append((node.start_byte, node.end_byte))
-
 
             for child in node.children:
                 walk(child)
@@ -73,7 +72,7 @@ def process_file(fp):
 
 
 if __name__ == "__main__":
-    exts = {".cpp", ".cc", ".cxx", ".hpp", ".h",".hh",".hxx",".c"}
+    exts = {".cpp", ".cc", ".cxx", ".hpp", ".h", ".hh", ".hxx", ".c"}
 
     for path in Path().rglob("*"):
         if path.is_file() and path.suffix in exts:

@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/python3.12
+#!/data/data/com.termux/files/usr/bin/env python3
 from __future__ import annotations
 
 import argparse

@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/python
+#!/data/data/com.termux/files/usr/bin/env python3
 import os
 
 source_dir = os.path.expanduser("~/bin")

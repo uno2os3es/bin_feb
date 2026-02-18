@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 # file: github_trending_python.py
 """
 Fetch GitHub trending Python repositories (daily / weekly / monthly)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Script to replace multiprocessing with concurrent.futures in Python files recursively.
 """

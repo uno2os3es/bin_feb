@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 import subprocess
 import sys
 from pathlib import Path
@@ -38,7 +38,7 @@ class TSCppRemover:
 
     def _collect_comments(self, node, to_delete, source_bytes):
         if node.type == "comment":
-            text = source_bytes[node.start_byte:node.end_byte].decode("utf-8").strip()
+            text = source_bytes[node.start_byte : node.end_byte].decode("utf-8").strip()
 
             # Skip preprocessor directives
             if text.startswith("#"):

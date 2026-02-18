@@ -20,12 +20,8 @@ def fix_file(path: Path) -> bool:
         return False
 
     if any(lines[0] == p for p in OLD):
-            lines[0]=NEW
-
-        path.write_text(
-            "\n".join(lines) + "\n",
-            encoding="utf-8",
-        )
+        lines[0] = NEW
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         return True
 
     return False

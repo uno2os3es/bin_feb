@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/data/data/com.termux/files/usr/bin/env python3
 from pathlib import Path
 from sys import argv, exit
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 from pathlib import Path
 
 # 1. Recursive function to get the total size of a directory in bytes

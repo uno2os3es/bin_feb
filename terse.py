@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 from pathlib import Path
 from sys import argv, exit
 
@@ -29,8 +29,9 @@ def process_file(fp):
 
 
 def main():
-    fn=Path(argv[1])
+    fn = Path(argv[1])
     process_file(fn)
+
 
 if __name__ == "__main__":
     exit(main())

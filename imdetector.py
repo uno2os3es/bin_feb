@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Find Python files (even without .py extension) that contain import statements
 outside the top-level import section. Results saved to found.txt.

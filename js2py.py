@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Convert JavaScript code to Python using AI-powered translation.
 Uses OpenAI API or local AST-based conversion with js2py library.

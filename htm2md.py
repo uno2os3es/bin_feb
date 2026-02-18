@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Python wrapper for html2md executable to convert HTML files to Markdown.
 Supports single file processing and recursive directory processing with multiprocessing.

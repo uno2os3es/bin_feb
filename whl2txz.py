@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 
 import lzma
 import shutil
@@ -14,7 +14,7 @@ def whl_to_tar_xz(whl_path: Path):
     target = whl_path.with_suffix(".tar.xz")
 
     if target.exists():
-        target=unique_path(target)
+        target = unique_path(target)
 
     print(f"[WHL → TAR.XZ] {whl_path.name}")
 
@@ -38,9 +38,11 @@ def whl_to_tar_xz(whl_path: Path):
 
 def tar_xz_to_whl(tar_path: Path):
     target = tar_path.with_suffix(".whl")
+    tt = str(target).replace(".tar", "")
+    target = Path(tt)
 
     if target.exists():
-        target=unique_path(target)
+        target = unique_path(target)
 
     print(f"[TAR.XZ → WHL] {tar_path.name}")
 
@@ -66,15 +68,15 @@ def tar_xz_to_whl(tar_path: Path):
 def main():
     cwd = Path(".").resolve()
 
-    for path in cwd.iterdir():
+    for pth in cwd.iterdir():
+        path = Path(pth)
         if path.is_file():
-            if path.suffix == ".whl":
-                whl_to_tar_xz(path)
-                path.unlink()
-            if path.suffix == ".tar.xz":
+            #            if path.suffix == ".whl":
+            #                whl_to_tar_xz(path)
+            #                path.unlink()
+            if ".tar.xz" in path.name:
                 tar_xz_to_whl(path)
                 path.unlink()
-
 
 
 if __name__ == "__main__":

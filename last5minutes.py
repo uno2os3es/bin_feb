@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/data/data/com.termux/files/usr/bin/env python3
 import sys
 
 from moviepy import AudioFileClip

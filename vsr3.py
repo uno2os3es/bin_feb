@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Repack installed Python packages from site-packages directory.
 Creates installable wheel files from installed packages using their RECORD files.

@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/env python
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Automated Python package file collector
 Finds site-packages in virtual environments within the current directory,

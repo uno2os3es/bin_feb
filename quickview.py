@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Show the first N lines of files in the current directory.
 Press PgDown to move to the next file.

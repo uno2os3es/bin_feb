@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Parallel resumable file downloader with pause, resume, and auto-recovery.
 """

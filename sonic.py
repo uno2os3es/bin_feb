@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/python
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Sort lines in a file and write unique lines back.
 Uses mmap for efficient handling of large files.

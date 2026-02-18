@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Enhanced HTML to Markdown converter with better HTML5, forms, and JS handling.
 Replaces the basic html2md executable with a more robust Python solution.
@@ -10,6 +10,7 @@ from multiprocessing import Pool, cpu_count
 from pathlib import Path
 
 from bs4 import BeautifulSoup
+
 # Install: pip install html-to-markdown beautifulsoup4
 from html_to_markdown import Options, convert
 

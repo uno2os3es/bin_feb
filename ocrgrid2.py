@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/python
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Full OCR testing pipeline:
 - Prepares images for OCR

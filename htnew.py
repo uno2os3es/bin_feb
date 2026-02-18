@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 # htmlnew.py - Creates a basic HTML template in the current directory
 
 import os

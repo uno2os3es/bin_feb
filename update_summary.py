@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 # update_summary.py - Auto-updates SUMMARY.md with all .md files in the directory
 
 import os

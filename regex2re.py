@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Script to replace 'import re' with 'import regex as re' in all Python files recursively.
 Supports both .py files and extensionless Python scripts.

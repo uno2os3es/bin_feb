@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Convert escaped Unicode sequences (\\uXXXX, \\UXXXXXXXX) in a file
 to their real Unicode characters.

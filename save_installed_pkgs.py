@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 # file: save_debian_packages.py
 """
 Save names of installed Debian system packages (dpkg/apt only).

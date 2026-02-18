@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 python_formatter.py
 Requirements: pip install yapf black autopep8 isort autoflake

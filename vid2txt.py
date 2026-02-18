@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/python
+#!/data/data/com.termux/files/usr/bin/env python3
 import pathlib
 import sys
 from multiprocessing import Process, Queue, cpu_count

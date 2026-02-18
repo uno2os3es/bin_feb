@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Offline Python import collector for requirements.txt generation.
 Recursively scans current dir including compressed archives.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Recursive string search utility with archive support.
 Uses fastwalk.walk (Rust jwalk-based) for fast, non-symlink traversal.

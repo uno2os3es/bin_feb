@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 GitHub Repository Manager with gh CLI
 Creates a new GitHub repo using gh CLI, auto-commits changes, and pushes to GitHub.

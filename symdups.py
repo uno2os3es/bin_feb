@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Duplicate File Symlinker with Reversible Operations
 Finds duplicate files and replaces them with symlinks to save space.

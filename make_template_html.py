@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Create a template HTML file by processing all HTML files in current directory recursively.
 Extracts common structure and merges content into template.html

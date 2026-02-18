@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/env python
+#!/data/data/com.termux/files/usr/bin/env python3
 import ast
 import sys
 from multiprocessing import Pool
@@ -15,7 +15,9 @@ class TSRemover:
     def __init__(self):
         self.language = Language(tspython.language())
         self.parser = Parser(self.language)
-        self.query = self.language.query("""
+        self.query = Query(
+            self.language,
+            """
             (comment) @comment
             (module
               (expression_statement
@@ -28,13 +30,14 @@ class TSRemover:
               body: (block
                 (expression_statement
                   (string) @class_docstring)))
-        """)
+        """,
+        )
 
     def remove_comments(self, source: str):
         source_bytes = source.encode("utf-8")
         tree = self.parser.parse(source_bytes)
-        cursor = QueryCursor(self.query)
-        matches = cursor.matches(tree.root_node)
+        query_cursor = QueryCursor(self.query)
+        matches = query_cursor.matches(tree.root_node)
         deletions = []
         comment_count = 0
         docstring_count = 0

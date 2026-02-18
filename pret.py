@@ -31,9 +31,9 @@ def format_file(file_path):
         if int(result) == 0:
             print("[OK] no change")
         elif result < 0:
-            print(f"[OK] {format_size(abs(result))} bigger than orig")
+            print(f"[OK] {format_size(abs(result))} bigger")
         elif result > 0:
-            print(f"[OK] {format_size(result)} smaller than orig")
+            print(f"[OK] {format_size(result)} smaller")
         return True
     else:
         print(f"[ERROR] {err}")

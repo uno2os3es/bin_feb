@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/python
+#!/data/data/com.termux/files/usr/bin/env python3
 """
 Markor - A Markdown/Text Editor for Termux using termux-gui-python-bindings
 Implements core features: file management, markdown editing, preview, and todo list management
