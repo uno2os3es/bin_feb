@@ -1,3 +1,0 @@
-googleapiclient
-pillow_avif
-pkg_resources

@@ -5,6 +5,9 @@ from sys import exit
 
 from fastwalk import walk_parallel
 
+def empty_it(pth) -> None:
+    with open(pth,"w") as f:
+        f.write("")
 
 def load_junk():
     with open("/sdcard/junk") as f:
@@ -20,7 +23,7 @@ def main():
         if any(path.name.lower() == junk for junk in junk_files):
             print(path.name)
             if path.exists():
-                path.unlink()
+                empty_it(path)
 
 
 if __name__ == "__main__":

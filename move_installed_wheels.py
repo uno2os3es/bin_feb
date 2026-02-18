@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+
+import sys
+import shutil
+from pathlib import Path
+from importlib import metadata
+from packaging.utils import parse_wheel_filename
+from packaging.version import Version
+
+WHL_DIR = Path("/sdcard/whl")
+DEST_DIR = Path("/sdcard/installed")
+
+def ensure_venv():
+    if sys.prefix == sys.base_prefix:
+        print("⚠ Not running inside a virtual environment.")
+        sys.exit(1)
+
+def get_installed_packages():
+    """
+    Returns dict:
+        {normalized_name: Version}
+    Only from current environment.
+    """
+    installed = {}
+    for dist in metadata.distributions():
+        name = dist.metadata["Name"]
+        version = dist.version
+        if name:
+            installed[name.lower().replace("-", "_")] = Version(version)
+    return installed
+
+def normalize(name: str) -> str:
+    return name.lower().replace("-", "_")
+
+def main():
+    ensure_venv()
+
+    if not WHL_DIR.exists():
+        print(f"Directory not found: {WHL_DIR}")
+        return
+
+    DEST_DIR.mkdir(parents=True, exist_ok=True)
+
+    installed_pkgs = get_installed_packages()
+
+    moved = 0
+
+    for wheel in WHL_DIR.rglob("*.whl"):
+        try:
+            dist_name, version, *_ = parse_wheel_filename(wheel.name)
+            norm_name = normalize(dist_name)
+
+            if norm_name in installed_pkgs:
+                installed_version = installed_pkgs[norm_name]
+
+                if installed_version == Version(str(version)):
+                    print(f"[MATCH] {dist_name}=={version} → moving")
+                    shutil.move(str(wheel), DEST_DIR / wheel.name)
+                    moved += 1
+                else:
+                    print(f"[DIFF VERSION] {dist_name} "
+                          f"(installed {installed_version}, wheel {version})")
+
+            else:
+                print(f"[NOT INSTALLED] {dist_name}")
+
+        except Exception as e:
+            print(f"[ERROR] {wheel.name}: {e}")
+
+    print(f"\nDone. Moved {moved} wheel(s).")
+
+if __name__ == "__main__":
+    main()

@@ -1,190 +1,85 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import ast
-import sys
-from multiprocessing import Pool, cpu_count
 from pathlib import Path
+from multiprocessing import Pool, cpu_count
+from tree_sitter import Parser, Language
+import tree_sitter_python
+import sys
 
-import tree_sitter_python as tspython
-from tree_sitter import Language, Parser, Query, QueryCursor
+EXCLUDE_PREFIXES = (b"#!/", b"# fmt:", b"# type:")
 
-ts_remover = None
+parser = Parser()
+parser.language = Language(tree_sitter_python.language())
 
 
-class TSRemover:
-    def __init__(self):
-        self.language = Language(tspython.language())
-        self.parser = Parser(self.language)
+def _cleanup_blank_lines(text: str) -> str:
+    lines = text.splitlines()
+    cleaned = []
+    blank_streak = 0
 
-        self.query = Query(
-            self.language,
-            """
-            (comment) @comment
+    for line in lines:
+        if line.strip() == "":
+            blank_streak += 1
+            if blank_streak <= 2:
+                cleaned.append("")
+        else:
+            blank_streak = 0
+            cleaned.append(line.rstrip())
 
-            (module
-              (expression_statement
-                (string) @module_docstring))
+    return "\n".join(cleaned) + "\n"
 
-            (function_definition
-              body: (block
-                . (expression_statement
-                  (string) @function_docstring)))
 
-            (class_definition
-              body: (block
-                . (expression_statement
-                  (string) @class_docstring)))
-        """,
-        )
-
-    def remove_comments(self, source: str):
-        source_bytes = source.encode("utf-8")
-        tree = self.parser.parse(source_bytes)
-
-        # Create QueryCursor and execute query
-        cursor = QueryCursor(self.query)
-        matches = cursor.matches(tree.root_node)
+def remove_comments_tree_sitter(path: Path) -> None:
+    try:
+        source = path.read_bytes()
+        tree = parser.parse(source)
 
         deletions = []
-        comment_count = 0
-        docstring_count = 0
 
-        # matches returns: list[tuple[pattern_index, dict[capture_name, list[Node]]]]
-        for pattern_idx, captures_dict in matches:
-            for capture_name, nodes in captures_dict.items():
-                for node in nodes:
-                    start = node.start_byte
-                    end = node.end_byte
-                    text = source_bytes[start:end].decode("utf-8")
+        def walk(node):
+            if node.type == "comment":
+                text = source[node.start_byte : node.end_byte]
+                if not text.lstrip().startswith(EXCLUDE_PREFIXES):
+                    deletions.append((node.start_byte, node.end_byte))
+            for child in node.children:
+                walk(child)
 
-                    if capture_name == "comment":
-                        stripped = text.strip()
-                        if stripped.startswith(
-                            ("# type:", "# black:", "# ruff:", "#!/", "# fmt:", "# pylint:", "# mypy:", "# noqa")
-                        ):
-                            continue
-                        comment_count += 1
-                    else:
-                        docstring_count += 1
+        walk(tree.root_node)
 
-                    if end < len(source_bytes) and source_bytes[end : end + 1] == b"\n":
-                        end += 1
+        cleaned_bytes = bytearray(source)
 
-                    deletions.append((start, end))
+        for start, end in sorted(deletions, reverse=True):
+            del cleaned_bytes[start:end]
 
-        deletions = sorted(set(deletions), reverse=True)
+        cleaned_text = cleaned_bytes.decode("utf-8")
+        cleaned_text = _cleanup_blank_lines(cleaned_text)
+        cleaned_bytes = cleaned_text.encode("utf-8")
 
-        new_source = bytearray(source_bytes)
-        for start, end in deletions:
-            del new_source[start:end]
+        parser.parse(cleaned_bytes)
 
-        new_source = bytes(new_source)
+        path.write_bytes(cleaned_bytes)
+        print(f"[OK] {path}")
 
-        tree = self.parser.parse(new_source)
-        if tree.root_node.has_error:
-            return source, 0, 0
-
-        cleaned = new_source.decode("utf-8")
-        cleaned = self._cleanup_blank_lines(cleaned)
-
-        return cleaned, comment_count, docstring_count
-
-    @staticmethod
-    def _cleanup_blank_lines(text: str) -> str:
-        lines = text.splitlines()
-        cleaned = []
-        blank_streak = 0
-
-        for line in lines:
-            if line.strip() == "":
-                blank_streak += 1
-                if blank_streak <= 2:
-                    cleaned.append("")
-            else:
-                blank_streak = 0
-                cleaned.append(line.rstrip())
-
-        result = "\n".join(cleaned)
-        if result and not result.endswith("\n"):
-            result += "\n"
-        return result
-
-
-def ts_remover_initializer():
-    global ts_remover
-    ts_remover = TSRemover()
-
-
-def process_file(fp):
-    global ts_remover
-    file_path = Path(fp)
-
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            code = f.read()
     except Exception as e:
-        print(f"[ERROR] {file_path.name} read: {e}")
-        return ("error", file_path, 0, 0)
+        print(f"[FAIL] {path} -> {e}")
 
-    try:
-        result, comments, docstrings = ts_remover.remove_comments(code)
-    except Exception as e:
-        print(f"[ERROR] {file_path.name} processing: {e}")
-        return ("error", file_path, 0, 0)
 
-    if comments or docstrings:
-        try:
-            ast.parse(result)
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(result)
-            print(f"[OK] {file_path.name}: {comments} comments, {docstrings} docstrings")
-            return ("changed", file_path, comments, docstrings)
-        except Exception as e:
-            print(f"[ERROR] {file_path.name} validation: {e}")
-            return ("error", file_path, comments, docstrings)
-    else:
-        print(f"[NO CHANGE] {file_path.name}")
-        return ("nochange", file_path, 0, 0)
+def collect_py_files(root: Path) -> list[Path]:
+    if root.is_file() and root.suffix == ".py":
+        return [root]
+    return [p for p in root.rglob("*.py") if p.is_file()]
+
+
+def main() -> None:
+
+    root = Path().cwd().resolve()
+
+    files = collect_py_files(root)
+    if not files:
+        sys.exit("No Python files found")
+
+    with Pool(cpu_count()) as pool:
+        pool.map(remove_comments_tree_sitter, files)
 
 
 if __name__ == "__main__":
-    try:
-        from fastwalk import walk_files
-        from dh import folder_size, format_size
-    except ImportError:
-
-        def walk_files(path):
-            return [str(p) for p in Path(path).rglob("*.py")]
-
-        def folder_size(path):
-            return sum(f.stat().st_size for f in Path(path).rglob("*") if f.is_file())
-
-        def format_size(size):
-            return f"{size / 1024:.2f} KB"
-
-    dir_path = Path.cwd()
-    files = [p for p in walk_files(dir_path) if Path(p).suffix == ".py"]
-
-    if not files:
-        print("No Python files found")
-        sys.exit(0)
-
-    init_size = folder_size(dir_path)
-    nproc = min(cpu_count() or 1, 8)
-
-    with Pool(processes=nproc, initializer=ts_remover_initializer) as pool:
-        results = pool.map(process_file, files)
-
-    end_size = folder_size(dir_path)
-
-    changed = sum(1 for r in results if r[0] == "changed")
-    errors = [r for r in results if r[0] == "error"]
-    nochg = sum(1 for r in results if r[0] == "nochange")
-
-    print(f"\n{'=' * 60}")
-    print(f"Files: {len(files)} | Changed: {changed} | Unchanged: {nochg} | Errors: {len(errors)}")
-    if errors:
-        print("\nErrors in:")
-        for _, fn, *_ in errors:
-            print(f"  - {fn}")
-    print(f"Size reduced: {format_size(init_size - end_size)}")
-    print(f"{'=' * 60}")
+    main()
