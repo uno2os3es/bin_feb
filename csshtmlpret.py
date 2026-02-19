@@ -152,12 +152,9 @@ def _props_grouper(props, pgs):
     if not props:
         return props
 
-
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
-    props_by_groups = map(
-        lambda item: list(item[1]), itertools.groupby(props_pg, key=lambda item: item[0][1])
-    )
+    props_by_groups = map(lambda item: list(item[1]), itertools.groupby(props_pg, key=lambda item: item[0][1]))
     props_by_groups = map(lambda item: sorted(item, key=lambda item: item[0][0]), props_by_groups)
     props = []
     for group in props_by_groups:
@@ -218,7 +215,6 @@ def wrap_css_lines(css: str, line_length: int = 80) -> str:
     print(f"Wrapping lines to ~{line_length} max line lenght.")
     lines, line_start = [], 0
     for i, char in enumerate(css):
-
         if char == "}" and (i - line_start >= line_length):
             lines.append(css[line_start : i + 1])
             line_start = i + 1
@@ -310,7 +306,6 @@ def css_prettify(css: str, justify: bool = False, extraline: bool = False) -> st
 
 
 if BeautifulSoup:
-
     orig_prettify = BeautifulSoup.prettify
     regez = re.compile(r"^(\s*)", re.MULTILINE)
 
@@ -353,9 +348,7 @@ def walk2list(
         os.path.abspath(os.path.join(r, f))
         for r, d, fs in oswalk
         for f in fs
-        if not f.startswith(() if showhidden else ".")
-        and not f.endswith(omit)
-        and f.endswith(target)
+        if not f.startswith(() if showhidden else ".") and not f.endswith(omit) and f.endswith(target)
     ]
 
 
@@ -435,30 +428,16 @@ def make_arguments_parser():
     Watch works for whole folders, with minimum of ~60 Secs between runs.""",
     )
     parser.add_argument("--version", action="version", version=__version__)
-    parser.add_argument(
-        "fullpath", metavar="fullpath", type=str, help="Full path to local file or folder."
-    )
+    parser.add_argument("fullpath", metavar="fullpath", type=str, help="Full path to local file or folder.")
     parser.add_argument("--prefix", type=str, help="Prefix string to prepend on output filenames.")
-    parser.add_argument(
-        "--timestamp", action="store_true", help="Add a Time Stamp on all CSS/SCSS output files."
-    )
-    parser.add_argument(
-        "--quiet", action="store_true", help="Quiet, Silent, force disable all Logging."
-    )
+    parser.add_argument("--timestamp", action="store_true", help="Add a Time Stamp on all CSS/SCSS output files.")
+    parser.add_argument("--quiet", action="store_true", help="Quiet, Silent, force disable all Logging.")
     parser.add_argument("--after", type=str, help="Command to execute after run (Experimental).")
     parser.add_argument("--before", type=str, help="Command to execute before run (Experimental).")
-    parser.add_argument(
-        "--watch", action="store_true", help="Re-Compress if file changes (Experimental)."
-    )
-    parser.add_argument(
-        "--group", action="store_true", help="Group Alphabetically CSS Poperties by name."
-    )
-    parser.add_argument(
-        "--justify", action="store_true", help="Right Justify CSS Properties (Experimental)."
-    )
-    parser.add_argument(
-        "--extraline", action="store_true", help="Add 1 New Line for each New Line (Experimental)"
-    )
+    parser.add_argument("--watch", action="store_true", help="Re-Compress if file changes (Experimental).")
+    parser.add_argument("--group", action="store_true", help="Group Alphabetically CSS Poperties by name.")
+    parser.add_argument("--justify", action="store_true", help="Right Justify CSS Properties (Experimental).")
+    parser.add_argument("--extraline", action="store_true", help="Add 1 New Line for each New Line (Experimental)")
     global args
     args = parser.parse_args()
     return args
@@ -471,9 +450,7 @@ def main():
     print(__doc__ + __version__)
     if args.before and getoutput:
         print(getoutput(str(args.before)))
-    if os.path.isfile(args.fullpath) and args.fullpath.endswith(
-        (".css", ".scss")
-    ):
+    if os.path.isfile(args.fullpath) and args.fullpath.endswith((".css", ".scss")):
         print("Target is a CSS / SCSS File.")
         list_of_files = str(args.fullpath)
         process_single_css_file(args.fullpath)

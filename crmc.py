@@ -6,12 +6,12 @@ import tree_sitter_cpp
 import sys
 
 from termcolor import cprint
-from dh import folder_size,format_size
+from dh import folder_size, format_size
 
 EXCLUDE_PREFIXES = (b"#!/",)
 
 parser = Parser()
-parser.language=Language(tree_sitter_cpp.language())
+parser.language = Language(tree_sitter_cpp.language())
 
 
 def _cleanup_blank_lines(text: str) -> str:
@@ -40,7 +40,7 @@ def remove_comments_cpp(path: Path) -> None:
 
         def walk(node):
             if node.type == "comment":
-                text = source[node.start_byte:node.end_byte]
+                text = source[node.start_byte : node.end_byte]
 
                 # preserve shebang (rare but possible)
                 if text.lstrip().startswith(EXCLUDE_PREFIXES):
@@ -74,7 +74,7 @@ def remove_comments_cpp(path: Path) -> None:
         print(f"[OK] {path.name}")
 
     except Exception as e:
-        cprint(f"[FAIL] {path.name} -> {e}","cyan")
+        cprint(f"[FAIL] {path.name} -> {e}", "cyan")
 
 
 def collect_cpp_files(root: Path) -> list[Path]:
@@ -87,17 +87,18 @@ def collect_cpp_files(root: Path) -> list[Path]:
 
 
 def main() -> None:
-    root=Path().cwd().resolve()
-    init_size=folder_size(root)
+    root = Path().cwd().resolve()
+    init_size = folder_size(root)
     files = collect_cpp_files(root)
     if not files:
         sys.exit("No C++ files found")
 
     with Pool(cpu_count()) as pool:
         pool.map(remove_comments_cpp, files)
-    end_size=folder_size(root)
-    difsize=init_size-end_size
-    cprint(f"{format_size(difsize)}","cyan")
+    end_size = folder_size(root)
+    difsize = init_size - end_size
+    cprint(f"{format_size(difsize)}", "cyan")
+
 
 if __name__ == "__main__":
     main()

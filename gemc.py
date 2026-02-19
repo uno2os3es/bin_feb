@@ -23,34 +23,36 @@ QUERY_STRING = """
     (string)) @docstring)
 """
 
+
 def should_preserve_comment(content):
     content = content.strip()
-    return any(content.startswith(p) for p in ['#!', '# type:', '# fmt:'])
+    return any(content.startswith(p) for p in ["#!", "# type:", "# fmt:"])
+
 
 def strip_file(file_path):
-    # Important: Create a fresh cursor per process/thread 
+    # Important: Create a fresh cursor per process/thread
     # for thread-safety in multiprocessing
     cursor = QueryCursor()
     query = Query(PY_LANGUAGE, QUERY_STRING)
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             source_code = f.read()
 
         source_bytes = bytes(source_code, "utf8")
         tree = parser.parse(source_bytes)
-        
+
         captures = cursor.captures(query, tree.root_node)
         modifications = []
 
         for node, tag in captures:
             if tag == "comment":
-                comment_text = source_code[node.start_byte:node.end_byte]
+                comment_text = source_code[node.start_byte : node.end_byte]
                 if not should_preserve_comment(comment_text):
                     modifications.append((node.start_byte, node.end_byte, ""))
-            
+
             elif tag == "docstring":
-                parent = node.parent # This is the 'block' or 'module'
+                parent = node.parent  # This is the 'block' or 'module'
                 # If the block ONLY contains this docstring, replace with 'pass'
                 if parent and parent.named_child_count == 1:
                     modifications.append((node.start_byte, node.end_byte, "pass"))
@@ -62,7 +64,7 @@ def strip_file(file_path):
 
         # Sort reverse to maintain byte offsets
         modifications.sort(key=lambda x: x[0], reverse=True)
-        
+
         working_code = source_code
         for start, end, replacement in modifications:
             working_code = working_code[:start] + replacement + working_code[end:]
@@ -70,13 +72,14 @@ def strip_file(file_path):
         # Final Safety Check
         try:
             ast.parse(working_code)
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(working_code)
         except SyntaxError:
-            pass # Keep original file if transformation fails
+            pass  # Keep original file if transformation fails
 
     except Exception as e:
         print(f"Error in {file_path}: {e}")
+
 
 def main():
     files = [os.path.join(r, f) for r, _, fs in os.walk(".") for f in fs if f.endswith(".py")]
@@ -87,6 +90,7 @@ def main():
     with multiprocessing.get_context("spawn").Pool() as pool:
         pool.map(strip_file, files)
     print("Done.")
+
 
 if __name__ == "__main__":
     main()

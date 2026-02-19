@@ -7,26 +7,25 @@ import tree_sitter_python as tspython
 from pathlib import Path
 from termcolor import cprint
 from dh import folder_size, format_size
+
 # Use specified versions: ts==0.25.2 and ts-python==0.25.0 logic
 PY_LANGUAGE = Language(tspython.language())
 parser = Parser(PY_LANGUAGE)
 
+
 def should_preserve_comment(content):
     content = content.strip()
-    return (
-        content.startswith('#!') or 
-        content.startswith('# type:') or 
-        content.startswith('# fmt:')
-    )
+    return content.startswith("#!") or content.startswith("# type:") or content.startswith("# fmt:")
+
 
 def strip_file(file_path):
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             source_code = f.read()
 
         tree = parser.parse(bytes(source_code, "utf8"))
         root_node = tree.root_node
-        
+
         # Ranges to delete: list of (start_byte, end_byte)
         to_delete = []
         # Ranges to replace with "pass": list of (start_byte, end_byte)
@@ -34,18 +33,18 @@ def strip_file(file_path):
 
         def traverse(node):
             # 1. Handle Comments
-            if node.type == 'comment':
-                comment_text = source_code[node.start_byte:node.end_byte]
+            if node.type == "comment":
+                comment_text = source_code[node.start_byte : node.end_byte]
                 if not should_preserve_comment(comment_text):
                     to_delete.append((node.start_byte, node.end_byte))
-            
+
             # 2. Handle Docstrings & Empty Blocks
-            elif node.type == 'expression_statement':
+            elif node.type == "expression_statement":
                 child = node.named_children[0] if node.named_children else None
-                if child and child.type == 'string':
+                if child and child.type == "string":
                     parent = node.parent
                     # Check if this string is a docstring (first child of a block)
-                    if parent and parent.type == 'block':
+                    if parent and parent.type == "block":
                         # If this is the ONLY statement in the block, replace with pass
                         if parent.named_child_count == 1:
                             to_replace_with_pass.append((node.start_byte, node.end_byte))
@@ -71,20 +70,21 @@ def strip_file(file_path):
         try:
             ast.parse(working_code)
         except SyntaxError:
-            # If still invalid, try one more time by stripping trailing whitespace 
+            # If still invalid, try one more time by stripping trailing whitespace
             # (sometimes docstring removal leaves awkward indentation)
             try:
                 ast.parse(working_code.strip())
             except SyntaxError:
-                cprint(f"Skipping {file_path}: Resulting code is syntactically invalid.","blue")
+                cprint(f"Skipping {file_path}: Resulting code is syntactically invalid.", "blue")
                 return
 
         # In-place update
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(working_code)
-        cprint(f"[OK] {Path(file_path).name}",'green')
+        cprint(f"[OK] {Path(file_path).name}", "green")
     except Exception as e:
-        cprint(f"Error processing {file_path}: {e}","yellow")
+        cprint(f"Error processing {file_path}: {e}", "yellow")
+
 
 def get_python_files(root):
     for root, _, files in os.walk(root):
@@ -92,9 +92,10 @@ def get_python_files(root):
             if file.endswith(".py"):
                 yield os.path.join(root, file)
 
+
 def main():
-    dir=Path().cwd().resolve()
-    initsize=folder_size(dir)
+    dir = Path().cwd().resolve()
+    initsize = folder_size(dir)
     files = list(get_python_files(dir))
     if not files:
         return
@@ -103,8 +104,9 @@ def main():
     # Use pool for parallel processing
     with Pool(8) as pool:
         pool.map(strip_file, files)
-    endsize=folder_size(dir)
-    cprint(f"{format_size(int(initsize-endsize))}",'cyan')
+    endsize = folder_size(dir)
+    cprint(f"{format_size(int(initsize - endsize))}", "cyan")
+
 
 if __name__ == "__main__":
     main()

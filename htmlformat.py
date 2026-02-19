@@ -3,7 +3,7 @@ from pathlib import Path
 import regex as re
 
 
-HTML_EXTS = {".html", ".htm",".svg",".xml"}
+HTML_EXTS = {".html", ".htm", ".svg", ".xml"}
 SKIP_TAGS = ("pre", "code")
 
 

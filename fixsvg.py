@@ -1,6 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 from fastwalk import walk_files
 from pathlib import Path
+
+
 def process_file(fp: Path):
     if not fp.exists():
         return False
@@ -33,9 +35,10 @@ def process_file(fp: Path):
     fp.write_text(trimmed, encoding="utf-8")
     return True
 
-if __name__=="__main__":
-    dir=Path().cwd().resolve()
+
+if __name__ == "__main__":
+    dir = Path().cwd().resolve()
     for pth in walk_files(dir):
-        path=Path(pth)
-        if path.suffix in {".html",".htm",".svg",".xml"}:
+        path = Path(pth)
+        if path.suffix in {".html", ".htm", ".svg", ".xml"}:
             process_file(path)

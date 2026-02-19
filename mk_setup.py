@@ -88,10 +88,7 @@ def generate_setup_py(meta: dict, extensions: list[str], entry_points: dict[str,
     ext_block = (
         "from setuptools import Extension\n\n"
         "ext_modules = [\n"
-        + "\n".join(
-            f'    Extension("{m}", sources=["{m.replace(".", "/")}.*"]),'
-            for m in extensions
-        )
+        + "\n".join(f'    Extension("{m}", sources=["{m.replace(".", "/")}.*"]),' for m in extensions)
         + "\n]\n"
         if extensions
         else "ext_modules = []\n"
@@ -120,12 +117,15 @@ setup(
     ext_modules=ext_modules,
 {ep_block})
 """
+
+
 def generate_pyproject_toml() -> str:
     return """\
 [build-system]
 requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 """
+
 
 def main() -> None:
     if len(sys.argv) != 2:
@@ -135,7 +135,7 @@ def main() -> None:
     root = load_root(input_path)
 
     meta = read_metadata(root)
-    entry_points=read_entry_points(root)
+    entry_points = read_entry_points(root)
     extensions = find_extensions(root)
 
     out_dir = Path("output") / meta["name"]

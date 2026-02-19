@@ -5,9 +5,11 @@ from sys import exit
 
 from fastwalk import walk_parallel
 
+
 def empty_it(pth) -> None:
-    with open(pth,"w") as f:
+    with open(pth, "w") as f:
         f.write("")
+
 
 def load_junk():
     with open("/sdcard/junk") as f:

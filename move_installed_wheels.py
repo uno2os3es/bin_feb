@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
-
-import sys
-import shutil
-from pathlib import Path
-from importlib import metadata
-from packaging.utils import parse_wheel_filename
-from packaging.version import Version
-from termcolor import cprint
+from autoimport import LazyLoader as ll
+from autoimport import lazy
+LazyLoader
+with lazy():
+    from pathlib import Path
+    from importlib import metadata
+    from packaging.utils import parse_wheel_filename
+    from packaging.version import Version
+    from termcolor import cprint
 
 WHL_DIR = Path("/sdcard/whl")
 DEST_DIR = Path("/sdcard/installed")
 DEST_DIR2 = Path("/sdcard/invalid")
 
+
 def ensure_venv():
     if sys.prefix == sys.base_prefix:
         print("⚠ Not running inside a virtual environment.")
         sys.exit(1)
+
 
 def get_installed_packages():
     """
@@ -31,8 +34,10 @@ def get_installed_packages():
             installed[name.lower().replace("-", "_")] = Version(version)
     return installed
 
+
 def normalize(name: str) -> str:
     return name.lower().replace("-", "_")
+
 
 def main():
     ensure_venv()
@@ -56,21 +61,22 @@ def main():
                 installed_version = installed_pkgs[norm_name]
 
                 if installed_version == Version(str(version)):
-                    cprint(f"[MATCH] {dist_name}=={version} → moving","cyan")
-                    shutil.move(str(wheel), DEST_DIR / wheel.name)
+                    cprint(f"[MATCH] {dist_name}=={version} → removing", "cyan")
+                    wheel.unlink()
+#                    shutil.move(str(wheel), DEST_DIR / wheel.name)
                     moved += 1
                 else:
-                    shutil.move(str(wheel), DEST_DIR / wheel.name)
+                    wheel.unlink()
+#                    shutil.move(str(wheel), DEST_DIR / wheel.name)
                     moved += 1
-                    print(f"[DIFF VERSION] {dist_name} "
-                          f"(installed {installed_version}, wheel {version})")
-
+                    print(f"[DIFF VERSION] {dist_name} (installed {installed_version}, wheel {version}) -> removed")
 
         except Exception as e:
             print(f"[ERROR] {wheel.name}: {e}")
             shutil.move(str(wheel), DEST_DIR2 / wheel.name)
 
-    print(f"\nDone. Moved {moved} wheel(s).")
+    print(f"\nDone. ReMoved {moved} wheel(s).")
+
 
 if __name__ == "__main__":
     main()

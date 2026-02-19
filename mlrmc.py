@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 from pathlib import Path
 from multiprocessing import Pool, cpu_count
-from tree_sitter import Parser,Language
+from tree_sitter import Parser, Language
 import tree_sitter_python
 import tree_sitter_rust
 import tree_sitter_cpp
@@ -28,13 +28,14 @@ EXCLUDE_PREFIXES = (b"#!/", b"# fmt:", b"# type:")
 
 def get_parser(lang):
     parser = Parser()
-    parser.language=Language(lang)
+    parser.language = Language(lang)
     return parser
 
 
 # -------------------------
 # Blank-line cleanup
 # -------------------------
+
 
 def _cleanup_blank_lines(text: str) -> str:
     lines = text.splitlines()
@@ -56,6 +57,7 @@ def _cleanup_blank_lines(text: str) -> str:
 # -------------------------
 # Python docstring removal
 # -------------------------
+
 
 def _collect_python_docstrings(node, deletions):
     def first_named_child(block):
@@ -92,6 +94,7 @@ def _collect_python_docstrings(node, deletions):
 # Core processor
 # -------------------------
 
+
 def process_file(path: Path) -> None:
     try:
         ext = path.suffix.lower()
@@ -110,7 +113,7 @@ def process_file(path: Path) -> None:
         def walk(node):
             # Remove comments for all languages
             if node.type == "comment":
-                text = source[node.start_byte:node.end_byte]
+                text = source[node.start_byte : node.end_byte]
 
                 # Special filtering for Python
                 if ext == ".py":
@@ -154,22 +157,21 @@ def process_file(path: Path) -> None:
 # File collection
 # -------------------------
 
+
 def collect_supported_files(root: Path) -> list[Path]:
     if root.is_file():
         return [root] if root.suffix.lower() in LANGUAGES else []
 
-    return [
-        p for p in root.rglob("*")
-        if p.is_file() and p.suffix.lower() in LANGUAGES
-    ]
+    return [p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in LANGUAGES]
 
 
 # -------------------------
 # CLI
 # -------------------------
 
+
 def main() -> None:
-    root=Path().cwd().resolve()
+    root = Path().cwd().resolve()
     files = collect_supported_files(root)
     if not files:
         sys.exit("No supported files found")
