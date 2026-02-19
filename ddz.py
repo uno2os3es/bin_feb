@@ -8,10 +8,6 @@ import zipfile
 import dh
 
 EXT = {".txt"}
-# STRTOFIND = [
-# "namespace", '#ifndef', '#ifdef', '#include', '#ifnodef', '#endif',
-# '#else', '#if', '// File:'
-# ]
 STRTOFIND = [
     "import ",
     "__version__",
@@ -23,11 +19,7 @@ STRTOFIND = [
 
 def clean_text(text: str) -> str:
     """Remove lines containing any string from STRTOFIND."""
-    return "\n".join(
-        line
-        for line in text.splitlines()
-        if not any(s in line for s in STRTOFIND)  # why: check substring membership
-    )
+    return "\n".join(line for line in text.splitlines() if not any(s in line for s in STRTOFIND))
 
 
 def clean_file(path: str) -> None:
@@ -43,7 +35,7 @@ def clean_file(path: str) -> None:
         return
 
     cleaned = clean_text(original)
-    if cleaned != original:  # only rewrite when changed
+    if cleaned != original:
         with open(path, "w", encoding="utf-8") as f:
             f.write(cleaned)
 
@@ -51,7 +43,6 @@ def clean_file(path: str) -> None:
 def process_zip(path: str) -> None:
     """Rewrite a zip/whl file with cleaned metadata."""
     tmp = tempfile.mktemp(suffix=".zip")
-    # why: zipfile cannot update files in place; must rewrite entire archive
     with (
         zipfile.ZipFile(path, "r") as zin,
         zipfile.ZipFile(tmp, "w") as zout,
@@ -75,18 +66,14 @@ def process_tar(path: str) -> None:
     tmp_dir = tempfile.mkdtemp()
     tmp_tar = tempfile.mktemp(suffix=".tar.gz")
 
-    # extract all
-    # why: tar does not support safe in-place mutation
     with tarfile.open(path, "r:*") as tar:
         tar.extractall(tmp_dir)
 
-    # clean extracted files
     for root, _, files in os.walk(tmp_dir):
         for name in files:
             if name in TARGET_FILES:
                 clean_file(os.path.join(root, name))
 
-    # repack
     with tarfile.open(tmp_tar, "w:gz") as tar:
         tar.add(tmp_dir, arcname="")
 
@@ -108,12 +95,10 @@ def main() -> None:
         for name in files:
             full_path = os.path.join(root, name)
 
-            # handle raw metadata files
             if dh.get_ext(full_path) in EXT:
                 clean_file(full_path)
                 continue
 
-            # handle archives
             if name.lower().endswith(
                 (
                     ".zip",

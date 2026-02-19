@@ -15,7 +15,6 @@ def main() -> None:
     seen = set()
     unique_lines = []
 
-    # Preserve order; remove duplicate
     histlen = len(lines)
     print(f"history length: {histlen}")
     for line in lines:
@@ -24,7 +23,6 @@ def main() -> None:
             seen.add(stripped)
             unique_lines.append(stripped)
 
-    # Write back
     with hist_file.open("w", encoding="utf-8") as f:
         for line in unique_lines:
             f.write(line + "\n")

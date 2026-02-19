@@ -18,7 +18,6 @@ ARCHIVE_EXTENSIONS = (
     ".txz",
 )
 
-# Regex that works on **bytes**
 GIT_REGEX_BYTES = re.compile(
     rb'(?:https?://|git@|git://)[^\s\'"]+?\.git\b',
     re.IGNORECASE,

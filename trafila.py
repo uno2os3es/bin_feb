@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-# Install: pip install trafilatura
 import sys
 from pathlib import Path
 
@@ -11,14 +10,13 @@ def convert_to_md(html_file: Path):
     try:
         html_content = html_file.read_text(encoding="utf-8")
 
-        # Extract main content and convert to Markdown
         markdown = trafilatura.extract(
             html_content,
             output_format="markdown",
             include_links=True,
             include_images=True,
             include_tables=True,
-            no_fallback=False,  # Use fallback extraction if needed
+            no_fallback=False,
         )
 
         if markdown:

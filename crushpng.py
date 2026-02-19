@@ -51,7 +51,6 @@ def main():
                 results.append(future.result())
                 pbar.update(1)
 
-    # Print summary
     success = sum(1 for r in results if r[0])
     print(f"\nOptimization complete. Success: {success}/{len(png_files)} files.")
 

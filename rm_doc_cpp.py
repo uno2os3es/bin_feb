@@ -8,7 +8,6 @@ class RegexCommentRemover:
     """Remove C/C++ comments using regex pattern matching."""
 
     def __init__(self):
-        # Simpler, safer regex pattern
         self.pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
 
     def remove_comments(self, source: str):
@@ -64,7 +63,6 @@ def process_file(file_path, remover):
 if __name__ == "__main__":
     dir_path = Path.cwd()
 
-    # Find C/C++ files
     files = [
         p
         for p in dir_path.rglob("*")
@@ -77,10 +75,8 @@ if __name__ == "__main__":
 
     print(f"Found {len(files)} C/C++ files")
 
-    # Calculate initial size
     init_size = sum(f.stat().st_size for f in files)
 
-    # Process files sequentially (no multiprocessing)
     remover = RegexCommentRemover()
     results = []
 
@@ -89,7 +85,6 @@ if __name__ == "__main__":
         result = process_file(fp, remover)
         results.append(result)
 
-    # Calculate final size
     end_size = sum(f.stat().st_size for f in files if f.exists())
 
     changed = sum(1 for r in results if r[0] == "changed")
@@ -97,7 +92,6 @@ if __name__ == "__main__":
     nochg = sum(1 for r in results if r[0] == "nochange")
     total_comments = sum(r[2] for r in results if r[0] == "changed")
 
-    # Format size
     def format_size(size):
         for unit in ["B", "KB", "MB", "GB"]:
             if size < 1024.0:

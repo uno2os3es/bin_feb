@@ -7,7 +7,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-MAX_DOWNLOAD_SIZE = 1 * 1024 * 1024  # 1 MB
+MAX_DOWNLOAD_SIZE = 1 * 1024 * 1024
 
 
 def fetch_content_length(url: str) -> int | None:
@@ -22,7 +22,6 @@ def fetch_content_length(url: str) -> int | None:
         if e.code not in (405, 403):
             raise
 
-    # Fallback: GET headers only (partial download)
     request = urllib.request.Request(url, method="GET")
     request.add_header("Range", "bytes=0-0")
     with urllib.request.urlopen(request, timeout=10) as response:
@@ -61,7 +60,6 @@ def process_url(url: str, download_dir: Path | None = None) -> str:
         size_str = format_size(size)
         print(f"URL: {url}, Size: {size_str}")
 
-        # Ask user if they want to download the file
         if download_dir and size <= MAX_DOWNLOAD_SIZE:
             user_input = input(f"Do you want to download this file (size: {size_str})? (y/n): ").strip().lower()
             if user_input == "y":
@@ -89,7 +87,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Set default download directory to user's Downloads folder if not specified
     download_dir = Path(args.download) if args.download else Path(os.path.expanduser("~/Downloads"))
 
     download_dir.mkdir(parents=True, exist_ok=True)

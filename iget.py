@@ -33,7 +33,7 @@ class MultiPartDownloader:
     def download_range(self, start, end, part_num):
         headers = {"Range": f"bytes={start}-{end}", **self.headers}
         response = requests.get(self.url, headers=headers, stream=True)
-        chunk_size = 1024 * 1024  # 1MB per chunk
+        chunk_size = 1024 * 1024
         with open(self.output_path, "r+b") as f:
             f.seek(start)
             for chunk in response.iter_content(chunk_size=chunk_size):

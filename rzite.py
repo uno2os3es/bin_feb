@@ -14,8 +14,6 @@ from configparser import ConfigParser
 from email.parser import Parser
 from pathlib import Path
 
-# ---------- Utilities ----------
-
 
 def prefix_path():
     p = os.environ.get("PREFIX")
@@ -157,9 +155,6 @@ def compute_hash_and_size(path):
     return "sha256=" + digest, str(path.stat().st_size)
 
 
-# ---------- Wheel tag detection ----------
-
-
 def detect_wheel_tags():
     """Why: build correct platform/ABI tags for platform-specific wheels."""
     impl = sys.implementation.name
@@ -173,14 +168,10 @@ def detect_wheel_tags():
         if cache and "-" in cache:
             py_tag, abi_tag = cache.split("-", 1)
         else:
-            # fallback, treat as py3 wheel
             py_tag = f"py{mj}"
             abi_tag = "none"
     plat = sysconfig.get_platform().replace("-", "_").replace(".", "_")
     return py_tag, abi_tag, plat
-
-
-# ---------- Core repack ----------
 
 
 def collect_files_for_dist(distinfo_path, site_dirs, prefix):
@@ -290,13 +281,11 @@ def build_wheel_from_tree(
     workdir,
     wheel_out_path,
 ):
-    # copy items into workdir
     for src, rel in tree_items:
         dest = workdir / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         if src.is_file():
             shutil.move(src, dest)
-    # ensure dist-info directory
     distinfo_dirs = list(workdir.glob("*.dist-info"))
     if not distinfo_dirs:
         dinfo = f"{dist_name}-{version}.dist-info"
@@ -304,7 +293,6 @@ def build_wheel_from_tree(
         distinfo_dir.mkdir(parents=True, exist_ok=True)
     else:
         distinfo_dir = distinfo_dirs[0]
-    # choose tag and Root-Is-Purelib based on native ext detection
     py_tag, abi_tag, plat_tag = detect_wheel_tags()
     is_platform_specific = _has_native_extensions(tree_items)
     if is_platform_specific:
@@ -323,7 +311,6 @@ def build_wheel_from_tree(
             "",
         ]
         wheel_file.write_text("\n".join(content), encoding="utf-8")
-    # build RECORD (skip RECORD itself)
     record_lines = []
     all_files = []
     for root, _, files in os.walk(workdir):
@@ -342,7 +329,6 @@ def build_wheel_from_tree(
         "\n".join(record_lines) + "\n",
         encoding="utf-8",
     )
-    # write zip
     wheel_out_path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(
         wheel_out_path,
@@ -355,9 +341,6 @@ def build_wheel_from_tree(
                 rel = full.relative_to(workdir).as_posix()
                 zf.write(full, arcname=rel)
     return wheel_out_path
-
-
-# ---------- CLI ----------
 
 
 def main() -> None:
@@ -387,7 +370,7 @@ def main() -> None:
     if not args.packages and not args.all:
         args.all = True
     prefix = prefix_path()
-    site_dirs = [Path(Path.cwd())]  # original behavior retained
+    site_dirs = [Path(Path.cwd())]
     dists = find_distributions(site_dirs)
     if args.all:
         to_do = list(dists.values())
@@ -427,7 +410,6 @@ def main() -> None:
             if workdir.exists():
                 shutil.rmtree(workdir)
             workdir.mkdir(parents=True, exist_ok=True)
-            # decide wheel filename based on native ext detection
             py_tag, abi_tag, plat_tag = detect_wheel_tags()
             is_platform_specific = _has_native_extensions(items)
             if is_platform_specific:

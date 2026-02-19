@@ -1,6 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-# ripgrep_py.py
-# Minimal ripgrep-like recursive search tool in Python.
 
 from __future__ import annotations
 
@@ -18,7 +16,6 @@ from dh import is_binary
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-# ========= Configuration (tweak as desired) =========
 IGNORED_DIRS = {
     ".git",
     ".hg",
@@ -28,12 +25,10 @@ IGNORED_DIRS = {
 }
 BINARY_CHUNK = 4096
 DEFAULT_THREADS = max(4, (os.cpu_count() or 4))
-# ====================================================
 
-# ---------- Utility: terminal color ----------
 ANSI_BOLD = "\033[1m"
 ANSI_RESET = "\033[0m"
-ANSI_HIGHLIGHT = "\033[31m"  # red; allow environment/no-color override
+ANSI_HIGHLIGHT = "\033[31m"
 
 
 def colorize(
@@ -47,15 +42,9 @@ def colorize(
     return text[:start] + ANSI_HIGHLIGHT + ANSI_BOLD + text[start:end] + ANSI_RESET + text[end:]
 
 
-# ---------- File matching for include/exclude globs ----------
-
-
 def matches_any_glob(path: str, patterns: Iterable[str]) -> bool:
     basename = os.path.basename(path)
     return any(fnmatch.fnmatch(path, p) or fnmatch.fnmatch(basename, p) for p in patterns)
-
-
-# ---------- Collect candidate files ----------
 
 
 def collect_files(
@@ -78,7 +67,6 @@ def collect_files(
             dirnames,
             filenames,
         ) in os.walk(root, followlinks=follow_symlinks):
-            # prune ignored dirs and hidden dirs if needed
             dirnames[:] = [
                 d
                 for d in dirnames
@@ -108,9 +96,6 @@ def collect_files(
                 yield full
 
 
-# ---------- Search single file ----------
-
-
 def search_file_text_mode(
     path: str,
     regex: re.Pattern | None,
@@ -138,7 +123,6 @@ def search_file_text_mode(
                     for m in regex.finditer(line):
                         spans.append((m.start(), m.end()))
                 else:
-                    # fixed-string search (possibly case-insensitive)
                     hay = line.lower() if ignore_case else line
                     needle = fixed.lower() if ignore_case else fixed
                     start = 0
@@ -158,12 +142,8 @@ def search_file_text_mode(
                     if max_matches and len(matches) >= max_matches:
                         break
     except Exception:
-        # cannot read file — return empty
         return path, []
     return path, matches
-
-
-# ---------- Main CLI ----------
 
 
 def build_argparser() -> argparse.ArgumentParser:
@@ -285,7 +265,6 @@ def main(argv: list[str] | None = None) -> int:
     include_globs = args.glob or []
     exclude_globs = args.exclude or []
 
-    # gather candidate files
     candidates = list(
         collect_files(
             args.paths,
@@ -304,7 +283,6 @@ def main(argv: list[str] | None = None) -> int:
     any_match = False
     results_per_file = {}
 
-    # Worker: skip binary files quickly, then search
     def worker(path: str):
         if is_binary(path):
             return path, []
@@ -317,7 +295,6 @@ def main(argv: list[str] | None = None) -> int:
             color=color,
         )
 
-    # Use ThreadPoolExecutor for concurrent IO-bound file reads
     with ThreadPoolExecutor(max_workers=args.threads) as ex:
         futures = {ex.submit(worker, p): p for p in candidates}
         try:
@@ -325,12 +302,10 @@ def main(argv: list[str] | None = None) -> int:
                 path, matches = fut.result()
                 if not matches:
                     continue
-                any_match = True  # mutating outer var; final return depends on this
+                any_match = True
                 results_per_file[path] = matches
-                # Output streaming: if files-with-matches, print filename and continue
                 if args.files_with_matches:
                     print(path)
-                    # avoid printing repeats
                 elif args.count:
                     print(f"{path}:{len(matches)}")
                 else:
@@ -339,10 +314,8 @@ def main(argv: list[str] | None = None) -> int:
                         line,
                         spans,
                     ) in matches:
-                        # build highlighted line
                         out_line = line
                         if color and spans:
-                            # apply highlights from end -> start to not shift indices
                             for s, e in sorted(
                                 spans,
                                 key=lambda x: x[0],

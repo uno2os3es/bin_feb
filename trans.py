@@ -35,7 +35,6 @@ def chunk_text(text: str, size: int = CHUNK_SIZE) -> list[str]:
 
 def detect_lang(text: str) -> str:
     """Auto language detection using deep-translator."""
-    # why: detection is expensive; run on first chunk only
     sample = text[:500]
     return single_detection(sample)
 

@@ -40,7 +40,6 @@ def get_latest_version(package_name: str) -> str:
             text=True,
             check=True,
         )
-        # Extract the latest version from the output
         match = re.search(
             r"would be installed \(([^)]+)\)",
             result.stdout,

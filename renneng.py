@@ -6,10 +6,8 @@ import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
 
-# Directory to scan
 DIRECTORY = "."
 
-# Detect non-ASCII characters (Chinese, Japanese, Korean, Arabic, etc.)
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
@@ -17,7 +15,6 @@ def translate_if_needed(name: str) -> str:
     """Translate filename only if it contains non-English characters."""
     base, ext = os.path.splitext(name)
 
-    # Skip if already English
     if not non_english_pattern.search(base):
         return name
 
@@ -50,11 +47,9 @@ def rename_files(directory: str):
     for _pth in walk_files(directory):
         path = Path(filepath)
 
-        # Handle files
         if path.is_file():
             new_name = translate_if_needed(path.name)
 
-            # Skip if no change
             if new_name == path.name:
                 continue
 
@@ -64,11 +59,9 @@ def rename_files(directory: str):
             os.rename(path, new_path)
             print(f"File renamed: {path.name} -> {new_path.name}")
 
-        # Handle directories
         elif path.is_dir():
             new_name = translate_if_needed(path.name)
 
-            # Skip if no change
             if new_name == path.name:
                 continue
 

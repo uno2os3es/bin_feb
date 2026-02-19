@@ -15,9 +15,8 @@ def get_mode(path: Path) -> int:
 
 
 def normalize_permissions(homedir: str) -> None:
-    # Desired permissions
-    DIR_PERM = 0o775  # rwxrwxr-x
-    FILE_PERM = 0o664  # rw-rw-r--
+    DIR_PERM = 0o775
+    FILE_PERM = 0o664
 
     for pth in fastwalk.walk(homedir):
         path = Path(pth)
@@ -51,7 +50,6 @@ def normalize_permissions(homedir: str) -> None:
             print(f"Permission denied: {path} ({e})")
 
         except FileNotFoundError:
-            # File may disappear during traversal
             continue
 
         except OSError as e:
@@ -59,7 +57,4 @@ def normalize_permissions(homedir: str) -> None:
 
 
 if __name__ == "__main__":
-    #    home_dir = os.environ.get("HOME")
-    #    if not home_dir:
-    #        raise RuntimeError("HOME environment variable not set")
     normalize_permissions(".")

@@ -8,7 +8,6 @@ from fastwalk import walk_files
 
 DIRECTORY = "."
 
-# Detect non‑ASCII characters
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
@@ -33,11 +32,9 @@ def rename_files(directory):
     for pth in walk_files(directory):
         path = Path(pth)
 
-        # Skip already-English names
         if is_english(path.name):
             continue
 
-        # --- FILES ---
         if path.is_file():
             original_path = path
             new_name = translate_filename(path.name)
@@ -52,7 +49,6 @@ def rename_files(directory):
             os.rename(original_path, new_path)
             print(f"Renamed file: {original_path.name} -> {new_path.name}")
 
-        # --- DIRECTORIES ---
         elif path.is_dir():
             original_path = path
             new_name = translate_filename(path.name)

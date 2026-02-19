@@ -3,7 +3,6 @@ import os
 
 import magic
 
-# Base MIME → extension mapping
 MIME_TO_EXT = {
     "text/html": "html",
     "application/json": "json",
@@ -18,11 +17,9 @@ MIME_TO_EXT = {
 }
 
 
-# ---------- Heuristic detection for text/plain ----------
 def detect_text_based_extension(text):
     text = text.strip()
 
-    # Python
     if text.startswith("#!") and "python" in text:
         return "py"
     if any(
@@ -37,27 +34,21 @@ def detect_text_based_extension(text):
     ):
         return "py"
 
-    # Shell
     if text.startswith("#!") and ("sh" in text or "bash" in text):
         return "sh"
 
-    # Markdown
     if text.startswith("# ") or text.startswith("## ") or "---" in text:
         return "md"
 
-    # YAML
     if text.startswith("---") or (": " in text and "\n" in text):
         return "yaml"
 
-    # TOML
     if "=" in text and "[" in text and "]" in text:
         return "toml"
 
-    # INI
     if text.startswith("[") and "]" in text:
         return "ini"
 
-    # SQL
     if any(
         text.lower().startswith(cmd)
         for cmd in [
@@ -70,22 +61,18 @@ def detect_text_based_extension(text):
     ):
         return "sql"
 
-    # CSS
     if "{" in text and "}" in text and ":" in text:
         return "css"
 
-    # CSV
     if "," in text and "\n" in text:
         return "csv"
 
-    # XML
     if text.startswith("<?xml"):
         return "xml"
 
     return None
 
 
-# ---------- Detect final extension ----------
 def detect_extension(path, mime_type):
     if mime_type in MIME_TO_EXT:
         return MIME_TO_EXT[mime_type]
@@ -103,7 +90,6 @@ def detect_extension(path, mime_type):
     return None
 
 
-# ---------- Collision-safe rename ----------
 def safe_rename(src, dst):
     if not os.path.exists(dst):
         os.rename(src, dst)
@@ -121,7 +107,6 @@ def safe_rename(src, dst):
     return new_path
 
 
-# ---------- Main function ----------
 def correct_file_extension(root="."):
     mime = magic.Magic(mime=True)
 

@@ -13,7 +13,6 @@ AES_BLOCK_SIZE = 16
 
 
 def random_key(length=32):
-    # AES valid sizes: 16, 24, 32 bytes
     return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
 
@@ -37,7 +36,6 @@ def encrypt_file(file_path, key):
     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
 
     with open(file_path, "wb") as f:
-        # prepend IV so decryption can recover it
         f.write(iv + encrypted_data)
 
 

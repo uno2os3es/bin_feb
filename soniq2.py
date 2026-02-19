@@ -8,7 +8,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 def sort_and_uniq(file_path):
-    # Constants
     MB_5 = 5 * 1024 * 1024
 
     if not os.path.exists(file_path):
@@ -19,9 +18,7 @@ def sort_and_uniq(file_path):
         file_size = os.path.getsize(file_path)
         lines = []
 
-        # Step 1: Efficient Reading
         if file_size > MB_5:
-            # Use mmap for files > 5MB to map file content directly to virtual memory
             with (
                 open(file_path, "r+b") as f,
                 mmap.mmap(
@@ -30,30 +27,22 @@ def sort_and_uniq(file_path):
                     access=mmap.ACCESS_READ,
                 ) as mm,
             ):
-                # Convert bytes to string lines
                 lines = mm.read().decode("utf-8").splitlines()
         else:
             with open(file_path, encoding="utf-8") as f:
                 lines = f.read().splitlines()
 
-        # Step 2: Concurrent Processing (Deduplication + Normalization)
-        # Using ThreadPoolExecutor to speed up line striping/normalization
         with ThreadPoolExecutor() as executor:
             processed_lines = list(executor.map(lambda x: x.strip(), lines))
 
-        # Step 3: Sort and Unique
-        # set() handles uniqueness; sorted() handles the order
         unique_sorted_lines = sorted(set(processed_lines))
 
-        # Step 4: Atomic In-Place Update
-        # Write to a temp file first. If it fails here, the original is untouched.
         fd, temp_path = tempfile.mkstemp(dir=os.path.dirname(file_path))
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as tmp:
                 for line in unique_sorted_lines:
                     tmp.write(line + "\n")
 
-            # Atomic replace: If this succeeds, the file is updated.
             os.replace(temp_path, file_path)
             print(f"Successfully updated '{file_path}'.")
 

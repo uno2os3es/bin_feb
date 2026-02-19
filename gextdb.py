@@ -8,15 +8,12 @@ from typing import Any
 
 import regex as re
 
-# --- Configuration ---
 OUTPUT_DIR = Path("output")
 DB_PATH = Path("/sdcard/ext.db")
 ALLOWED_PYTHON_EXTENSIONS = (
     ".py",
     "",
-)  # .py or no extension
-
-# --- Core AST Visitor for Entity Extraction ---
+)
 
 
 class EntityExtractor(ast.NodeVisitor):
@@ -64,8 +61,7 @@ class EntityExtractor(ast.NodeVisitor):
         )
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
-        # Only extract top-level functions, ignore nested functions
-        if not self.scope_stack:  # Check if we are at the top level
+        if not self.scope_stack:
             self._extract_and_save(node, "function", node.name)
 
     def visit_ClassDef(self, node: ast.ClassDef):
@@ -158,8 +154,6 @@ class EntityExtractor(ast.NodeVisitor):
         super().generic_visit(node)
 """
 
-# --- Database Functions ---
-
 
 def create_database():
     """Creates the SQLite database and the required table."""
@@ -206,9 +200,6 @@ def save_entity_to_db(entity: dict[str, Any]):
     conn.close()
 
 
-# --- Processing Functions ---
-
-
 def extract_entities_from_content(content: str, path: Path) -> list[dict[str, Any]]:
     try:
         tree = ast.parse(content)
@@ -253,9 +244,6 @@ def process_single_file(
     except Exception as e:
         print(f"Error reading file {path}: {e}")
         return []
-
-
-# --- Main Execution ---
 
 
 def main():

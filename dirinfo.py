@@ -19,7 +19,6 @@ def scan_directory(path="."):
             except OSError:
                 size = 0
             total_size += size
-            # determine extension (empty if none)
             _, ext = os.path.splitext(filename)
             ext = ext.lower() if ext else "(no extension)"
             extensions.add(ext)

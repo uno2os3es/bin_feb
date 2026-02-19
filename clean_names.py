@@ -12,7 +12,6 @@ except ImportError:
     print("Install termcolor: pip install termcolor")
     sys.exit(1)
 
-# ---------------- CONFIG ---------------- #
 
 REGEX_RULES = [
     r"\bOutcast\b",
@@ -25,8 +24,6 @@ REGEX_RULES = [
 ]
 
 EXTENSIONS = {".srt", ".mkv", ".mp4", ".avi"}
-
-# ---------------------------------------- #
 
 
 def common_prefix(strings):

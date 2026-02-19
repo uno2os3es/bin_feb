@@ -36,7 +36,6 @@ def main() -> int:
 
     outname = f"{stem}__{start}_end{ext}" if end == -1 else f"{stem}__{start}_{end}{ext}"
 
-    # In your C++ code you override it with a fixed name:
     outname = "all.xtx"
 
     try:

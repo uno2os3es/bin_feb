@@ -10,7 +10,6 @@ def save_installed_packages(
     Package names are saved without their version numbers.
     """
     try:
-        # Run dpkg-query to get a list of installed packages
         result = subprocess.run(
             [
                 "dpkg-query",
@@ -23,10 +22,8 @@ def save_installed_packages(
             check=True,
         )
 
-        # Get the package names from the command output
         installed_packages = result.stdout.splitlines()
 
-        # Write package names to the output file
         with open(output_file, "w", encoding="utf-8") as f:
             f.write("\n".join(installed_packages))
 

@@ -13,7 +13,7 @@ import regex as re
 from dh import is_valid_url
 
 try:
-    import zstandard as zstd  # optional, for .tar.zst support
+    import zstandard as zstd
 except Exception:
     zstd = None
 
@@ -29,13 +29,11 @@ EXCLUDE_DIRS = {
     "dist",
 }
 
-# URL regex - captures http and https URLs and excludes trailing punctuation later
 URL_RE = re.compile(
     r'(https?://[^\s\'"<>\\)\\(]+)',
     flags=re.IGNORECASE,
 )
 
-# Archive suffixes: order matters (longer suffixes first)
 ARCHIVE_SUFFIXES = (
     ".tar.gz",
     ".tgz",
@@ -44,12 +42,11 @@ ARCHIVE_SUFFIXES = (
     ".tar.bz2",
     ".tbz2",
     ".tar.zst",
-    ".tar",  # plain tar
+    ".tar",
     ".zip",
     ".whl",
 )
 
-# File extensions considered "text-like" even if no explicit extension
 TEXT_MIME_LIKE = {
     ".txt",
     ".md",
@@ -75,20 +72,18 @@ def should_skip_dir(dirname):
 def find_urls_in_text(text):
     found = set()
     for m in URL_RE.findall(text):
-        url = m.rstrip(".,;:)]}>\"'")  # strip common trailing punctuation
+        url = m.rstrip(".,;:)]}>\"'")
         if url:
             found.add(url)
     return found
 
 
 def decode_bytes_to_text(b):
-    # try utf-8, fall back to latin-1 so we don't miss URLs in many files
     for enc in ("utf-8", "latin-1", "utf-16"):
         try:
             return b.decode(enc)
         except Exception:
             continue
-    # final fallback: ignore errors
     return b.decode("utf-8", errors="ignore")
 
 
@@ -122,7 +117,6 @@ def open_tar_from_zst_path(path):
     temp = tempfile.TemporaryFile()
     with open(path, "rb") as fh:
         dctx = zstd.ZstdDecompressor()
-        # stream-decompress into temp file
         reader = dctx.stream_reader(fh)
         try:
             while True:
@@ -138,7 +132,6 @@ def open_tar_from_zst_path(path):
         tf = tarfile.open(fileobj=temp, mode="r:*")
         return tf, temp
     except Exception:
-        # cleanup and re-raise or return None
         with contextlib.suppress(Exception):
             temp.close()
         return None, None
@@ -156,11 +149,9 @@ def process_zipfile_zipped(
     Iterate members in a ZipFile object, scan regular files, and recursively handle nested archives.
     """
     for zi in zipf.infolist():
-        # skip directories
         if zi.is_dir():
             continue
         name = zi.filename
-        # skip very large members
         if zi.file_size > max_bytes:
             continue
         try:
@@ -168,7 +159,6 @@ def process_zipfile_zipped(
                 b = member_f.read()
         except Exception:
             continue
-        # If member is an archive and recursion allowed, handle
         if recursion_depth < max_recursion and is_archive_name(name):
             process_bytes_as_archive(
                 b,
@@ -260,7 +250,6 @@ def process_bytes_as_archive(
                         max_recursion,
                     )
             except zipfile.BadZipFile:
-                # Not a valid zip archive - fall back to scanning as text
                 found.update(
                     scan_bytes_for_urls(
                         b,
@@ -270,7 +259,6 @@ def process_bytes_as_archive(
                     )
                 )
             return
-        # Tar formats that tarfile can detect from fileobj
         if any(
             lname.endswith(suf)
             for suf in (
@@ -306,7 +294,6 @@ def process_bytes_as_archive(
             return
         if lname.endswith(".tar.zst"):
             if zstd is None:
-                # Can't handle .tar.zst without zstandard; skip treating as archive and scan as text instead.
                 found.update(
                     scan_bytes_for_urls(
                         b,
@@ -316,7 +303,6 @@ def process_bytes_as_archive(
                     )
                 )
                 return
-            # Decompress bytes with zstandard to temp file and open tar
             try:
                 dctx = zstd.ZstdDecompressor()
                 with dctx.stream_reader(io.BytesIO(b)) as reader, tempfile.TemporaryFile() as tmpf:
@@ -359,10 +345,8 @@ def process_bytes_as_archive(
                     )
                 )
                 return
-        # Unknown archive suffix - fallback to scanning as text
         found.update(scan_bytes_for_urls(b, max_bytes, exts, name_hint=name))
     except Exception:
-        # Best effort: if anything goes wrong, scan as text
         found.update(scan_bytes_for_urls(b, max_bytes, exts, name_hint=name))
 
 
@@ -384,7 +368,6 @@ def process_path(
         return
 
     lname = path.lower()
-    # Directly open zip/tar archives using file path (to avoid loading entire archive into memory)
     try:
         if any(lname.endswith(suf) for suf in (".zip", ".whl")):
             try:
@@ -399,7 +382,6 @@ def process_path(
                     )
                 return
             except zipfile.BadZipFile:
-                # not a zip, fall back to scanning raw file
                 pass
 
         if any(
@@ -430,9 +412,7 @@ def process_path(
 
         if lname.endswith(".tar.zst"):
             if zstd is None:
-                # Can't decompress; fallback to scanning file as text
                 try:
-                    # attempt to scan as text (probably compressed garbage -> yields no URLs)
                     with open(path, "rb") as fh:
                         b = fh.read(max_bytes + 1)
                         found.update(
@@ -465,7 +445,6 @@ def process_path(
                     tmpf.close()
             return
 
-        # Not a handled archive - treat as regular file
         with open(path, "rb") as fh:
             b = fh.read(max_bytes + 1)
             found.update(
@@ -516,7 +495,6 @@ def main():
     exts = {e.strip().lower() for e in args.extensions.split(",") if e.strip()} if args.extensions else None
 
     found = set()
-    # Walk filesystem
     for root, dirs, files in os.walk(".", topdown=True, followlinks=False):
         dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
         if should_skip_dir(root):
@@ -548,7 +526,6 @@ def main():
                         out.write(u + "\n")
         print(f"Wrote {len(sorted_urls)} unique URLs to {args.output}")
         if any(p.endswith(".tar.zst") for p in sorted_urls):
-            # (unlikely) this is just a trivial check; no special action
             pass
     except OSError as e:
         print(

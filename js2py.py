@@ -62,7 +62,6 @@ def convert_with_openai(js_code: str, api_key: str | None = None) -> tuple[bool,
     except ImportError:
         return (False, "OpenAI library not installed. Install with: pip install openai")
 
-    # Get API key from parameter or environment
     api_key = api_key or os.getenv("OPENAI_API_KEY")
     if not api_key:
         return (
@@ -96,7 +95,6 @@ python code:"""
 
         python_code = response.choices[0].message.content
 
-        # Extract code from markdown if present
         if "```python" in python_code:
             python_code = re.search(r"```python\n(.*?)```", python_code, re.DOTALL)
             if python_code:
@@ -119,43 +117,32 @@ def simple_js_to_python(js_code: str) -> str:
     """
     python_code = js_code
 
-    # Variable declarations
     python_code = re.sub(r"\b(let|const|var)\s+", "", python_code)
 
-    # Console.log to print
     python_code = re.sub(r"console\.log\s*\(", "print(", python_code)
 
-    # Boolean values
     python_code = re.sub(r"\btrue\b", "True", python_code)
     python_code = re.sub(r"\bfalse\b", "False", python_code)
 
-    # Null/undefined to None
     python_code = re.sub(r"\b(null|undefined)\b", "None", python_code)
 
-    # Function declarations
     python_code = re.sub(r"\bfunction\s+(\w+)\s*\((.*?)\)\s*{", r"def \1(\2):", python_code)
 
-    # Arrow functions (simple cases)
     python_code = re.sub(r"const\s+(\w+)\s*=\s*\((.*?)\)\s*=>\s*{", r"def \1(\2):", python_code)
     python_code = re.sub(r"(\w+)\s*=\s*\((.*?)\)\s*=>\s*{", r"def \1(\2):", python_code)
 
-    # Comments
     python_code = re.sub(r"//", "#", python_code)
 
-    # Remove semicolons
     python_code = re.sub(r";$", "", python_code, flags=re.MULTILINE)
 
-    # Braces to colons (basic)
     python_code = re.sub(r"\s*{\s*$", ":", python_code, flags=re.MULTILINE)
     python_code = re.sub(r"^\s*}\s*$", "", python_code, flags=re.MULTILINE)
 
-    # Control structures
     python_code = re.sub(r"\bif\s*\((.*?)\)\s*{", r"if \1:", python_code)
     python_code = re.sub(r"\belse\s+if\s*\((.*?)\)\s*{", r"elif \1:", python_code)
     python_code = re.sub(r"\belse\s*{", r"else:", python_code)
     python_code = re.sub(r"\bwhile\s*\((.*?)\)\s*{", r"while \1:", python_code)
 
-    # For loops (basic range conversion)
     return re.sub(
         r"for\s*\(\s*let\s+(\w+)\s*=\s*(\d+)\s*;\s*\1\s*<\s*(\w+)\s*;\s*\1\+\+\s*\)\s*{",
         r"for \1 in range(\2, \3):",
@@ -181,7 +168,6 @@ def convert_file(
     Returns:
     True if successful, False otherwise
     """
-    # Read JavaScript code
     try:
         with open(input_file, encoding="utf-8") as f:
             js_code = f.read()
@@ -192,7 +178,6 @@ def convert_file(
     print(f"📄 Converting: {input_file}")
     print(f"🔧 Method: {method}")
 
-    # Convert based on method
     if method == "js2py":
         if not install_js2py():
             print("⚠️  Falling back to simple conversion")
@@ -213,11 +198,9 @@ def convert_file(
         print(f"❌ Conversion failed: {result}")
         return False
 
-    # Determine output file
     if output_file is None:
         output_file = input_file.with_suffix(".py")
 
-    # Write Python code
     try:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(result)
@@ -261,12 +244,10 @@ def main():
     )
     args = parser.parse_args()
 
-    # Check if input file exists
     if not args.input.exists():
         print(f"❌ Error: File not found: {args.input}")
         sys.exit(1)
 
-    # Convert file
     outputfile = str(args.input).replace(".js", ".py")
     success = convert_file(args.input, outputfile, args.method, args.api_key)
 

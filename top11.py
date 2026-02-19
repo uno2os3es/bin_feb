@@ -19,7 +19,6 @@ def get_file_sizes(start_path="."):
                     relative_path = file_path.relative_to(start_path)
                     file_sizes.append((relative_path, file_size))
                 except (OSError, ValueError):
-                    # Skip files that can't be accessed or have issues
                     continue
     except PermissionError as e:
         print(
@@ -46,7 +45,6 @@ def format_size(size_bytes) -> str:
 
 
 def main() -> None:
-    # Get all files with sizes
     print("Scanning files...")
     file_sizes = get_file_sizes()
 
@@ -54,13 +52,10 @@ def main() -> None:
         print("No files found or unable to access directory.")
         return
 
-    # Sort by size in descending order
     file_sizes.sort(key=lambda x: x[1], reverse=True)
 
-    # Get top 10
     top_files = file_sizes[:10]
 
-    # Print report
     print("\n" + "=" * 60)
     print(f"TOP 10 LARGEST FILES (in {os.getcwd()})")
     print("=" * 60)
@@ -69,15 +64,13 @@ def main() -> None:
         print("No files found.")
         return
 
-    # Find the maximum path length for formatting
     max_path_len = max(len(str(path)) for path, size in top_files)
-    max_path_len = min(max_path_len, 80)  # Limit to 80 characters
+    max_path_len = min(max_path_len, 80)
 
     print(f"{'No.':<4} {'File Path':<{max_path_len}} {'Size':>12}")
     print("-" * (max_path_len + 20))
 
     for i, (file_path, size) in enumerate(top_files, 1):
-        # Truncate long paths with ellipsis
         path_str = str(file_path)
         if len(path_str) > max_path_len:
             path_str = "..." + path_str[-(max_path_len - 3) :]
@@ -85,7 +78,6 @@ def main() -> None:
         size_str = format_size(size)
         print(f"{i:<4} {path_str:<{max_path_len}} {size_str:>12}")
 
-    # Print summary
     total_files = len(file_sizes)
     print("-" * (max_path_len + 20))
     print(f"Total files scanned: {total_files}")
@@ -102,7 +94,6 @@ def alternative_version_with_details() -> None:
         print("No files found.")
         return
 
-    # Sort by size
     file_sizes.sort(key=lambda x: x[1], reverse=True)
     top_files = file_sizes[:10]
 
@@ -116,9 +107,6 @@ def alternative_version_with_details() -> None:
 
 if __name__ == "__main__":
     try:
-        #        main()
-
-        # Uncomment the line below for alternative detailed view
         alternative_version_with_details()
 
     except KeyboardInterrupt:

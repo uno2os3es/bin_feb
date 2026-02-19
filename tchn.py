@@ -6,13 +6,10 @@ import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
 
-# Directory to scan
 DIRECTORY = "."
 
-# Characters per translation chunk
 CHUNK_SIZE = 2000
 
-# Detect non-ASCII characters
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
@@ -49,19 +46,16 @@ def translate_file(path: Path):
         print(f"Skipping unreadable file: {path}")
         return
 
-    # Skip if already English
     if not non_english_pattern.search(content):
         return
 
     chunks = split_into_chunks(content, CHUNK_SIZE)
 
-    # Translate chunks in parallel
     with ThreadPoolExecutor(max_workers=8) as executor:
         translated_chunks = list(executor.map(translate_chunk, chunks))
 
     translated_text = "".join(translated_chunks)
 
-    # Output file: fname_eng.ext
     new_name = f"{path.stem}_eng{path.suffix}"
     new_path = path.parent / new_name
 
@@ -77,7 +71,6 @@ def process_directory(directory: str):
     """Process all files in parallel."""
     files = []
 
-    # Collect eligible files
     for pth in walk_files(directory):
         path = Path(pth)
         if path.is_file() and is_text_file(path):
@@ -85,7 +78,6 @@ def process_directory(directory: str):
 
     print(f"Found {len(files)} text files to process")
 
-    # Process files in parallel
     with ThreadPoolExecutor(8) as executor:
         futures = {executor.submit(translate_file, f): f for f in files}
 

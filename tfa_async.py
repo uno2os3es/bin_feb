@@ -10,10 +10,9 @@ from deep_translator import GoogleTranslator
 INPUT_FILE = "words.txt"
 OUTPUT_FILE = "dic_async.json"
 
-MAX_WORKERS = 20  # Increase for more speed
+MAX_WORKERS = 20
 RETRIES = 3
 
-# Cache file (optional)
 CACHE_FILE = "translation_cache.json"
 
 
@@ -59,13 +58,11 @@ async def translate_async(word, executor, cache):
 
 
 async def main():
-    # Load Persian words
     with open(INPUT_FILE, encoding="utf-8") as f:
         words = [w.strip() for w in f if w.strip()]
 
     print(f"[INFO] Loaded {len(words)} Persian words")
 
-    # Load cache
     cache = load_cache()
     print(f"[INFO] Loaded {len(cache)} cached translations")
 
@@ -77,7 +74,6 @@ async def main():
 
     results = await asyncio.gather(*tasks)
 
-    # Build final dictionary
     output = {}
     for word, eng in zip(words, results, strict=False):
         if eng:
@@ -86,7 +82,6 @@ async def main():
         else:
             print(f"[FAIL] Could not translate: {word}")
 
-    # Save JSON dictionary
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(
             output,

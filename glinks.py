@@ -18,13 +18,10 @@ ARCHIVE_EXTENSIONS = (
     ".txz",
 )
 
-# Regex for git URLs
 GIT_REGEX = re.compile(
     r'(?:https?://|git@|git://)[^\s\'"]+\b',
     re.IGNORECASE,
 )
-
-# --- Extraction helpers ----------------------------------------------------
 
 
 def extract_git_urls_from_text(text: str):
@@ -46,15 +43,13 @@ def use_strings(path):
 def process_regular_file(path):
     """Detect binary, use strings; otherwise read normally."""
     try:
-        # Read first bytes to detect text/binary
         with open(path, "rb") as f:
             header = f.read(2048)
 
-        if b"\x00" in header:  # binary file detected
+        if b"\x00" in header:
             text = use_strings(path)
             return extract_git_urls_from_text(text)
 
-        # Probably a text file
         with open(path, errors="ignore") as f:
             return extract_git_urls_from_text(f.read())
 
@@ -72,8 +67,6 @@ def process_zip(path):
                         data = f.read()
 
                         if b"\x00" in data:
-                            # binary content → run strings on raw data
-                            # strings can't read stdin directly, so write temp
                             text = subprocess.check_output(
                                 ["strings", "-a"],
                                 input=data,
@@ -143,9 +136,6 @@ def process_archive(path):
     elif lower.endswith((".tar.xz", ".txz")):
         return process_tar(path, "r:xz")
     return set()
-
-
-# --- Worker & main ---------------------------------------------------------
 
 
 def worker(path):

@@ -43,7 +43,6 @@ def process_file(path: Path) -> None:
             if node.type == "comment":
                 text = source[node.start_byte : node.end_byte]
 
-                # Preserve shebang only
                 if text.lstrip().startswith(EXCLUDE_PREFIXES):
                     return
 
@@ -59,16 +58,13 @@ def process_file(path: Path) -> None:
 
         cleaned = bytearray(source)
 
-        # Delete in reverse order
         for start, end in sorted(deletions, reverse=True):
             del cleaned[start:end]
 
-        # Normalize blank lines
         cleaned_text = cleaned.decode("utf-8")
         cleaned_text = _cleanup_blank_lines(cleaned_text)
         cleaned = cleaned_text.encode("utf-8")
 
-        # Validate syntax
         parser.parse(cleaned)
 
         path.write_bytes(cleaned)

@@ -6,7 +6,7 @@ source_dir = os.path.expanduser("~/bin")
 for filename in os.listdir(source_dir):
     if filename.endswith(".py"):
         src_file = os.path.join(source_dir, filename)
-        link_name = os.path.join(source_dir, filename[:-3])  # Remove .py
+        link_name = os.path.join(source_dir, filename[:-3])
         try:
             os.symlink(src_file, link_name)
             print(f"Created symlink: {link_name} -> {src_file}")

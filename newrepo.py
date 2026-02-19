@@ -63,7 +63,6 @@ class GitHubRepoManager:
         """Ensure branch is 'main'."""
         print("\n🔄 Ensuring 'main' branch...")
 
-        # Get current branch
         returncode, current_branch, _ = self._run_command(
             [
                 "git",
@@ -74,7 +73,6 @@ class GitHubRepoManager:
         )
 
         if returncode != 0:
-            # No branch exists, create main
             print("Creating 'main' branch...")
             returncode, _, stderr = self._run_command(
                 [
@@ -88,7 +86,6 @@ class GitHubRepoManager:
                 print(f"Error:  {stderr}")
                 sys.exit(1)
         elif current_branch != "main":
-            # Rename current branch to main
             print(f"Renaming '{current_branch}' to 'main'...")
             returncode, _, stderr = self._run_command(
                 [
@@ -156,15 +153,12 @@ class GitHubRepoManager:
         """Commit changes with current date and time."""
         print("\n💾 Checking for changes to commit...")
 
-        # Check if there are changes
         returncode, _, _ = self._run_command(["git", "diff", "--cached", "--quiet"])
 
         if returncode == 0:
-            # No changes to commit
             print("⚠️  Nothing to commit")
             return False
 
-        # Create commit message with current date and time
         commit_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"Committing with message: '{commit_msg}'")
 
@@ -204,7 +198,6 @@ class GitHubRepoManager:
         print(f"Directory: {self.repo_dir}")
         print("=" * 60)
 
-        # Execute workflow
         self._init_git_repo()
         self._ensure_main_branch()
         self._copy_gitignore()

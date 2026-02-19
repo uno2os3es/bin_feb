@@ -22,7 +22,6 @@ def find_license_files() -> None:
 
     print(f"Found {len(lf)} license files")
 
-    # Process files
     for file_path in lf:
         with open(file_path, "w") as f:
             f.write("")

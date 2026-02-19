@@ -5,12 +5,9 @@ import multiprocessing
 from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_python as tspython
 
-# Initialize Tree-Sitter 0.25.2
 PY_LANGUAGE = Language(tspython.language())
 parser = Parser(PY_LANGUAGE)
 
-# Query with Anchors (.)
-# . (expression_statement) means the FIRST statement in the block/module
 QUERY_STRING = """
 (comment) @comment
 
@@ -30,8 +27,6 @@ def should_preserve_comment(content):
 
 
 def strip_file(file_path):
-    # Important: Create a fresh cursor per process/thread
-    # for thread-safety in multiprocessing
     cursor = QueryCursor()
     query = Query(PY_LANGUAGE, QUERY_STRING)
 
@@ -52,8 +47,7 @@ def strip_file(file_path):
                     modifications.append((node.start_byte, node.end_byte, ""))
 
             elif tag == "docstring":
-                parent = node.parent  # This is the 'block' or 'module'
-                # If the block ONLY contains this docstring, replace with 'pass'
+                parent = node.parent
                 if parent and parent.named_child_count == 1:
                     modifications.append((node.start_byte, node.end_byte, "pass"))
                 else:
@@ -62,20 +56,18 @@ def strip_file(file_path):
         if not modifications:
             return
 
-        # Sort reverse to maintain byte offsets
         modifications.sort(key=lambda x: x[0], reverse=True)
 
         working_code = source_code
         for start, end, replacement in modifications:
             working_code = working_code[:start] + replacement + working_code[end:]
 
-        # Final Safety Check
         try:
             ast.parse(working_code)
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(working_code)
         except SyntaxError:
-            pass  # Keep original file if transformation fails
+            pass
 
     except Exception as e:
         print(f"Error in {file_path}: {e}")

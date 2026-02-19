@@ -6,27 +6,24 @@ from pathlib import Path
 
 # -------- CONFIG --------
 LOG_EXT = ".log"
-MMAP_THRESHOLD = 5 * 1024 * 1024  # 5 MB
-NUM_WORKERS = cpu_count()  # Use all available CPU cores
-# ------------------------
+MMAP_THRESHOLD = 5 * 1024 * 1024
+NUM_WORKERS = cpu_count()
 
-# Patterns to remove
 PATTERNS = [
-    r"\^\[",  # ^[
-    r"\[[\dA-Z;]+m",  # ANSI color codes like [0m, [31m, etc.
-    r"\[\d+[A-Z]",  # Cursor movement like [1A, [2B, etc.
-    r"\[[\dA-Z;]+",  # Other bracket sequences
-    r"\^M",  # Carriage return marker
-    r"\(B",  # Character set sequences
-    r"\(0",  # Character set sequences
-    r"\x1b\[[0-9;]*[A-Za-z]",  # ANSI escape sequences
-    r"\x1b\([0-9AB]",  # Character set escape sequences
-    r"\r",  # Actual carriage returns
-    r"\x0f",  # Shift In (SI)
-    r"\x0e",  # Shift Out (SO)
+    r"\^\[",
+    r"\[[\dA-Z;]+m",
+    r"\[\d+[A-Z]",
+    r"\[[\dA-Z;]+",
+    r"\^M",
+    r"\(B",
+    r"\(0",
+    r"\x1b\[[0-9;]*[A-Za-z]",
+    r"\x1b\([0-9AB]",
+    r"\r",
+    r"\x0f",
+    r"\x0e",
 ]
 
-# Compile patterns for better performance
 COMPILED_PATTERNS = [re.compile(pattern) for pattern in PATTERNS]
 
 
@@ -34,25 +31,20 @@ def clean_line(line: str) -> str:
     """Remove terminal control sequences from a line."""
     cleaned = line
 
-    # Apply all compiled patterns
     for pattern in COMPILED_PATTERNS:
         cleaned = pattern.sub("", cleaned)
 
-    # Remove multiple consecutive spaces (optional)
     return re.sub(r" {2,}", " ", cleaned)
 
 
 def clean_file_small(file_path: Path) -> tuple:
     """Clean a small file using regular file I/O."""
     try:
-        # Read the file
         with open(file_path, encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
 
-        # Clean each line
         cleaned_lines = [clean_line(line) for line in lines]
 
-        # Write back to the same file
         with open(file_path, "w", encoding="utf-8") as f:
             f.writelines(cleaned_lines)
 
@@ -65,26 +57,20 @@ def clean_file_small(file_path: Path) -> tuple:
 def clean_file_large(file_path: Path) -> tuple:
     """Clean a large file using mmap for better performance."""
     try:
-        # Read using mmap
         with open(file_path, "r+b") as f:
-            # Get file size
             file_size = f.seek(0, 2)
             f.seek(0)
 
             if file_size == 0:
                 return (file_path, True, "empty file")
 
-            # Memory-map the file
             with mmap.mmap(f.fileno(), 0) as mmapped_file:
-                # Read content
                 content = mmapped_file.read().decode("utf-8", errors="ignore")
 
-        # Split into lines and clean
         lines = content.splitlines(keepends=True)
         cleaned_lines = [clean_line(line) for line in lines]
         cleaned_content = "".join(cleaned_lines)
 
-        # Write back
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(cleaned_content)
 
@@ -111,7 +97,6 @@ def clean_file_worker(file_path: Path) -> tuple:
 def main():
     cwd = Path.cwd()
 
-    # Find all .log files recursively
     log_files = list(cwd.rglob(f"*{LOG_EXT}"))
 
     if not log_files:
@@ -123,11 +108,9 @@ def main():
     print(f"Files larger than {MMAP_THRESHOLD / (1024 * 1024):.1f} MB will use mmap.\n")
     print("Cleaning...\n")
 
-    # Process files in parallel
     with Pool(processes=NUM_WORKERS) as pool:
         results = pool.map(clean_file_worker, log_files)
 
-    # Print results
     success_count = 0
     error_count = 0
 

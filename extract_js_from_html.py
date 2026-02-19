@@ -46,7 +46,6 @@ def main():
     dir = Path.cwd()
     start = dh.folder_size(dir)
     for pth in walk_files(str(dir)):
-        #    for pth in walk_files("/sdcard"):
         path = Path(os.path.join(dir, pth))
         if path.is_file() and path.suffix == ".html":
             files.append(path)

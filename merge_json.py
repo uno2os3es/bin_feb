@@ -38,7 +38,6 @@ def main():
 
     merged = merge_json_files(sys.argv[1:])
 
-    # Sort + pretty output
     json.dump(
         merged,
         sys.stdout,

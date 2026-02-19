@@ -18,7 +18,6 @@ def csv_to_json(csv_file):
         reader = csv.DictReader(f)
         data = list(reader)
 
-    # Pretty JSON output (default)
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(
             data,

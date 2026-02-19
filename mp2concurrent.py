@@ -19,7 +19,6 @@ def replace_multiprocessing_patterns(content):
         Modified content with replacements
     """
     replacements = [
-        # Import statements
         (
             r"from multiprocessing import Pool\b",
             "from concurrent.futures import ProcessPoolExecutor",
@@ -28,7 +27,6 @@ def replace_multiprocessing_patterns(content):
             r"import multiprocessing\b",
             "import concurrent.futures",
         ),
-        # Pool initialization with context manager
         (
             r"with Pool\((\d+)\) as (\w+):",
             r"with ProcessPoolExecutor(max_workers=\1) as \2:",
@@ -37,7 +35,6 @@ def replace_multiprocessing_patterns(content):
             r"with Pool\(\) as (\w+):",
             r"with ProcessPoolExecutor() as \1:",
         ),
-        # Pool initialization without context manager
         (
             r"(\w+)\s*=\s*Pool\((\d+)\)",
             r"\1 = ProcessPoolExecutor(max_workers=\2)",
@@ -46,12 +43,10 @@ def replace_multiprocessing_patterns(content):
             r"(\w+)\s*=\s*Pool\(\)",
             r"\1 = ProcessPoolExecutor()",
         ),
-        # Method calls - starmap to map with zip
         (
             r"\.starmap\((\w+),\s*(\w+)\)",
             r".map(\1, *zip(*\2))",
         ),
-        # Pool class reference
         (
             r"\bPool\b(?!\()",
             "ProcessPoolExecutor",
@@ -79,13 +74,11 @@ def process_python_file(file_path):
         with open(file_path, encoding="utf-8") as f:
             original_content = f.read()
 
-        # Check if file contains multiprocessing
         if "multiprocessing" not in original_content:
             return False
 
         modified_content = replace_multiprocessing_patterns(original_content)
 
-        # Only write if content changed
         if modified_content != original_content:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(modified_content)

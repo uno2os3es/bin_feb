@@ -13,7 +13,7 @@ from datetime import datetime
 import xxhash
 
 BACKUP_FILE = ".symlink_backup.json"
-MIN_FILE_SIZE = 8  # Minimum file size in bytes
+MIN_FILE_SIZE = 8
 
 
 def calculate_file_hash(filepath, chunk_size=8192):
@@ -33,13 +33,11 @@ def find_duplicates(directory="."):
     """Find all duplicate files in the directory, excluding .git."""
     print(f"[INFO] Scanning directory: {os.path.abspath(directory)}")
 
-    # First pass: group by size
     size_map = defaultdict(list)
     file_count = 0
     skipped_count = 0
 
     for root, dirs, files in os.walk(directory):
-        # Skip .git directory
         if ".git" in dirs:
             dirs.remove(".git")
 
@@ -49,7 +47,6 @@ def find_duplicates(directory="."):
 
             filepath = os.path.join(root, filename)
 
-            # Skip symlinks
             if os.path.islink(filepath):
                 print(f"[DEBUG] Skipping symlink: {filepath}")
                 continue
@@ -69,7 +66,6 @@ def find_duplicates(directory="."):
     print(f"[INFO] Scanned {file_count + skipped_count} files ({skipped_count} skipped due to size)")
     print(f"[INFO] Found {file_count} files that qualify for duplicate analysis")
 
-    # Second pass: check hash for files with the same size
     hash_map = defaultdict(list)
     potential_duplicates = [files for files in size_map.values() if len(files) > 1]
 
@@ -81,7 +77,6 @@ def find_duplicates(directory="."):
             if file_hash:
                 hash_map[file_hash].append(filepath)
 
-    # Filter to only actual duplicates
     return {h: files for h, files in hash_map.items() if len(files) > 1}
 
 
@@ -117,7 +112,6 @@ def create_symlinks(duplicates, dry_run=False):
             print(f"  Symlinking: {duplicate} -> {keeper_abs}")
 
             if not dry_run:
-                # Backup original file info
                 backup_data["operations"].append(
                     {
                         "symlink": duplicate_abs,
@@ -128,9 +122,7 @@ def create_symlinks(duplicates, dry_run=False):
                 )
 
                 try:
-                    # Remove the duplicate
                     os.remove(duplicate)
-                    # Create symlink with absolute path
                     os.symlink(keeper_abs, duplicate_abs)
                     symlink_count += 1
                     total_saved += file_size
@@ -142,7 +134,6 @@ def create_symlinks(duplicates, dry_run=False):
                 total_saved += file_size
 
     if not dry_run and symlink_count > 0:
-        # Save backup data
         with open(BACKUP_FILE, "w") as f:
             json.dump(backup_data, f, indent=2)
         print(f"\n[INFO] Backup data saved to {BACKUP_FILE}")
@@ -184,9 +175,7 @@ def reverse_symlinks(backup_file=BACKUP_FILE):
             continue
 
         try:
-            # Remove symlink
             os.remove(symlink_path)
-            # Copy the original file back
             import shutil
 
             shutil.copy2(target_path, symlink_path)
@@ -197,7 +186,6 @@ def reverse_symlinks(backup_file=BACKUP_FILE):
 
     print(f"\n[INFO] Restored {restored_count} files")
 
-    # Rename backup file
     backup_renamed = f"{backup_file}.restored.{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     os.rename(backup_file, backup_renamed)
     print(f"[INFO] Backup file renamed to: {backup_renamed}")

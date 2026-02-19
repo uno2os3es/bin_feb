@@ -7,12 +7,10 @@ import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
 
-# Directory containing your files
 DIRECTORY = "."
-CHUNK_SIZE = 2000  # words per translation chunk
-TARGET_LANGUAGE = "en"  # Translate to English
+CHUNK_SIZE = 2000
+TARGET_LANGUAGE = "en"
 
-# Regex to detect non-ASCII characters (East Asian scripts)
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 

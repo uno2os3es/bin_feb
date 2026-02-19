@@ -11,7 +11,6 @@ audio = AudioFileClip(file)
 
 duration = audio.duration
 
-# Start 5 minutes (300 seconds) before the end
 start_time = max(0, duration - 230)
 
 clip = audio.subclipped(start_time, duration)

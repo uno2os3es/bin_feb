@@ -3,7 +3,6 @@ import os
 
 import regex as re
 
-# Define file extensions for different programming languages
 LANG_EXTENSIONS = {
     "python": [".py"],
     "javascript": [".js"],
@@ -16,20 +15,18 @@ LANG_EXTENSIONS = {
     "php": [".php"],
 }
 
-# Regular expressions for detecting comments (basic ones)
 COMMENT_PATTERNS = {
-    "python": r"^\s*#",  # Python comments
-    "javascript": r"^\s*//",  # JavaScript single-line comments
-    "java": r"^\s*//",  # Java single-line comments
-    "c": r"^\s*//",  # C single-line comments
-    "cpp": r"^\s*//",  # C++ single-line comments
-    "html": r"^\s*<!--",  # HTML comments
-    "css": r"^\s*/\*",  # CSS comments
-    "ruby": r"^\s*#",  # Ruby comments
-    "php": r"^\s*//",  # PHP single-line comments
+    "python": r"^\s*#",
+    "javascript": r"^\s*//",
+    "java": r"^\s*//",
+    "c": r"^\s*//",
+    "cpp": r"^\s*//",
+    "html": r"^\s*<!--",
+    "css": r"^\s*/\*",
+    "ruby": r"^\s*#",
+    "php": r"^\s*//",
 }
 
-# Shebang-to-language mapping for files without extensions
 SHEBANG_LANGUAGES = {
     "python": [
         "#!/usr/bin/python",
@@ -40,7 +37,7 @@ SHEBANG_LANGUAGES = {
     "ruby": ["#!/usr/bin/ruby", "#!/bin/ruby"],
     "perl": ["#!/usr/bin/perl"],
     "node": ["#!/usr/bin/node", "#!/bin/node"],
-    "sh": ["#!/bin/sh"],  # for shell scripts (e.g., Bash, SH)
+    "sh": ["#!/bin/sh"],
 }
 
 
@@ -60,7 +57,7 @@ def get_language_from_shebang(file_path):
                         return lang
     except Exception as e:
         print(f"Error reading file {file_path}: {e}")
-    return None  # If no shebang matches, return None
+    return None
 
 
 def count_lines_of_code(file_path, lang):
@@ -72,14 +69,14 @@ def count_lines_of_code(file_path, lang):
         comment_lines = 0
         blank_lines = 0
         for line in file:
-            if not line.strip():  # Blank line
+            if not line.strip():
                 blank_lines += 1
             elif re.match(
                 COMMENT_PATTERNS.get(lang, ""),
                 line,
-            ):  # Comment line
+            ):
                 comment_lines += 1
-            else:  # Code line
+            else:
                 code_lines += 1
     return code_lines, comment_lines, blank_lines
 
@@ -107,11 +104,9 @@ def scan_directory(directory="."):
             file_path = os.path.join(root, file)
             file_extension = os.path.splitext(file)[1].lower()
 
-            # Check for files without extensions
-            if not file_extension:  # No extension, check shebang
+            if not file_extension:
                 lang = get_language_from_shebang(file_path)
                 if lang:
-                    # Count lines for files with no extension based on shebang
                     code, comments, blanks = count_lines_of_code(file_path, lang)
                     stats["languages"][lang]["code"] += code
                     stats["languages"][lang]["comments"] += comments
@@ -119,9 +114,8 @@ def scan_directory(directory="."):
                     stats["total"]["code"] += code
                     stats["total"]["comments"] += comments
                     stats["total"]["blank"] += blanks
-                    continue  # Skip extension-based checks for these files
+                    continue
 
-            # Check for extension-based language detection
             for (
                 lang,
                 extensions,
@@ -134,22 +128,20 @@ def scan_directory(directory="."):
                     stats["total"]["code"] += code
                     stats["total"]["comments"] += comments
                     stats["total"]["blank"] += blanks
-                    break  # No need to check other languages once matched
+                    break
 
     return stats
 
 
 def display_stats(stats) -> None:
     """Display the line count statistics."""
-    # Display total stats
     print(f"Total lines of code: {stats['total']['code']}")
     print(f"Total comment lines: {stats['total']['comments']}")
     print(f"Total blank lines: {stats['total']['blank']}\n")
 
-    # Display stats by language (only if code lines are > 0)
     print("Language-based statistics:")
     for lang, lang_stats in stats["languages"].items():
-        if lang_stats["code"] > 0:  # Only show the language if code lines > 0
+        if lang_stats["code"] > 0:
             print(f"\n{lang.capitalize()}:")
             print(f"  Code lines: {lang_stats['code']}")
             print(f"  Comment lines: {lang_stats['comments']}")
@@ -157,6 +149,5 @@ def display_stats(stats) -> None:
 
 
 if __name__ == "__main__":
-    # Start scanning the current directory (.)
     stats = scan_directory()
     display_stats(stats)

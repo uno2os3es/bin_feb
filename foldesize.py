@@ -10,11 +10,9 @@ def get_all_files_in_root_only(root_path):
     files_info = []
 
     try:
-        # Only scan files in the root directory, not subdirectories
         for item in os.listdir(root_path):
             filepath = os.path.join(root_path, item)
 
-            # Only process files, skip directories
             if os.path.isfile(filepath) and not os.path.islink(filepath):
                 try:
                     size = os.path.getsize(filepath)
@@ -87,13 +85,11 @@ def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_m
     print("File Organization - Direct to Root Path (No Subdirectories)")
     print("=" * 70)
 
-    # Convert root_path to absolute path
     root_path = os.path.abspath(root_path)
 
     print(f"\nRoot directory: {root_path}")
     print(f"Mode: Files will be moved into organized folders in root path")
 
-    # Step 1: Collect all files from root directory only
     print("\n[1/5] Scanning files in root directory...")
     files_info = get_all_files_in_root_only(root_path)
 
@@ -101,7 +97,6 @@ def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_m
         print("No files found in root directory!")
         return
 
-    # Step 2: Analyze distribution
     print("[2/5] Analyzing file size distribution...")
     stats = analyze_size_distribution(files_info)
 
@@ -111,11 +106,9 @@ def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_m
     print(f"  Average size: {convert_size(stats['avg'])}")
     print(f"  Size range: {convert_size(stats['min'])} - {convert_size(stats['max'])}")
 
-    # Step 3: Sort files by size
     print("\n[3/5] Sorting files by size...")
     files_info.sort(key=lambda x: x["size"])
 
-    # Step 4: Calculate optimal grouping
     print("[4/5] Calculating optimal folder distribution...")
 
     if max_folder_size_mb:
@@ -156,17 +149,8 @@ def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_m
         print(f"  Max folder size: {max_folder_size_mb} MB")
     print(f"  Folders will be created directly in: {root_path}")
 
-    # Confirm before proceeding
-    #    print("\n" + "!" * 70)
     #    print("WARNING: Files will be MOVED into organized folders in root path!")
-    #    print("!" * 70)
-    #    response = input("\nDo you want to continue? (yes/no): ").strip().lower()
 
-    #    if response not in ['yes', 'y']:
-    #        print("Operation cancelled.")
-    #        return
-
-    # Step 5: Create folders and move files
     print("\n[5/5] Creating folders and moving files...")
 
     moved_count = 0
@@ -181,13 +165,10 @@ def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_m
         max_size = folder_files[-1]["size"]
         total_size = sum(f["size"] for f in folder_files)
 
-        # Create folder name with size range
         folder_name = f"size_{convert_size(min_size)}_to_{convert_size(max_size)}_({len(folder_files)}_files)"
 
-        # Sanitize folder name (remove invalid characters)
         folder_name = "".join(c for c in folder_name if c not in r'<>:"/\|?*')
 
-        # Create folder directly in root path
         folder_path = os.path.join(root_path, folder_name)
 
         try:
@@ -199,12 +180,10 @@ def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_m
             print(f"    Size range: {convert_size(min_size)} - {convert_size(max_size)}")
             print(f"    Total size: {convert_size(total_size)}")
 
-            # Move files to folder
             for file_info in folder_files:
                 src = file_info["path"]
                 dst = os.path.join(folder_path, file_info["name"])
 
-                # Handle duplicate filenames
                 counter = 1
                 base_name, ext = os.path.splitext(file_info["name"])
                 while os.path.exists(dst):
@@ -237,25 +216,9 @@ def organize_files_in_root(root_path=".", target_folders=None, max_folder_size_m
 def main():
     """Main function with configuration options."""
 
-    # Configuration
-    ROOT_PATH = "."  # Current directory
+    ROOT_PATH = "."
 
-    # Choose ONE strategy:
-
-    # Strategy 1: Automatic (recommended)
     organize_files_in_root(root_path=ROOT_PATH)
-
-    # Strategy 2: Target specific number of folders
-    # organize_files_in_root(
-    #     root_path=ROOT_PATH,
-    #     target_folders=5
-    # )
-
-    # Strategy 3: Limit folder size
-    # organize_files_in_root(
-    #     root_path=ROOT_PATH,
-    #     max_folder_size_mb=100
-    # )
 
 
 if __name__ == "__main__":

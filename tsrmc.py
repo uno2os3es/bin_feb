@@ -11,7 +11,6 @@ from fastwalk import walk_files
 from termcolor import cprint
 from tree_sitter import Language, Parser, Query, QueryCursor
 
-# Global per-process TSRemover instance
 ts_remover = None
 
 
@@ -74,7 +73,6 @@ class TSRemover:
         for start, end in sorted(deletions, reverse=True):
             new_source = new_source[:start] + new_source[end:]
 
-        # test if output code is valid ?
         tree = self.parser.parse(new_source)
         if tree.root_node.has_error:
             print("resulted code is not valid")

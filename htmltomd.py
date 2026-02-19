@@ -11,7 +11,6 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-# Install: pip install html-to-markdown beautifulsoup4
 from html_to_markdown import Options, convert
 
 
@@ -27,23 +26,18 @@ def clean_html(html_content: str) -> str:
     """
     soup = BeautifulSoup(html_content, "html.parser")
 
-    # Remove script tags and their content
     for script in soup.find_all("script"):
         script.decompose()
 
-    # Remove style tags and their content
     for style in soup.find_all("style"):
         style.decompose()
 
-    # Remove comment tags
     for comment in soup.find_all(string=lambda text: isinstance(text, str) and text.strip().startswith("<!--")):
         comment.extract()
 
-    # Remove common non-content elements
     for tag in soup.find_all(["nav", "footer", "aside", "iframe", "noscript"]):
         tag.decompose()
 
-    # Remove form elements (they don't translate well to Markdown)
     for form in soup.find_all("form"):
         form.decompose()
 
@@ -66,37 +60,29 @@ def convert_html_to_md(html_file: Path, options: Options | None = None) -> tuple
         return (html_file, False)
 
     try:
-        # Read HTML content
         html_content = html_file.read_text(encoding="utf-8")
 
-        # Clean HTML (remove scripts, styles, forms, etc.)
         cleaned_html = clean_html(html_content)
 
-        # Configure conversion options
         if options is None:
             options = Options(
                 extract_headers=True,
                 extract_links=True,
                 extract_images=True,
-                extract_structured_data=False,  # Skip JSON-LD, Microdata
-                github_flavored=True,  # Use GitHub-flavored Markdown
+                extract_structured_data=False,
+                github_flavored=True,
             )
 
-        # Convert to Markdown
         markdown_content = convert(cleaned_html, options=options)
 
-        # Post-process: clean up excessive newlines
         markdown_content = "\n".join(line for line in markdown_content.split("\n") if line.strip() or line == "")
 
-        # Remove excessive blank lines (more than 2 consecutive)
         import re
 
         markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
 
-        # Generate output filename
         md_file = html_file.with_suffix(".md")
 
-        # Write Markdown content
         md_file.write_text(markdown_content, encoding="utf-8")
         print(f"✓ Converted: {html_file.name} -> {md_file.name}")
         return (md_file, True)
@@ -157,7 +143,6 @@ Examples:
 
     args = parser.parse_args()
 
-    # Configure conversion options
     options = Options(
         extract_headers=True,
         extract_links=True,
@@ -166,14 +151,12 @@ Examples:
         github_flavored=args.github_flavored,
     )
 
-    # Convert path to Path object
     input_path = Path(args.path).resolve()
 
     if not input_path.exists():
         print(f"Error: Path '{input_path}' does not exist.", file=sys.stderr)
         sys.exit(1)
 
-    # Determine files to process
     if input_path.is_file():
         html_files = [input_path]
     elif input_path.is_dir():
@@ -186,7 +169,6 @@ Examples:
         print(f"Error: '{input_path}' is neither a file nor a directory.", file=sys.stderr)
         sys.exit(1)
 
-    # Process files
     if len(html_files) == 1:
         convert_html_to_md(html_files[0], options)
     else:

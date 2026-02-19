@@ -42,7 +42,6 @@ def process_file(path: Path, shift_ms: int):
 
 
 def main():
-    # manual + / - support (before argparse)
     raw = sys.argv[1:]
     force_shift = None
     if raw and raw[0] in ("+", "-"):

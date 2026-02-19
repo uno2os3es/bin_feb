@@ -12,11 +12,10 @@ from deep_translator import GoogleTranslator
 
 PYTHON_EXT = ".py"
 BACKUP_EXT = ".bak"
-CHUNK_SIZE = 5000  # chars, for splitting large files
+CHUNK_SIZE = 5000
 TARGET_LANG = "en"
 SRC_LANG = "auto"
 
-# Thread-local storage for the translator to avoid threading issues
 _thread_local = threading.local()
 
 
@@ -34,12 +33,10 @@ def get_translator():
 
 
 def is_non_english(line):
-    # Consider a line non-English if it contains non-ascii and not all in [a-zA-Z0-9]
     return re.search(r"[^\x00-\x7F]", line)
 
 
 def translate_line(line):
-    # Only attempt translation if non-English detected
     if is_non_english(line.strip()):
         try:
             trans = get_translator().translate(line.strip())
@@ -52,7 +49,6 @@ def translate_line(line):
 
 
 def split_large_text_blocks(text, max_len):
-    # Splits text into chunks <=max_len, only at line boundaries
     lines = text.splitlines(keepends=True)
     chunks = []
     chunk = ""
@@ -67,7 +63,6 @@ def split_large_text_blocks(text, max_len):
 
 
 def translate_docstring(docstr):
-    # Insert translation after each non-English line in docstring
     new_lines = []
     for line in docstr.splitlines():
         new_lines.append(line)
@@ -78,7 +73,6 @@ def translate_docstring(docstr):
 
 
 def process_file(filepath):
-    # Backup original
     backup_path = filepath + BACKUP_EXT
     shutil.copyfile(filepath, backup_path)
 
@@ -86,11 +80,8 @@ def process_file(filepath):
         code = f.read()
 
     if len(code) > CHUNK_SIZE:
-        # process in chunks, careful not to break syntax (prefer splitting on function/class boundaries)
-        # For simplicity, just process as one; for huge files, parsing could be slow
         pass
 
-    # Parse AST to find docstrings (for accuracy)
     try:
         parsed = ast.parse(
             code,
@@ -103,9 +94,8 @@ def process_file(filepath):
 
     lines = code.splitlines(keepends=False)
     new_lines = list(lines)
-    offset_map = {}  # original line#: offset from inserted lines
+    offset_map = {}
 
-    # Process docstrings
     for node in ast.walk(parsed):
         if isinstance(
             node,
@@ -119,7 +109,6 @@ def process_file(filepath):
             docstring = ast.get_docstring(node, clean=False)
             if docstring:
                 doc_start = node.body[0].lineno - 1 if node.body else None
-                # Find the line number of the docstring: look for triple quote line
                 for lookback in range(3):
                     possible = doc_start - lookback
                     if possible >= 0 and (
@@ -128,52 +117,43 @@ def process_file(filepath):
                         docstring_line = possible
                         break
                 else:
-                    continue  # couldn't find docstring line, skip
+                    continue
 
                 doc_lines = []
                 line_idx = docstring_line
                 quote_type = '"""' if lines[line_idx].lstrip().startswith('"""') else "'''"
-                # Accumulate lines until the closing triple-quote
                 while True:
                     doc_lines.append(lines[line_idx])
                     if lines[line_idx].rstrip().endswith(quote_type) and line_idx != docstring_line:
                         break
                     line_idx += 1
                 doc_block = "\n".join(doc_lines)
-                # Extract the content inside the quotes (for docstring only)
                 doc_body = re.sub(
                     rf"^{quote_type}|{quote_type}$",
                     "",
                     doc_block.strip(),
                     flags=re.MULTILINE,
                 ).strip()
-                # Replace only the lines within the docstring that need translation
                 translated_doc_body = translate_docstring(doc_body)
                 translated_doc_block = f"{quote_type}\n{translated_doc_body}\n{quote_type}"
-                # Replace lines in new_lines (accounting for already inserted lines)
                 start = docstring_line + offset_map.get(docstring_line, 0)
                 end = line_idx + 1 + offset_map.get(line_idx, 0)
                 translated_lines = translated_doc_block.splitlines()
                 new_lines[start:end] = translated_lines
-                # Update offset for subsequent insertions
                 offset = len(translated_lines) - (end - start)
                 for k in range(end, len(new_lines)):
                     offset_map[k] = offset_map.get(k, 0) + offset
 
-    # Process line comments (# ...)
     final_lines = []
     for line in new_lines:
         final_lines.append(line)
         stripped = line.strip()
         if stripped.startswith("#") and is_non_english(stripped[1:]):
-            # Only translate the comment part (after the first #)
             trans = translate_line(stripped[1:].strip())
             if trans:
-                # Insert translated comment in next line, keep comment mark
                 indentation = re.match(r"\s*", line).group(0)
                 final_lines.append(f"{indentation}# {trans}")
 
-    # Save file back
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("\n".join(final_lines) + "\n")
 

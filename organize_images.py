@@ -12,32 +12,25 @@ def get_image_features_cv2(image_path, size=(64, 64)):
     改进的特征提取函数，支持不同通道数的图像
     """
     try:
-        # 读取图像
         img = cv2.imread(image_path)
 
-        # 检查图像是否成功加载
         if img is None:
             print(f"Warning: Could not read {image_path}")
             return None
 
-        # 检查图像是否为空
         if img.size == 0:
             print(f"Warning: Empty image {image_path}")
             return None
 
-        # 统一转换为 BGR 格式（3通道）
-        if len(img.shape) == 2:  # 灰度图
+        if len(img.shape) == 2:
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        elif img.shape[2] == 4:  # 带 alpha 通道的图像
+        elif img.shape[2] == 4:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
-        # 调整大小
         img_resized = cv2.resize(img, size)
 
-        # 转换为 HSV
         hsv = cv2.cvtColor(img_resized, cv2.COLOR_BGR2HSV)
 
-        # 安全地计算直方图
         try:
             hist_h = cv2.calcHist([hsv], [0], None, [8], [0][180])
             hist_s = cv2.calcHist([hsv], [1], None, [8], [0][256])
@@ -46,13 +39,10 @@ def get_image_features_cv2(image_path, size=(64, 64)):
             print(f"Histogram calculation error for {image_path}: {e}")
             return None
 
-        # 展平图像
         img_flat = img_resized.flatten()
 
-        # 组合特征
         features = np.concatenate([hist_h.flatten(), hist_s.flatten(), hist_v.flatten(), img_flat])
 
-        # 归一化
         norm = np.linalg.norm(features)
         if norm > 0:
             features = features / norm
@@ -76,7 +66,6 @@ def get_all_images(directory):
             ext = Path(file).suffix.lower()
             if ext in image_extensions:
                 full_path = os.path.join(root, file)
-                # Verify file exists and is readable
                 if os.path.isfile(full_path) and os.access(full_path, os.R_OK):
                     image_files.append(full_path)
 
@@ -110,7 +99,6 @@ def simple_clustering(features, paths, n_clusters=10, threshold=0.7):
     clusters = {i: [i] for i in range(n_samples)}
     cluster_centers = {i: features[i].copy() for i in range(n_samples)}
 
-    # Merge similar clusters
     max_iterations = n_samples * 2
     iteration = 0
 
@@ -132,11 +120,9 @@ def simple_clustering(features, paths, n_clusters=10, threshold=0.7):
         if merge_pair is None or max_sim < threshold:
             break
 
-        # Merge clusters
         id1, id2 = merge_pair
         clusters[id1].extend(clusters[id2])
 
-        # Update cluster center
         indices = clusters[id1]
         cluster_features = [features[idx] for idx in indices]
         cluster_centers[id1] = np.mean(cluster_features, axis=0)
@@ -144,7 +130,6 @@ def simple_clustering(features, paths, n_clusters=10, threshold=0.7):
         del clusters[id2]
         del cluster_centers[id2]
 
-    # Convert to labels
     labels = np.zeros(n_samples, dtype=int)
     for cluster_id, (_key, indices) in enumerate(clusters.items()):
         for idx in indices:
@@ -159,7 +144,6 @@ def organize_photos(source_dir=".", n_clusters=10, move=False, threshold=0.7):
     """
     print(f"Scanning directory: {source_dir}")
 
-    # Get all images
     image_paths = get_all_images(source_dir)
     print(f"Found {len(image_paths)} images")
 
@@ -167,7 +151,6 @@ def organize_photos(source_dir=".", n_clusters=10, move=False, threshold=0.7):
         print("No images found!")
         return
 
-    # Extract features
     print("Extracting features with OpenCV...")
     features = []
     valid_paths = []
@@ -189,16 +172,13 @@ def organize_photos(source_dir=".", n_clusters=10, move=False, threshold=0.7):
 
     features = np.array(features)
 
-    # Cluster images
     n_clusters = min(n_clusters, len(features))
     print(f"Clustering into {n_clusters} groups...")
     labels = simple_clustering(features, valid_paths, n_clusters, threshold)
 
-    # Create output directories
     output_base = os.path.join(source_dir, "organized_by_similarity")
     os.makedirs(output_base, exist_ok=True)
 
-    # Organize files
     print("Organizing files...")
     for label in range(n_clusters):
         cluster_dir = os.path.join(output_base, f"group_{label + 1}")
@@ -208,7 +188,6 @@ def organize_photos(source_dir=".", n_clusters=10, move=False, threshold=0.7):
         dest_dir = os.path.join(output_base, f"group_{label + 1}")
         dest_path = os.path.join(dest_dir, os.path.basename(path))
 
-        # Handle duplicates
         counter = 1
         base_name = Path(dest_path).stem
         extension = Path(dest_path).suffix

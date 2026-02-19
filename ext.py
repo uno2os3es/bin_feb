@@ -63,11 +63,11 @@ def extract_from_file(
     path: str,
 ) -> tuple[
     str,
-    dict[str, str],  # top-level classes
-    dict[str, str],  # top-level functions
-    dict[str, str],  # nested classes
-    dict[str, str],  # nested functions
-    dict[str, str],  # top-level constants
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
 ]:
     try:
         with open(
@@ -87,7 +87,6 @@ def extract_from_file(
     consts = {}
 
     for node in ast.walk(tree):
-        # ----- Classes & Functions -----
         if isinstance(node, (ast.ClassDef, ast.FunctionDef)):
             src = ast.get_source_segment(source, node)
             if not src:
@@ -108,7 +107,6 @@ def extract_from_file(
                 else:
                     nested_funcs[node.name] = src
 
-        # ----- Constants (top-level only) -----
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             parent = getattr(node, "_parent", None)
             if not isinstance(parent, ast.Module):

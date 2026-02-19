@@ -74,7 +74,6 @@ def read_css(files):
         for line in lines:
             stripped = line.strip().lower()
 
-            # capture first @charset only
             if stripped.startswith("@charset"):
                 if charset_line is None:
                     charset_line = line.strip()

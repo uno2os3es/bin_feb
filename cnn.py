@@ -4,9 +4,7 @@ from pathlib import Path
 import shutil
 from multiprocessing import Pool, cpu_count
 
-# File extensions to delete
 FILE_EXTENSIONS = [".pyc", ".log", ".bak"]
-# Directory names to delete
 DIR_NAMES = [
     "__pycache__",
     "dist",
@@ -32,15 +30,12 @@ def remove_path(path) -> None:
 def scan_and_remove(base_path):
     """Scan directory recursively and remove matching files and directories immediately."""
     for root, dirs, files in os.walk(base_path, topdown=True):
-        # Remove matching files
         for file in files:
             if any(file.endswith(ext) for ext in FILE_EXTENSIONS):
                 yield os.path.join(root, file)
 
-        # Remove matching directories
         dirs_to_remove = [d for d in dirs if d in DIR_NAMES]
         for d in dirs_to_remove:
-            # Remove from dirs list so os.walk doesn't recurse into it
             if str(Path(d).parent) == "site-packages":
                 print("not allowed")
                 continue
@@ -50,12 +45,9 @@ def scan_and_remove(base_path):
 
 
 def main() -> None:
-    #    prefix = os.environ.get('PREFIX', '.')
-    #    base_path = pathlib.Path(prefix).resolve().parent
     base_path = pathlib.Path(os.getcwd()).resolve()
     print(f"Scanning in: {base_path}")
 
-    # Use multiprocessing pool
     with Pool(cpu_count()) as pool:
         pool.map(
             remove_path,

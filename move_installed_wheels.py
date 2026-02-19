@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from autoimport import LazyLoader as ll
 from autoimport import lazy
+
 LazyLoader
 with lazy():
     from pathlib import Path
@@ -63,11 +64,9 @@ def main():
                 if installed_version == Version(str(version)):
                     cprint(f"[MATCH] {dist_name}=={version} → removing", "cyan")
                     wheel.unlink()
-#                    shutil.move(str(wheel), DEST_DIR / wheel.name)
                     moved += 1
                 else:
                     wheel.unlink()
-#                    shutil.move(str(wheel), DEST_DIR / wheel.name)
                     moved += 1
                     print(f"[DIFF VERSION] {dist_name} (installed {installed_version}, wheel {version}) -> removed")
 

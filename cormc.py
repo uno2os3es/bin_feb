@@ -27,7 +27,6 @@ except ImportError:
     sys.exit(1)
 
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -36,12 +35,12 @@ class CommentRemover:
     """Remove comments and docstrings from Python source code using tree-sitter."""
 
     PRESERVE_PATTERNS = [
-        "type:",  # Type comments
-        "fmt:",  # Formatter directives
-        "noqa",  # NoQA comments
-        "pylint:",  # Pylint directives
-        "flake8:",  # Flake8 directives
-        "mypy:",  # MyPy directives
+        "type:",
+        "fmt:",
+        "noqa",
+        "pylint:",
+        "flake8:",
+        "mypy:",
     ]
 
     def __init__(self):
@@ -57,11 +56,9 @@ class CommentRemover:
         """Check if a comment should be preserved."""
         comment_text = comment_text.strip()
 
-        # Always preserve shebangs
         if comment_text.startswith("#!"):
             return True
 
-        # Preserve special comments
         for pattern in self.PRESERVE_PATTERNS:
             if pattern in comment_text:
                 return True
@@ -90,7 +87,6 @@ class CommentRemover:
         lines = source_code.split("\n")
         removable_ranges = []
 
-        # Process comments
         for line_idx, line in enumerate(lines):
             if "#" not in line:
                 continue
@@ -99,27 +95,22 @@ class CommentRemover:
             if comment_start == -1:
                 continue
 
-            # Check if it's inside a string
             if self._is_in_string(line, comment_start):
                 continue
 
             comment_text = line[comment_start:]
 
-            # Skip if it should be preserved
             if self.should_preserve_comment(comment_text):
                 continue
 
-            # Calculate byte offset
             byte_offset = sum(len(l.encode("utf-8")) + 1 for l in lines[:line_idx])
             byte_offset += len(line[:comment_start].encode("utf-8"))
             end_offset = byte_offset + len(comment_text.encode("utf-8"))
 
             removable_ranges.append((byte_offset, end_offset))
 
-        # Process docstrings
         removable_ranges.extend(self._extract_docstrings(source_code.encode("utf-8"), tree))
 
-        # Sort and merge overlapping ranges
         return self._merge_ranges(sorted(removable_ranges))
 
     def _is_in_string(self, line: str, pos: int) -> bool:
@@ -142,14 +133,11 @@ class CommentRemover:
         docstring_ranges = []
 
         def walk_tree(node, parent_type=None):
-            # Check for string nodes that are docstrings
             if node.type == "string":
-                # A docstring is a string that is the first statement in a function/class/module
                 if parent_type in ("function_definition", "class_definition", "module"):
                     docstring_ranges.append((node.start_byte, node.end_byte))
 
             for child in node.children:
-                # Track if this is a function or class for docstring detection
                 child_parent = child.type if child.type in ("function_definition", "class_definition") else parent_type
                 walk_tree(child, child_parent)
 
@@ -167,10 +155,8 @@ class CommentRemover:
             last_start, last_end = merged[-1]
 
             if current_start <= last_end:
-                # Overlapping or adjacent, merge
                 merged[-1] = (last_start, max(last_end, current_end))
             else:
-                # Non-overlapping, add new range
                 merged.append((current_start, current_end))
 
         return merged
@@ -187,11 +173,9 @@ class CommentRemover:
         last_end = 0
 
         for start, end in removable_ranges:
-            # Add content before this range
             result_bytes.extend(source_bytes[last_end:start])
             last_end = end
 
-        # Add remaining content
         result_bytes.extend(source_bytes[last_end:])
 
         return result_bytes.decode("utf-8", errors="replace")
@@ -206,7 +190,6 @@ class CommentRemover:
             source_code, tree = parsed
             cleaned_code = self.remove_comments_and_docstrings(source_code, tree)
 
-            # Write back to file
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(cleaned_code)
 
@@ -223,7 +206,6 @@ def find_python_files(root_dir: str = ".") -> List[str]:
     python_files = []
 
     for py_file in glob.glob(os.path.join(root_dir, "**", "*.py"), recursive=True):
-        # Skip common directories
         if any(part in py_file for part in ["__pycache__", ".git", ".venv", "venv", ".tox"]):
             continue
         python_files.append(py_file)
@@ -271,12 +253,10 @@ def main():
     if args.verbose:
         logger.setLevel(logging.DEBUG)
 
-    # Validate directory
     if not os.path.isdir(args.directory):
         logger.error(f"Directory not found: {args.directory}")
         sys.exit(1)
 
-    # Find Python files
     python_files = find_python_files(args.directory)
 
     if not python_files:
@@ -285,7 +265,6 @@ def main():
 
     logger.info(f"Found {len(python_files)} Python files")
 
-    # Process files
     successful, failed = process_files_mp(python_files, args.workers)
 
     logger.info(f"Completed: {successful} successful, {failed} failed")

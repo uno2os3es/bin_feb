@@ -36,7 +36,6 @@ def main() -> None:
     for pth in walk_files(str(dir)):
         path = Path(pth)
         if path.is_file() and (path.suffix in {".html", ".htm"}):
-            #            process_file(path)
             files.append(path)
 
     if not files:

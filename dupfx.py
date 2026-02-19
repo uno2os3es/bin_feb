@@ -8,16 +8,9 @@ from pathlib import Path
 import xxhash
 from dh import folder_size, format_size
 
-# ----------------------------------------
-# GLOBAL STORAGE
-# ----------------------------------------
 
 SKIPPED_PATHS = []
 EXCLUDED_DIRS = {".git", ".venv", "venv"}
-
-# ----------------------------------------
-# FILE HASHING (Worker Function)
-# ----------------------------------------
 
 
 def hash_file(path: str, chunk_size: int = 8192):
@@ -37,11 +30,6 @@ def hash_file(path: str, chunk_size: int = 8192):
     return path, hasher.hexdigest()
 
 
-# ----------------------------------------
-# FILE COLLECTION
-# ----------------------------------------
-
-
 def collect_all_files(directory: Path):
     """Collect files recursively, skipping excluded dirs."""
     files = []
@@ -53,11 +41,6 @@ def collect_all_files(directory: Path):
     return files
 
 
-# ----------------------------------------
-# STAGE 1: Prefilter by size
-# ----------------------------------------
-
-
 def group_by_size(files):
     groups = defaultdict(list)
     for f in files:
@@ -67,11 +50,6 @@ def group_by_size(files):
         except (PermissionError, OSError):
             SKIPPED_PATHS.append(str(f))
     return groups
-
-
-# ----------------------------------------
-# STAGE 2: Concurrent Hashing
-# ----------------------------------------
 
 
 def hash_groups_in_parallel(groups):
@@ -98,11 +76,6 @@ def hash_groups_in_parallel(groups):
     return {h: ps for h, ps in hash_groups.items() if len(ps) > 1}
 
 
-# ----------------------------------------
-# DUPLICATE REMOVAL
-# ----------------------------------------
-
-
 def auto_delete_duplicates(dups) -> None:
     print("\n🔥 AUTO-DELETE MODE: Removing duplicates...\n")
     deleted_count = 0
@@ -118,11 +91,6 @@ def auto_delete_duplicates(dups) -> None:
     print(f"\n✅ Deleted {deleted_count} duplicate files.")
 
 
-# ----------------------------------------
-# REPORTING
-# ----------------------------------------
-
-
 def report_duplicates(dups):
     dup_count = sum(len(files) - 1 for files in dups.values())
     dup_size = sum(Path(f).stat().st_size for files in dups.values() for f in files[1:])
@@ -132,13 +100,8 @@ def report_duplicates(dups):
     print(f"   • Total duplicate size: {dup_size / 1024 / 1024:.2f} MB")
 
 
-# ----------------------------------------
-# MAIN
-# ----------------------------------------
-
-
 def main() -> None:
-    target = Path.cwd()  # Always current directory
+    target = Path.cwd()
     start = folder_size(target)
     all_files = collect_all_files(target)
     size_groups = group_by_size(all_files)

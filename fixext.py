@@ -56,7 +56,7 @@ def check_files(directory, auto_fix=False):
                 if expected_exts and ext not in expected_exts:
                     new_path = None
                     if auto_fix:
-                        new_ext = expected_exts[0]  # pick first expected extension
+                        new_ext = expected_exts[0]
                         new_name = os.path.splitext(name)[0] + new_ext
                         new_path = os.path.join(root, new_name)
                         new_path = safe_rename(file_path, new_path)

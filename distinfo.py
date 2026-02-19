@@ -13,10 +13,8 @@ def get_site_packages_dirs():
     with contextlib.suppress(Exception):
         dirs.extend(site.getsitepackages())
 
-    # Include user site-packages
     dirs.append(site.getusersitepackages())
 
-    # Deduplicate
     return list(dict.fromkeys(dirs))
 
 
@@ -50,7 +48,6 @@ def find_multiple_versions() -> None:
                 if name:
                     pkg_versions[name].add(version)
 
-    # Report packages that have more than one version installed
     for pkg, versions in sorted(pkg_versions.items()):
         if len(versions) > 1:
             print(f"\nPackage: {pkg}")

@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
-CHUNK_SIZE = 5 * 1024 * 1024  # 5 MB
+CHUNK_SIZE = 5 * 1024 * 1024
 MAX_RETRIES = 5
 RETRY_DELAY = 2
 

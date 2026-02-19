@@ -9,9 +9,8 @@ from dh import is_text_file
 from fastwalk import walk_files
 
 DIRECTORY = "."
-CHUNK_SIZE = 2000  # characters per chunk (safe for Google Translate)
+CHUNK_SIZE = 2000
 
-# Detect non-ASCII characters
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
@@ -38,20 +37,16 @@ def translate_file(path: Path):
         print(f"Skipping unreadable file: {path}")
         return
 
-    # Skip if already English
     if not non_english_pattern.search(content):
         return
 
-    # Split into chunks
     chunks = split_into_chunks(content, CHUNK_SIZE)
 
-    # Translate in parallel
     with ThreadPoolExecutor(max_workers=8) as executor:
         translated_chunks = list(executor.map(translate_chunk, chunks))
 
     translated_text = "".join(translated_chunks)
 
-    # Output file: fname_eng.ext
     new_name = f"{path.stem}_eng{path.suffix}"
     new_path = path.parent / new_name
 

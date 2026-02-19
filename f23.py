@@ -6,15 +6,13 @@ from pathlib import Path
 import regex as re
 
 # --- Regex Patterns ---
-PRINT_PATTERN = re.compile(r"^\s*print\s+(?!\()(.+)$")  # print <expr>
+PRINT_PATTERN = re.compile(r"^\s*print\s+(?!\()(.+)$")
 
-PRINT_BARE_PATTERN = re.compile(r"^\s*print\s*$")  # bare: print
+PRINT_BARE_PATTERN = re.compile(r"^\s*print\s*$")
 
-# except E, e:
 EXCEPT_PATTERN = re.compile(r"^\s*except\s+(\S+)\s*,\s*(\S+)\s*:")
 
 
-# --- Python2-to-Python3 conversions (for --all) ---
 def fix_py2_to_py3_all(line):
     original = line
 
@@ -30,7 +28,6 @@ def fix_py2_to_py3_all(line):
     return line, (line != original)
 
 
-# --- Print-fix logic ---
 def fix_print_statements(text):
     lines = text.splitlines(True)
     new_lines = []
@@ -39,14 +36,12 @@ def fix_print_statements(text):
     for line in lines:
         stripped = line.strip()
 
-        # bare print
         if PRINT_BARE_PATTERN.match(stripped):
             indent = line[: len(line) - len(line.lstrip())]
             new_lines.append(f"{indent}print()\n")
             changed = True
             continue
 
-        # print something
         m = PRINT_PATTERN.match(stripped)
         if m:
             expr = m.group(1)
@@ -75,7 +70,6 @@ def apply_all_fixes(text):
     return "".join(new_lines), changed
 
 
-# --- File Processing ---
 changed_files = []
 error_files = []
 
@@ -106,7 +100,6 @@ def scan_and_fix(root: Path, force, apply_all) -> None:
         process_file(f, force=force, apply_all=apply_all)
 
 
-# --- CLI ---
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Fix Python2 print statements and optionally apply all Py2→Py3 conversions."
@@ -126,7 +119,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # === Default behavior if no flags are provided ===
     if not any(vars(args).values()):
         args.force = True
         args.all = True

@@ -3,7 +3,7 @@ import json
 
 from deep_translator import GoogleTranslator
 
-INPUT_FILE = "words.txt"  # your input file
+INPUT_FILE = "words.txt"
 OUTPUT_FILE = "dic.json"
 
 
@@ -19,20 +19,17 @@ def translate_word(word):
 def main():
     translations = {}
 
-    # Read Persian words
     with open(INPUT_FILE, encoding="utf-8") as f:
         words = [line.strip() for line in f if line.strip()]
 
     print(f"Loaded {len(words)} Persian words")
 
-    # Translate each word
     for w in words:
         eng = translate_word(w)
         if eng:
             translations[w] = eng
             print(f"{w} → {eng}")
 
-    # Save JSON output
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(
             translations,

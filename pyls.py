@@ -8,9 +8,6 @@ import stat
 import sys
 from pathlib import Path
 
-# =============================
-# ANSI COLORS
-# =============================
 
 COLORS = {
     "dir": "\033[34m",
@@ -40,11 +37,6 @@ def colorize(name, st, enabled):
     return name
 
 
-# =============================
-# HELPERS
-# =============================
-
-
 def human_size(size):
     for unit in ("B", "K", "M", "G", "T"):
         if size < 1024:
@@ -66,11 +58,6 @@ def indicator(path, st):
 def format_time(ts, full):
     dt = datetime.datetime.fromtimestamp(ts)
     return dt.strftime("%Y-%m-%d %H:%M:%S" if full else "%b %d %H:%M")
-
-
-# =============================
-# ENTRY FORMAT
-# =============================
 
 
 def format_entry(entry, args, color_enabled):
@@ -104,11 +91,6 @@ def format_entry(entry, args, color_enabled):
     time_str = format_time(ts, args.full_time)
 
     return f"{inode} {blocks} {perms}  {nlink}  {uid}  {gid}  {size: >6}  {time_str}  {name} "
-
-
-# =============================
-# DIRECTORY SCAN
-# =============================
 
 
 def scan_dir(path, args):
@@ -153,11 +135,6 @@ def scan_dir(path, args):
     return entries
 
 
-# =============================
-# COLUMN OUTPUT
-# =============================
-
-
 def print_columns(items, width, by_row):
     if not items:
         return
@@ -177,27 +154,19 @@ def print_columns(items, width, by_row):
         print()
 
 
-# =============================
-# MAIN
-# =============================
-
-
 def main():
     p = argparse.ArgumentParser(add_help=False)
 
-    # basic listing
     p.add_argument("-1", dest="one", action="store_true")
     p.add_argument("-a", action="store_true")
     p.add_argument("-A", action="store_true")
     p.add_argument("-x", action="store_true")
     p.add_argument("-d", action="store_true")
 
-    # symlinks / recursion
     p.add_argument("-L", action="store_true")
     p.add_argument("-H", action="store_true")
     p.add_argument("-R", action="store_true")
 
-    # formatting
     p.add_argument("-p", action="store_true")
     p.add_argument("-F", action="store_true")
     p.add_argument("-l", action="store_true")
@@ -206,12 +175,10 @@ def main():
     p.add_argument("-s", action="store_true")
     p.add_argument("-h", action="store_true")
 
-    # time options
     p.add_argument("-lc", action="store_true")
     p.add_argument("-lu", action="store_true")
     p.add_argument("--full-time", action="store_true")
 
-    # sorting
     p.add_argument("-S", action="store_true")
     p.add_argument("-X", action="store_true")
     p.add_argument("-v", action="store_true")
@@ -220,7 +187,6 @@ def main():
     p.add_argument("-tu", action="store_true")
     p.add_argument("-r", action="store_true")
 
-    # layout / misc
     p.add_argument("-w", type=int, default=80)
     p.add_argument(
         "--group-directories-first",

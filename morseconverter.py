@@ -3,7 +3,6 @@ import argparse
 import pathlib
 import sys
 
-# Morse code dictionary
 MORSE_CODE_DICT = {
     "A": ".-",
     "B": "-...",
@@ -43,7 +42,6 @@ MORSE_CODE_DICT = {
     "0": "-----",
     " ": "/",
 }
-# Reverse dictionary for decryption
 REVERSE_MORSE_DICT = {v: k for k, v in MORSE_CODE_DICT.items()}
 
 
@@ -54,7 +52,7 @@ def text_to_morse(text):
         if char in MORSE_CODE_DICT:
             morse.append(MORSE_CODE_DICT[char])
         else:
-            morse.append(char)  # Keep unknown characters as-is
+            morse.append(char)
     return " ".join(morse)
 
 
@@ -65,8 +63,8 @@ def morse_to_text(morse):
     for code in morse_chars:
         if code in REVERSE_MORSE_DICT:
             text.append(REVERSE_MORSE_DICT[code])
-        elif code:  # Skip empty strings
-            text.append(code)  # Keep unknown codes as-is
+        elif code:
+            text.append(code)
     return "".join(text)
 
 
@@ -113,12 +111,10 @@ def main() -> None:
         help="Decrypt Morse code to text",
     )
     args = parser.parse_args()
-    # Validate arguments
     if args.encrypt and args.decrypt:
         sys.exit(1)
     if not args.encrypt and not args.decrypt:
         sys.exit(1)
-    # Perform operation
     if args.encrypt:
         encrypt_file(args.input_file, args.output_file)
     elif args.decrypt:

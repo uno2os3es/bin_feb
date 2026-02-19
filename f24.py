@@ -60,7 +60,6 @@ def main() -> None:
             if result is not None:
                 recent.append(result)
 
-    # sort oldest → newest (newest last)
     recent.sort(key=lambda x: x[0])
 
     for _, path in recent:

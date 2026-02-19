@@ -9,7 +9,7 @@ def normalize_repo_address(repo_arg: str) -> str:
     """Convert input to 'user/repo' format."""
     if repo_arg.startswith("http://") or repo_arg.startswith("https://"):
         parts = repo_arg.rstrip("/").split("/")
-        if len(parts) >= 5:  # https://github.com/user/repo
+        if len(parts) >= 5:
             return f"{parts[3]}/{parts[4]}"
         else:
             raise ValueError("Invalid GitHub URL format.")
@@ -25,7 +25,7 @@ def get_repo_size(repo: str) -> int:
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        return data.get("size", 0)  # size in KB
+        return data.get("size", 0)
     elif response.status_code == 404:
         raise ValueError("Repository not found.")
     else:
@@ -50,7 +50,7 @@ def get_branch_size(repo: str, branch: str) -> int:
     if response.status_code == 200:
         data = response.json()
         size_bytes = sum(item.get("size", 0) for item in data.get("tree", []) if item["type"] == "blob")
-        return size_bytes // 1024  # convert to KB
+        return size_bytes // 1024
     else:
         raise RuntimeError(f"Failed to fetch branch tree: {branch}, status {response.status_code}")
 

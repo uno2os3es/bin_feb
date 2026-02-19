@@ -27,30 +27,25 @@ def man_to_markdown(content):
     lines = content.splitlines()
     md_lines = []
     in_code_block = False
-    pending_tp = None  # for definition lists (.TP)
+    pending_tp = None
 
     for line in lines:
-        # Skip title macros
         if line.startswith(".TH"):
             continue
 
-        # Section headers
         if line.startswith(".SH"):
             header = line[3:].strip()
             md_lines.append(f"# {header.title()}")
             continue
 
-        # Subsection headers
         if line.startswith(".SS"):
             subheader = line[3:].strip()
             md_lines.append(f"## {subheader.title()}")
             continue
 
-        # Bold / Italic
         line = re.sub(r"\.B\s+(.+)", r"**\1**", line)
         line = re.sub(r"\.I\s+(.+)", r"*\1*", line)
 
-        # Bold+Roman (.BR)
         if line.startswith(".BR"):
             parts = line.split(maxsplit=1)
             if len(parts) > 1:
@@ -59,14 +54,13 @@ def man_to_markdown(content):
                 for i, t in enumerate(tokens):
                     if not t.strip():
                         continue
-                    if i % 2 == 0:  # outside quotes
+                    if i % 2 == 0:
                         formatted.append(f"**{t.strip()}**")
-                    else:  # inside quotes
+                    else:
                         formatted.append(t.strip())
                 md_lines.append(" ".join(formatted))
                 continue
 
-        # Italic+Roman (.IR)
         if line.startswith(".IR"):
             parts = line.split(maxsplit=1)
             if len(parts) > 1:
@@ -75,19 +69,17 @@ def man_to_markdown(content):
                 for i, t in enumerate(tokens):
                     if not t.strip():
                         continue
-                    if i % 2 == 0:  # outside quotes
+                    if i % 2 == 0:
                         formatted.append(f"*{t.strip()}*")
-                    else:  # inside quotes
+                    else:
                         formatted.append(t.strip())
                 md_lines.append(" ".join(formatted))
                 continue
 
-        # Paragraph
         if line.startswith(".PP"):
             md_lines.append("")
             continue
 
-        # Ordered list items (.IP N)
         if line.startswith(".IP"):
             parts = line.split(maxsplit=2)
             if len(parts) >= 2 and parts[1].isdigit():
@@ -101,7 +93,6 @@ def man_to_markdown(content):
                 md_lines.append(f"- {item} {rest}".strip())
                 continue
 
-        # Definition lists (.TP)
         if line.startswith(".TP"):
             pending_tp = True
             continue
@@ -111,25 +102,21 @@ def man_to_markdown(content):
             md_lines.append(f"- {term}:")
             continue
 
-        # Start code block (.nf, .RS, .EX)
         if line.startswith(".nf") or line.startswith(".RS") or line.startswith(".EX"):
             if not in_code_block:
                 md_lines.append("```sh")
                 in_code_block = True
             continue
 
-        # End code block (.fi, .RE, .EE)
         if line.startswith(".fi") or line.startswith(".RE") or line.startswith(".EE"):
             if in_code_block:
                 md_lines.append("```")
                 in_code_block = False
             continue
 
-        # Skip other macros
         if line.startswith("."):
             continue
 
-        # Auto-detect shell commands
         if re.match(r"^\s*\$", line) or re.match(
             r"^\s*(ls|cat|grep|echo|pwd|cd|mkdir|rm|touch|man)\b",
             line,
@@ -142,7 +129,6 @@ def man_to_markdown(content):
         if in_code_block:
             md_lines.append("```")
             in_code_block = False
-        # Inline code formatting for single commands in prose
         line = re.sub(
             r"\b(ls|cat|grep|echo|pwd|cd|mkdir|rm|touch|man)\b",
             r"`\1`",
@@ -150,7 +136,6 @@ def man_to_markdown(content):
         )
         md_lines.append(line)
 
-    # Close any unclosed code block
     if in_code_block:
         md_lines.append("```")
 
@@ -166,7 +151,6 @@ def main():
     raw = read_man_file(filename)
     markdown = man_to_markdown(raw)
 
-    # Save output to .md file
     base, _ = os.path.splitext(filename)
     outname = base + ".md"
     with open(outname, "w", encoding="utf-8") as f:

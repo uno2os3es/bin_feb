@@ -7,7 +7,6 @@ import regex as re
 
 def replace_in_files(search_text, replace_text, dry_run=False):
     exclude_dirs = {".git", "build", "dist"}
-    # Use word boundaries \b to ensure 're' doesn't match 'requests'
     pattern = re.compile(r"\b" + re.escape(search_text) + r"\b")
 
     for root, dirs, files in os.walk("."):

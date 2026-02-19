@@ -9,17 +9,12 @@ import shutil
 import stat
 import subprocess
 
-# ------------------------------------------------------------
-# Color + icon helpers
-# ------------------------------------------------------------
-
 
 def colorize(
     text: str,
     mode: int,
     link_target: str | None = None,
 ) -> str:
-    # Minimal LS-like coloring
     if stat.S_ISDIR(mode):
         return f"\033[34;1m{text}\033[0m"
     if stat.S_ISLNK(mode):
@@ -48,11 +43,6 @@ def detect_icon(name: str, mode: int) -> str:
     if ext in ("zip", "tar", "gz", "bz2", "xz"):
         return "📦"
     return "📄"
-
-
-# ------------------------------------------------------------
-# Git support — porcelain v2, NUL-separated
-# ------------------------------------------------------------
 
 
 def get_git_status_for_dir(
@@ -102,11 +92,6 @@ def get_git_status_for_dir(
     return result
 
 
-# ------------------------------------------------------------
-# Entry container
-# ------------------------------------------------------------
-
-
 class Entry:
     def __init__(
         self,
@@ -121,11 +106,6 @@ class Entry:
         self.stat = stat_obj
         self.link_target = link_target
         self.git = git
-
-
-# ------------------------------------------------------------
-# Formatting
-# ------------------------------------------------------------
 
 
 def mode_to_string(mode: int) -> str:
@@ -155,11 +135,6 @@ def human_size(n: int) -> str:
     return f"{n:.1f}P"
 
 
-# ------------------------------------------------------------
-# Long output
-# ------------------------------------------------------------
-
-
 def output_long(
     entries: list[Entry],
     icons=False,
@@ -185,17 +160,11 @@ def output_long(
         if colors:
             name = colorize(name, st.st_mode, e.link_target)
 
-        # Add git mark at end
         gitmark = ""
         if e.git:
             gitmark = f" {e.git['raw']}"
 
         print(f"{mode_s} {nlink:2} {user:8} {group:8} {size:>6} {tstr} {name}{gitmark}")
-
-
-# ------------------------------------------------------------
-# Two-column output (auto-width)
-# ------------------------------------------------------------
 
 
 def output_columns(
@@ -204,7 +173,6 @@ def output_columns(
     colors=True,
     width=None,
 ) -> None:
-    # Determine width
     if width is None:
         env_cols = os.environ.get("COLUMNS")
         if env_cols and env_cols.isdigit():
@@ -213,7 +181,7 @@ def output_columns(
             try:
                 width = shutil.get_terminal_size().columns
             except Exception:
-                width = 48  # Termux fallback
+                width = 48
 
     width = max(20, width)
     cols = 2
@@ -246,11 +214,6 @@ def output_columns(
         row = rendered[i : i + cols]
         padded = [r + " " * (col_width - real_len(r)) for r in row]
         print("".join(padded))
-
-
-# ------------------------------------------------------------
-# Tree view
-# ------------------------------------------------------------
 
 
 def print_tree(
@@ -286,11 +249,6 @@ def print_tree(
         if stat.S_ISDIR(st.st_mode):
             new_prefix = prefix + ("    " if is_last else "│   ")
             print_tree(path, new_prefix, icons, colors)
-
-
-# ------------------------------------------------------------
-# Recursive normal listing (-R)
-# ------------------------------------------------------------
 
 
 def list_recursive(base: str, args, depth=0) -> None:
@@ -332,11 +290,6 @@ def list_recursive(base: str, args, depth=0) -> None:
             list_recursive(e.path, args, depth + 1)
 
 
-# ------------------------------------------------------------
-# Output router
-# ------------------------------------------------------------
-
-
 def print_entries(entries: list[Entry], args) -> None:
     if args.json:
         out = []
@@ -364,17 +317,11 @@ def print_entries(entries: list[Entry], args) -> None:
         )
         return
 
-    # 2-column default
     output_columns(
         entries,
         icons=args.icons,
         colors=not args.no_color,
     )
-
-
-# ------------------------------------------------------------
-# Main
-# ------------------------------------------------------------
 
 
 def main() -> None:
@@ -427,7 +374,6 @@ def main() -> None:
             print_entries([e], args)
             continue
 
-        # Directory
         try:
             names = os.listdir(path)
         except PermissionError:

@@ -13,7 +13,6 @@ TARGET_FILES = {"METADATA", "PKGINFO", "PKG-INFO"}
 PREFIX = "Requires-Dist:"
 LOG_FILE = "/sdcard/reqdist.txt"
 
-# Global list to store removed lines
 removed_lines_accumulator = []
 
 
@@ -108,7 +107,6 @@ def dispatch_archive(path: str) -> None:
 
 
 def main() -> None:
-    # 1. Process files and collect lines
     for root, _, files in os.walk("."):
         for name in files:
             full_path = os.path.join(root, name)
@@ -123,12 +121,9 @@ def main() -> None:
                     ".tar",
                 )
             ):
-                #                continue
                 dispatch_archive(full_path)
 
-    # 2. Handle the collected output
     if removed_lines_accumulator:
-        # Save to file
         try:
             with open(LOG_FILE, "a", encoding="utf-8") as f:
                 for line in removed_lines_accumulator:
@@ -137,7 +132,6 @@ def main() -> None:
         except PermissionError:
             print(f"Warning: Could not write to {LOG_FILE}. Check Termux storage permissions.")
 
-        # Print to console
         print("\nRemoved Lines:")
         print("-" * 20)
         for line in removed_lines_accumulator:

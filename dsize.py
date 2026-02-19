@@ -16,11 +16,9 @@ def fetch_content_length(url: str) -> int | None:
             if length:
                 return int(length)
     except urllib.error.HTTPError as e:
-        # 405 Method Not Allowed or 403 Forbidden -> fallback
         if e.code not in (405, 403):
             raise
 
-    # Fallback: GET headers only (partial download)
     request = urllib.request.Request(url, method="GET")
     request.add_header("Range", "bytes=0-0")
     with urllib.request.urlopen(request, timeout=10) as response:
@@ -59,18 +57,15 @@ def main() -> None:
 
     input_path = Path(args.input)
     if input_path.is_file():
-        # File mode: update each line with size
         lines = input_path.read_text(encoding="utf-8").splitlines()
         updated_lines = [process_url(line.strip()) for line in lines if line.strip()]
 
-        # Overwrite file
         input_path.write_text(
             "\n".join(updated_lines),
             encoding="utf-8",
         )
         print(f"Updated file: {input_path} ({len(updated_lines)} URLs processed)")
     else:
-        # Single URL mode
         print(process_url(args.input))
 
 

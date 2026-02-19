@@ -34,13 +34,11 @@ def convert_file(file_path: str) -> bool:
         print(f"Skipping: {path.name} (Unsupported format or not a file)")
         return False
 
-    # If already JPG, nothing to do
     if path.suffix.lower() == ".png":
         return True
 
     output_path = path.with_suffix(".png")
 
-    # Ask before overwriting
     if output_path.exists():
         response = input(f"'{output_path.name}' exists. Overwrite? (y/n): ").strip().lower()
         if response != "y":
@@ -48,7 +46,6 @@ def convert_file(file_path: str) -> bool:
 
     try:
         if USE_CV2:
-            # OpenCV logic
             img = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
             if img is None:
                 print(f"Error: Could not decode {path.name}")
@@ -93,7 +90,7 @@ def convert_file(file_path: str) -> bool:
             success = True
 
         if success:
-            path.unlink()  # Delete original file
+            path.unlink()
             print(f"Successfully converted '{path.name}' to png.")
             return True
         else:
@@ -120,12 +117,9 @@ def main() -> None:
 
     print(f"converting {len(files)} files...")
 
-    # Step 2: Parallel Execution
-    # map handles the distribution; lambda passes the context
     with ThreadPoolExecutor(max_workers=8) as executor:
         results = list(executor.map(convert_file, files))
 
-    # Step 3: Reporting
     changed_count = sum(1 for r in results if r)
     print(f"Done. {changed_count} files modified.")
 

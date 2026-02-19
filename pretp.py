@@ -9,7 +9,6 @@ from tqdm import tqdm
 def format_file(file_path):
     """Executes Prettier on a single file and returns the path if it fails."""
     try:
-        # --write formats the file in-place
         subprocess.run(
             [
                 "npx",
@@ -30,7 +29,6 @@ def format_file(file_path):
 
 
 def main():
-    # Configuration
     target_extensions = (
         ".js",
         ".css",
@@ -49,7 +47,6 @@ def main():
 
     print("Scanning directory for files...")
     for root, dirs, files in os.walk("."):
-        # Prune excluded directories in-place to prevent recursion
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
 
         for file in files:
@@ -61,7 +58,6 @@ def main():
         return
 
     errors = []
-    # Using ThreadPoolExecutor as Prettier is an external CLI process
     with (
         tqdm(
             total=len(files_to_format),
@@ -70,7 +66,6 @@ def main():
         ) as pbar,
         concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor,
     ):
-        # Map the formatting function across all discovered files
         future_to_file = {executor.submit(format_file, f): f for f in files_to_format}
 
         for future in concurrent.futures.as_completed(future_to_file):
@@ -79,7 +74,6 @@ def main():
                 errors.append(err)
             pbar.update(1)
 
-    # Final Report
     print("\n" + "=" * 30)
     print(f"Finished processing {len(files_to_format)} files.")
     if errors:

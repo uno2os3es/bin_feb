@@ -1,8 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-# String to remove
 TARGET_STR = "#!/data/data/com.termux/files/usr/bin/env python3"
-
-# Function to check if a file is text-based
 
 
 def is_text_file(filepath) -> bool | None:
@@ -14,14 +11,10 @@ def is_text_file(filepath) -> bool | None:
         return False
 
 
-# Function to process files
-
-
 def process_file(filepath) -> None:
     try:
         with Path(filepath).open("r", encoding="utf-8") as f:
             lines = f.readlines()
-        # Keep lines that do NOT contain the target string
         new_lines = [line for line in lines if TARGET_STR not in line]
         if len(new_lines) != len(lines):
             with Path(filepath).open("w", encoding="utf-8") as f:
@@ -31,9 +24,7 @@ def process_file(filepath) -> None:
 
 
 def main() -> None:
-    # Walk through the directory recursively
     for root, _dirs, files in os.walk("."):
-        # Skip the bin directory
         for file in files:
             if file in {"rmshebang", "socket"}:
                 continue

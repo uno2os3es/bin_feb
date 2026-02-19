@@ -15,26 +15,20 @@ def remove_remote_html_images(text: str) -> str:
     def repl(match):
         src = match.group(1)
         if src.startswith(REMOTE_PREFIXES):
-            return ""  # remove entire <img> tag
+            return ""
         return match.group(0)
 
     return IMG_TAG_RE.sub(repl, text)
 
 
-# ---------- Markdown Processing ----------
-
-# Inline image: ![alt](url)
 MD_INLINE_IMG_RE = re.compile(r"!\[.*?\]\((.*?)\)", re.IGNORECASE)
 
-# Reference-style image: ![alt][id]
 MD_REF_IMG_RE = re.compile(r"!\[.*?\]\[(.*?)\]", re.IGNORECASE)
 
-# Reference definitions: [id]: url
 MD_REF_DEF_RE = re.compile(r"^\s*\[(.*?)\]:\s*(\S+)", re.MULTILINE)
 
 
 def remove_remote_md_images(text: str) -> str:
-    # Remove inline images
     def inline_repl(match):
         url = match.group(1)
         if url.startswith(REMOTE_PREFIXES):
@@ -43,14 +37,12 @@ def remove_remote_md_images(text: str) -> str:
 
     text = MD_INLINE_IMG_RE.sub(inline_repl, text)
 
-    # Collect remote reference IDs
     remote_ids = set()
     for m in MD_REF_DEF_RE.finditer(text):
         ref_id, url = m.groups()
         if url.startswith(REMOTE_PREFIXES):
             remote_ids.add(ref_id)
 
-    # Remove reference image usages
     def ref_repl(match):
         ref_id = match.group(1)
         if ref_id in remote_ids:
@@ -59,7 +51,6 @@ def remove_remote_md_images(text: str) -> str:
 
     text = MD_REF_IMG_RE.sub(ref_repl, text)
 
-    # Remove remote reference definitions
     def def_repl(match):
         ref_id, url = match.groups()
         if ref_id in remote_ids:
@@ -69,9 +60,6 @@ def remove_remote_md_images(text: str) -> str:
     text = MD_REF_DEF_RE.sub(def_repl, text)
 
     return text
-
-
-# ---------- File Processing ----------
 
 
 def process_file(path: Path):

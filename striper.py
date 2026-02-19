@@ -7,10 +7,8 @@ def remove_spaces_from_file(fname) -> None:
         with open(fname) as file:
             lines = file.readlines()
 
-        # Strip leading and trailing spaces from each line
         cleaned_lines = [line.lstrip() for line in lines]
 
-        # Optionally, write the cleaned lines back to the file or print
         with open(fname, "w") as file:
             file.writelines("".join(cleaned_lines))
 

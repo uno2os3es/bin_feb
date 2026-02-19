@@ -8,11 +8,8 @@ from pathlib import Path
 import regex as re
 from dh import MIME_TO_EXT
 
-# DATA_URL_RE = re.compile(r"url\(\s*(['\"]?)data:(?P<mime>[^;]+)(?:;charset=[^;]+)?;base64,(?P<data>[A-Za-z0-9+/=\s]+)\1\s*\)",re.IGNORECASE,)
-# DATA_URL_RE = re.compile(r'url\(\s*([\'"]?)data:(?P<mime>[^;]+)(?:;[^;=]+=[^;]+)*;base64,(?P<data>[A-Za-z0-9+/=\s]+)\1\s*\)',re.IGNORECASE,)
 DATA_URL_RE = re.compile(
     r"url\(\s*(['\"]?)data:(?P<mime>application/(?:vnd\.ms-fontobject|font-[^;]+|font/[^;]+))(?:;charset=[^;]+)?;base64,(?P<data>[A-Za-z0-9+/=\s]+)\1\s*\)",
-    #    r'url\(\s*([\'"]?)data:(?P<mime>[^;]+)(?:;[^;=]+=[^;]+)*;base64,(?P<data>[A-Za-z0-9+/=\s]+)\1\s*\)',
     re.IGNORECASE,
 )
 
@@ -30,7 +27,7 @@ def extract_css_base64(css_path: Path, out_dir: Path):
     css = css_path.read_text(encoding="utf-8", errors="ignore")
     out_dir.mkdir(exist_ok=True)
 
-    seen = {}  # hash -> filename
+    seen = {}
 
     def replace(match):
         mime = match.group("mime")

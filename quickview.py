@@ -38,10 +38,10 @@ def init_colors():
     curses.start_color()
     curses.use_default_colors()
 
-    curses.init_pair(1, curses.COLOR_CYAN, -1)  # header
-    curses.init_pair(2, curses.COLOR_GREEN, -1)  # file content
-    curses.init_pair(3, curses.COLOR_YELLOW, -1)  # footer
-    curses.init_pair(4, curses.COLOR_RED, -1)  # errors
+    curses.init_pair(1, curses.COLOR_CYAN, -1)
+    curses.init_pair(2, curses.COLOR_GREEN, -1)
+    curses.init_pair(3, curses.COLOR_YELLOW, -1)
+    curses.init_pair(4, curses.COLOR_RED, -1)
 
 
 def draw(stdscr, files, idx):
@@ -95,11 +95,11 @@ def main(stdscr):
 
         if key in (ord("q"), ord("Q")):
             break
-        if key == curses.KEY_NPAGE:  # PgDown
+        if key == curses.KEY_NPAGE:
             if idx < len(files) - 1:
                 idx += 1
                 draw(stdscr, files, idx)
-        elif key == curses.KEY_PPAGE:  # PgUp
+        elif key == curses.KEY_PPAGE:
             if idx > 0:
                 idx -= 1
                 draw(stdscr, files, idx)

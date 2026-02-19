@@ -27,11 +27,10 @@ from pathlib import Path
 
 import xxhash
 
-# Config
 CACHE_PATH = Path.home() / ".cache" / "dups_xxhash_cache.json"
 DUPS_DIR = Path.home() / "dups"
 MANIFEST_PATH = DUPS_DIR / "manifest.json"
-READ_CHUNK = 1 << 20  # 1 MiB
+READ_CHUNK = 1 << 20
 
 
 def load_json(path):
@@ -64,10 +63,8 @@ def build_groups(root: Path, cache: dict):
     for dirpath, _dirnames, filenames in os.walk(root):
         for name in filenames:
             fp = Path(dirpath) / name
-            # ignore symlinks
             if fp.is_symlink():
                 continue
-            # only regular files
             try:
                 st = fp.stat()
             except Exception:
@@ -97,7 +94,6 @@ def build_groups(root: Path, cache: dict):
 def dedupe(root: Path, dry_run=False, force=False):
     cache = load_json(CACHE_PATH) if CACHE_PATH.exists() else {}
     groups = build_groups(root, cache)
-    # persist cache early so repeated runs are faster
     save_json(CACHE_PATH, cache)
 
     DUPS_DIR.mkdir(parents=True, exist_ok=True)
@@ -107,18 +103,15 @@ def dedupe(root: Path, dry_run=False, force=False):
     for h, paths in groups.items():
         if len(paths) < 2:
             continue
-        # sort to have deterministic choice of stored original
         paths_sorted = sorted(paths, key=str)
         original = paths_sorted[0]
         stored_name = f"{h}__{original.name}"
         stored_path = DUPS_DIR / stored_name
 
-        # If stored file doesn't exist, move the chosen original into dups
         if not stored_path.exists():
             if dry_run:
                 print(f"[DRY] move: {original} -> {stored_path}")
             else:
-                # ensure parent exists
                 stored_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.move(
                     str(original),
@@ -126,7 +119,6 @@ def dedupe(root: Path, dry_run=False, force=False):
                 )
                 print(f"moved: {original} -> {stored_path}")
             changed = True
-        # If stored exists but original still exists (rare), remove original before symlink
         elif original.exists():
             if dry_run:
                 print(f"[DRY] remove original file before symlink: {original}")
@@ -134,15 +126,12 @@ def dedupe(root: Path, dry_run=False, force=False):
                 original.unlink()
                 print(f"removed original file: {original}")
 
-        # For every other duplicate, replace with symlink to stored_path
         for p in paths_sorted[1:]:
             if p.is_symlink():
-                # ignore existing symlinks
                 continue
             if dry_run:
                 print(f"[DRY] symlink: {p} -> {stored_path.resolve()}")
             else:
-                # if file exists, remove it (force or not, we remove to create symlink)
                 if p.exists():
                     try:
                         p.unlink()
@@ -157,7 +146,6 @@ def dedupe(root: Path, dry_run=False, force=False):
                 print(f"symlinked: {p} -> {stored_path.resolve()}")
             changed = True
 
-        # update manifest entry
         manifest[str(stored_path)] = {
             "hash": h,
             "originals": [str(p) for p in paths_sorted],
@@ -183,11 +171,9 @@ def restore(dry_run=False):
             continue
         originals = [Path(p) for p in info.get("originals", [])]
         for orig in originals:
-            # if original exists and is not a symlink, skip
             if orig.exists() and not orig.is_symlink():
                 print(f"skipping restore for {orig} (exists and not a symlink)")
                 continue
-            # if it's a symlink, ensure it points to our stored file
             if orig.is_symlink():
                 try:
                     target = Path(os.readlink(orig))
@@ -197,7 +183,6 @@ def restore(dry_run=False):
                 if target.resolve() != stored.resolve():
                     print(f"skipping {orig} (symlink points elsewhere)")
                     continue
-            # restore: remove symlink (if any) and copy stored file back
             if dry_run:
                 print(f"[DRY] restore {stored} -> {orig}")
             else:
@@ -210,7 +195,6 @@ def restore(dry_run=False):
                 orig.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(stored, orig)
                 print(f"restored: {orig}")
-        # after restoring all originals for this stored file, remove stored file
         if dry_run:
             print(f"[DRY] remove stored file {stored}")
         else:

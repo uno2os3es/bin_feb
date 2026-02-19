@@ -15,14 +15,12 @@ def process_png(input_path):
         command = [
             "pngquant",
             f"--quality={QUALITY_RANGE}",
-            "--force",  # Force overwrite
-            # Do not save if file size increases (safe optimization)
+            "--force",
             "--skip-if-larger",
             input_path,
             "--output",
-            input_path,  # Overwrite the original file
+            input_path,
         ]
-        # Execute the command
         result = subprocess.run(
             command,
             capture_output=True,

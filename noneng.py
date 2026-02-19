@@ -4,13 +4,11 @@ import os
 from langdetect import DetectorFactory, detect
 from langdetect.lang_detect_exception import LangDetectException
 
-# Make detection deterministic
 DetectorFactory.seed = 0
 
 TEXT_EXTENSIONS = [p.strip for p in open("/sdcard/txt").read().splitlines()]
-# print(len(TEXT_EXTENSIONS))
 
-MAX_CHARS = 5000  # limit text size per file for speed
+MAX_CHARS = 5000
 
 
 def is_text_file(path):
@@ -26,7 +24,7 @@ def contains_non_english(path):
         ) as f:
             text = f.read(MAX_CHARS).strip()
             if len(text) < 20:
-                return False  # not enough text to detect reliably
+                return False
             return detect(text) != "en"
     except (LangDetectException, OSError):
         return False

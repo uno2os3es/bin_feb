@@ -8,13 +8,11 @@ NO_EXT_DIR = "_no_ext"
 
 def folderize_by_extension(base_dir: str):
     for root, dirs, files in os.walk(base_dir, topdown=True):
-        # Prevent descending into extension folders we create
         dirs[:] = [d for d in dirs if not os.path.samefile(os.path.join(root, d), base_dir) or d.startswith(".")]
 
         for filename in files:
             src_path = os.path.join(root, filename)
 
-            # Skip if already moved to base-level extension folder
             if os.path.dirname(src_path) == base_dir:
                 continue
 
@@ -28,7 +26,6 @@ def folderize_by_extension(base_dir: str):
 
             dest_path = os.path.join(target_path, filename)
 
-            # Avoid overwriting
             if os.path.exists(dest_path):
                 base, extension = os.path.splitext(filename)
                 i = 1

@@ -47,7 +47,6 @@ def main():
     ensure_dirs()
 
     for py_file in Path(".").glob("*.py"):
-        # Skip this script itself if needed
         if py_file.name == Path(__file__).name:
             continue
 

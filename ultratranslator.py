@@ -51,9 +51,6 @@ def safe_overwrite(filepath: Path, content: str) -> None:
     shutil.move(tmp_path, filepath)
 
 
-# ---------- PYTHON-SAFE TRANSLATION ----------
-
-
 def extract_docstrings(
     tree: ast.AST,
 ) -> dict[int, str]:
@@ -102,9 +99,6 @@ def translate_python_file(source: str) -> str:
         output.append(tok_str)
 
     return "".join(output)
-
-
-# ---------- FILE PROCESSING ----------
 
 
 def process_files(directory: str) -> None:

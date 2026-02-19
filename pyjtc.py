@@ -7,7 +7,6 @@ import regex as re
 
 def remove_comments_and_strings(content, filetype, keep_strings=False):
     if filetype in ["c", "cpp", "h", "hpp"]:
-        # Remove C/C++ comments (// and /* */)
         content = re.sub(r"//.*", "", content)
         content = re.sub(
             r"/\*.*?\*/",
@@ -19,7 +18,6 @@ def remove_comments_and_strings(content, filetype, keep_strings=False):
             content = re.sub(r"\"[^\"]*\"", "", content)
             content = re.sub(r"'[^']*'", "", content)
     elif filetype == "py":
-        # Remove Python comments (#) and docstrings
         content = re.sub(r"#.*", "", content)
         content = re.sub(r"\"\"\"[\s\S]*?\"\"\"", "", content)
         content = re.sub(r"'''[\s\S]*?'''", "", content)
@@ -27,7 +25,6 @@ def remove_comments_and_strings(content, filetype, keep_strings=False):
             content = re.sub(r"\"[^\"]*\"", "", content)
             content = re.sub(r"'[^']*'", "", content)
     elif filetype == "sh":
-        # Remove Bash comments (#)
         content = re.sub(r"#.*", "", content)
         if not keep_strings:
             content = re.sub(r"\"[^\"]*\"", "", content)

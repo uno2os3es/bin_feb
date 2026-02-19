@@ -4,7 +4,6 @@ import csv
 
 
 def sort_packages_by_size(filename: str):
-    # Read CSV
     with open(filename, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
@@ -14,13 +13,11 @@ def sort_packages_by_size(filename: str):
         print("Error: 'Installed-Size' column not found in CSV")
         return
 
-    # Sort by Installed-Size (convert to int)
     rows.sort(
         key=lambda x: int(x.get("Installed-Size") or 0),
         reverse=True,
     )
 
-    # Write back to the same file
     with open(
         filename,
         "w",

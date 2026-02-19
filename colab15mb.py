@@ -26,7 +26,6 @@ def compress_small_site_packages(max_size_mb=15):
             item_path = os.path.join(site_packages_dir, item)
 
             if os.path.isdir(item_path):
-                # Include folder if total size <= max_size_mb
                 folder_size_mb = get_folder_size(item_path) / (1024 * 1024)
                 if folder_size_mb <= max_size_mb:
                     print(f"Including folder {item} ({folder_size_mb:.2f} MB)")
@@ -48,7 +47,6 @@ def compress_small_site_packages(max_size_mb=15):
                                 )
 
             elif os.path.isfile(item_path):
-                # Include individual file if size <= max_size_mb
                 file_size_mb = os.path.getsize(item_path) / (1024 * 1024)
                 if file_size_mb <= max_size_mb and not item.endswith(".pyc"):
                     print(f"Including file {item} ({file_size_mb:.2f} MB)")

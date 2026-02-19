@@ -23,7 +23,6 @@ def find_html_files(root_dir: str = ".") -> list[Path]:
     root_path = Path(root_dir).resolve()
 
     for file_path in root_path.rglob("*.html"):
-        # Skip template.html if it already exists
         if file_path.name != "template.html":
             html_files.append(file_path)
 
@@ -53,7 +52,6 @@ def extract_common_structure(html_files: list[Path]) -> dict:
             with open(file_path, encoding="utf-8") as f:
                 soup = BeautifulSoup(f.read(), "html.parser")
 
-                # Extract head elements
                 if soup.head:
                     for meta in soup.head.find_all("meta"):
                         meta_tags.append(str(meta))
@@ -63,14 +61,12 @@ def extract_common_structure(html_files: list[Path]) -> dict:
                         if script.get("src"):
                             script_tags.append(str(script))
 
-                # Extract body classes
                 if soup.body and soup.body.get("class"):
                     body_classes.extend(soup.body.get("class"))
 
         except Exception as e:
             print(f"⚠️  Error processing {file_path}: {e}")
 
-    # Find most common elements
     common_meta = list(set(meta_tags))
     common_links = list(set(link_tags))
     common_scripts = list(set(script_tags))
@@ -101,10 +97,8 @@ def merge_html_content(html_files: list[Path]) -> str:
             with open(file_path, encoding="utf-8") as f:
                 soup = BeautifulSoup(f.read(), "html.parser")
 
-                # Extract body content
                 content = soup.body.decode_contents() if soup.body else str(soup)
 
-                # Create section with file reference
                 section_html = f"""
     <!-- Content from: {file_path.relative_to(Path.cwd())} -->
     <section class="merged-content" data-source="{file_path.name}">
@@ -139,13 +133,10 @@ def create_template_html(
 
     print(f"📄 Processing {len(html_files)} HTML files...")
 
-    # Extract common structure
     structure = extract_common_structure(html_files)
 
-    # Merge content
     merged_content = merge_html_content(html_files)
 
-    # Build template HTML
     template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -270,7 +261,6 @@ def create_template_html(
 </html>
 """
 
-    # Write template file
     try:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(template)
@@ -288,7 +278,6 @@ def main():
     """Main function to create template HTML."""
     print("🔍 Searching for HTML files in current directory...")
 
-    # Find all HTML files
     html_files = find_html_files()
 
     if not html_files:
@@ -296,12 +285,11 @@ def main():
         return
 
     print(f"📁 Found {len(html_files)} HTML files:")
-    for file_path in html_files[:10]:  # Show first 10
+    for file_path in html_files[:10]:
         print(f"   - {file_path.relative_to(Path.cwd())}")
     if len(html_files) > 10:
         print(f"   ... and {len(html_files) - 10} more")
 
-    # Create template
     success = create_template_html(html_files, output_file="template.html", title="Merged HTML Template")
 
     if success:
@@ -312,7 +300,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # Install BeautifulSoup if needed
     try:
         from bs4 import BeautifulSoup
     except ImportError:

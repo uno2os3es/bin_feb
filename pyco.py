@@ -28,8 +28,6 @@ def get_skip_dirs():
     ):
         skip.add(str(site_packages / d))
     skip.add("/data/data/com.termux/files/home/bin")
-    #    for k in skip:
-    #       print(f'{k} will not be processed')
     return skip
 
 
@@ -43,15 +41,12 @@ def clean_pyc_and_pycache(
     skip_dirs = get_skip_dirs()
 
     for root, dirs, files in os.walk(start_dir, topdown=False):
-        # Skip .git dirs
         if ".git" in Path(root).parts:
             continue
 
-        # Skip system site-packages pip/setuptools/wheel
         if any(str(Path(root)).startswith(sd) for sd in skip_dirs):
             continue
 
-        # Remove .pyc files
         for f in files:
             if f.endswith(".pyc"):
                 file_path = Path(root) / f
@@ -63,7 +58,6 @@ def clean_pyc_and_pycache(
                 except Exception as e:
                     print(f"⚠️ error deleting {file_path}: {e}")
 
-        # Remove __pycache__ directories
         for d in dirs:
             if d == "__pycache__":
                 dir_path = Path(root) / d

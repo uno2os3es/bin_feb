@@ -57,11 +57,9 @@ def collect_python_files() -> list[Path]:
     for file in Path(".").rglob("*.py"):
         resolved = file.resolve()
 
-        # Skip self
         if resolved == current_script:
             continue
 
-        # Skip ok/ and error/ directories
         if ERROR_DIR in resolved.parents or OK_DIR in resolved.parents:
             continue
 
@@ -89,7 +87,6 @@ def main():
         for future in as_completed(futures):
             results.append(future.result())
 
-    # Move files after checking phase
     for file_path, passed in results:
         target_dir = OK_DIR if passed else ERROR_DIR
         dest = unique_destination(target_dir / file_path.name)

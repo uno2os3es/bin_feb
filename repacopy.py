@@ -11,7 +11,6 @@ import shutil
 import sys
 from pathlib import Path
 
-# Set up logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -32,12 +31,10 @@ class PackageRepacker:
         """Find all site-packages directories starting from the current directory"""
         site_packages_dirs = []
 
-        # Scan only the current directory
         search_paths = [
             Path.cwd(),
         ]
 
-        # Look for virtual environments in common locations
         venv_patterns = [
             ".venv",
             "venv",
@@ -50,16 +47,13 @@ class PackageRepacker:
                 continue
 
             try:
-                # Look for virtual environments
                 for pattern in venv_patterns:
-                    # rglob will search recursively from the current directory
                     for venv_dir in search_path.rglob(pattern):
                         if venv_dir.is_dir():
-                            # Check for site-packages in virtual environment
                             possible_paths = [
                                 venv_dir / "lib" / "python*" / "site-packages",
                                 venv_dir / "lib" / "site-packages",
-                                venv_dir / "Lib" / "site-packages",  # Windows style, just in case
+                                venv_dir / "Lib" / "site-packages",
                             ]
 
                             for possible_path in possible_paths:
@@ -69,13 +63,11 @@ class PackageRepacker:
                                             site_packages_dirs.append(site_pkg)
                                             logger.info(f"Found virtualenv site-packages: {site_pkg}")
 
-                # Look for site-packages directly (e.g., if running inside a venv)
                 for site_pkg in search_path.rglob("site-packages"):
                     if site_pkg.is_dir() and site_pkg not in site_packages_dirs:
                         site_packages_dirs.append(site_pkg)
                         logger.info(f"Found site-packages: {site_pkg}")
 
-                # Look for dist-packages (Debian/Ubuntu)
                 for dist_pkg in search_path.rglob("dist-packages"):
                     if dist_pkg.is_dir() and dist_pkg not in site_packages_dirs:
                         site_packages_dirs.append(dist_pkg)
@@ -87,10 +79,6 @@ class PackageRepacker:
             ) as e:
                 logger.debug(f"Permission denied scanning {search_path}: {e}")
 
-        # The --skip-scan option will still use the site module for the *current* env,
-        # but this default scan is now limited to Path.cwd()
-
-        # Remove duplicates and sort
         unique_dirs = list(set(site_packages_dirs))
         unique_dirs.sort()
 
@@ -106,12 +94,10 @@ class PackageRepacker:
             "dependencies": [],
         }
 
-        # Try to get version from directory name (format: package-name-version.dist-info)
-        parts = dist_info_dir.stem.split("-")  # .stem removes .dist-info
+        parts = dist_info_dir.stem.split("-")
         if len(parts) >= 2:
             metadata["version"] = parts[-1]
 
-        # Read METADATA file for more information
         metadata_file = dist_info_dir / "METADATA"
         if metadata_file.exists():
             try:
@@ -156,55 +142,44 @@ class PackageRepacker:
             logger.info(f"Detected C extensions for {package_name}; generating platform-specific tags.")
             root_is_purelib = "false"
             try:
-                # Use 'packaging' library for the most accurate tags
                 from packaging.tags import sys_tags
 
-                best_tag = next(sys_tags())  # Get the first, most specific tag
+                best_tag = next(sys_tags())
                 python_tag = best_tag.interpreter
                 abi_tag = best_tag.abi
                 platform_tag = best_tag.platform
                 logger.debug(f"Using 'packaging' lib. Tags: {python_tag}-{abi_tag}-{platform_tag}")
             except ImportError:
-                # Fallback if 'packaging' is not installed
                 logger.warning("`packaging` library not found. (Install with: pip install packaging)")
                 logger.warning("Falling back to best-guess tags based on current system.")
                 import platform
 
                 python_ver = sys.version_info
                 python_tag = f"cp{python_ver.major}{python_ver.minor}"
-                abi_tag = python_tag  # Best guess for modern CPython
-                # e.g., "linux_aarch64"
+                abi_tag = python_tag
                 platform_tag = f"{platform.system().lower()} _{platform.machine()} "
                 logger.debug(f"Fallback tags: {python_tag}-{abi_tag}-{platform_tag}")
 
         wheel_name = f"{package_name.replace('-', '_')} -{version} -{python_tag} -{abi_tag} -{platform_tag} "
         wheel_dir = base_output_dir / wheel_name
 
-        # Create wheel structure
         dist_info_dir = wheel_dir / f"{package_name}-{version}.dist-info"
         wheel_dir / f"{package_name}-{version}.data"
 
         dist_info_dir.mkdir(parents=True, exist_ok=True)
 
-        # Copy files to appropriate locations
-        for file_path in files:  # file_path is already the relative path from site-packages
+        for file_path in files:
             relative_path = file_path
 
             target_path: Path
 
-            # Check if it's a dist-info file
             if ".dist-info" in str(relative_path):
-                # It's a file like 'package-version.dist-info/METADATA'
-                # We want to put it in our *new* dist_info_dir
                 target_path = dist_info_dir / relative_path.name
             else:
-                # It's a regular package file (e.g., 'requests/__init__.py' or 'lxml/etree.so')
-                # These go in the root of the wheel structure
                 target_path = wheel_dir / relative_path
 
             target_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Source path is the file in the *original* site-packages
             source_path = site_packages_path / file_path
 
             if source_path.exists():
@@ -212,16 +187,13 @@ class PackageRepacker:
             else:
                 logger.warning(f"File from RECORD not found at {source_path}")
 
-        # Create WHEEL file
         wheel_file = dist_info_dir / "WHEEL"
         with open(wheel_file, "w") as f:
             f.write("Wheel-Version: 1.0\n")
             f.write("Generator: auto-repacker 1.0\n")
-            f.write(f"Root-Is-Purelib: {root_is_purelib}\n")  # <-- Updated
-            # <-- Updated
+            f.write(f"Root-Is-Purelib: {root_is_purelib}\n")
             f.write(f"Tag: {python_tag}-{abi_tag}-{platform_tag}\n")
 
-        # Copy METADATA file if it wasn't in RECORD (as a fallback)
         original_metadata = original_dist_info_dir / "METADATA"
         new_metadata_path = dist_info_dir / "METADATA"
         if not new_metadata_path.exists() and original_metadata.exists():
@@ -230,13 +202,11 @@ class PackageRepacker:
                 new_metadata_path,
             )
         elif not new_metadata_path.exists():
-            # Create basic metadata
             with open(new_metadata_path, "w") as f:
                 f.write("Metadata-Version: 2.1\n")
                 f.write(f"Name: {package_name}\n")
                 f.write(f"Version: {version}\n")
 
-        # Copy original RECORD file (with correct hashes)
         original_record = original_dist_info_dir / "RECORD"
         if original_record.exists():
             shutil.copy2(
@@ -261,7 +231,6 @@ class PackageRepacker:
                 logger.warning(f"Skipping {dist_info_dir.name}: RECORD file not found")
                 return False
 
-            # Get package metadata
             metadata = self.get_package_info_from_dist_info(dist_info_dir)
             package_name = metadata["name"]
 
@@ -269,15 +238,12 @@ class PackageRepacker:
                 logger.warning(f"Could not determine package name for {dist_info_dir}")
                 return False
 
-            # Read files from RECORD and check for C extensions
             files_to_include = []
             is_pure_python = True
             with open(record_file, encoding="utf-8") as f:
                 for line in f:
                     file_path_str = line.split(",")[0].strip()
-                    # Include all files from RECORD, except the RECORD file itself
                     if file_path_str and not file_path_str.endswith(".dist-info/RECORD"):
-                        # Check for C extensions
                         if file_path_str.endswith(".so"):
                             is_pure_python = False
 
@@ -289,7 +255,6 @@ class PackageRepacker:
                 logger.warning(f"No files found for package {package_name}")
                 return False
 
-            # Create wheel structure directly in the output directory
             package_structure_path = self.create_wheel_structure(
                 package_name,
                 metadata,
@@ -297,7 +262,7 @@ class PackageRepacker:
                 site_packages_path,
                 output_dir,
                 dist_info_dir,
-                is_pure_python,  # <-- Pass the purity flag
+                is_pure_python,
             )
 
             if package_structure_path:
@@ -317,10 +282,8 @@ class PackageRepacker:
         for site_packages_dir in self.found_site_packages:
             logger.info(f"Processing site-packages: {site_packages_dir}")
 
-            # Create output subdirectory for this site-packages
             env_name = "local_env"
             try:
-                # Try to guess env name from path
                 if (
                     ".venv" in str(site_packages_dir)
                     or "venv" in str(site_packages_dir)
@@ -328,12 +291,11 @@ class PackageRepacker:
                 ):
                     env_name = site_packages_dir.parent.parent.name
             except Exception:
-                pass  # stick with 'local_env'
+                pass
 
             output_dir = self.output_base / env_name
             output_dir.mkdir(parents=True, exist_ok=True)
 
-            # Find all dist-info directories
             dist_info_dirs = list(site_packages_dir.glob("*.dist-info"))
             package_count = 0
 
@@ -381,7 +343,6 @@ def main():
         repacker = PackageRepacker(output_base=args.output)
 
         if args.skip_scan:
-            # Use current environment only
             import site
 
             current_site_packages = site.getsitepackages()
@@ -392,7 +353,6 @@ def main():
             repacker.found_site_packages = [Path(p) for p in current_site_packages if Path(p).exists()]
             logger.info(f"Using current active environment site-packages: {repacker.found_site_packages}")
         else:
-            # Scan current directory for all site-packages
             logger.info("Scanning current directory for site-packages directories...")
             site_packages_dirs = repacker.find_site_packages_dirs()
             logger.info(f"Found {len(site_packages_dirs)} site-packages directories")
@@ -401,7 +361,6 @@ def main():
             logger.error("No site-packages directories found!")
             return 1
 
-        # Repack all packages
         repacker.copy_all_packages()
 
     except Exception as e:

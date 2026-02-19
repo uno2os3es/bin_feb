@@ -19,7 +19,6 @@ def fold_content_pure(fname, width=35):
         if line:
             folded_lines.append(line)
 
-    #    return '\n'.join(folded_lines) + '\n'
     with open(fname, "w") as fo:
         for line in folded_lines:
             fo.write(line + "\n")
@@ -36,11 +35,9 @@ def fold_file_inplace(filename):
         )
         sys.exit(1)
 
-    # Read original content to a temp file first (safer approach)
     with open(filename, encoding="utf-8") as f:
         original_content = f.read()
 
-    # Write to temp file using fold command
     with tempfile.NamedTemporaryFile(
         mode="w+",
         suffix=".tmp",
@@ -51,7 +48,6 @@ def fold_file_inplace(filename):
         temp_f.write(original_content)
         temp_f.flush()
 
-        # Run fold on temp file and capture output
         result = subprocess.run(
             [
                 "fold",
@@ -74,15 +70,12 @@ def fold_file_inplace(filename):
             os.unlink(temp_filename)
             sys.exit(1)
 
-        # Overwrite original file with folded content
         with open(filename, "w", encoding="utf-8") as original_f:
             original_f.write(result.stdout)
 
-    # Clean up temp file
     os.unlink(temp_filename)
     print(f"Successfully folded '{filename}' in place.")
 
 
 if __name__ == "__main__":
-    #    fold_content_pure(sys.argv[1])
     fold_file_inplace(sys.argv[1])

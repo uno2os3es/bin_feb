@@ -6,11 +6,9 @@ import regex as re
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
-# Load API Key
 load_dotenv()
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-# Configuration
 CHANNELS = {
     "Blueprint_CoC": "UCQJJGSWnPUCb8uKV_MoJeOA",
     "iTzu": "UCLKKvlo0yK8OgWvjCiZQ3sA",
@@ -19,7 +17,6 @@ CHANNELS = {
 
 
 def get_videos(youtube, channel_id):
-    # Calculate RFC3339 date for 30 days ago
     past_date = (datetime.now(UTC) - timedelta(days=30)).isoformat()
 
     videos = []
@@ -36,7 +33,6 @@ def get_videos(youtube, channel_id):
         response = request.execute()
         for item in response.get("items", []):
             video_id = item["id"]["videoId"]
-            # Fetch full description (search only gives a snippet)
             video_details = youtube.videos().list(part="snippet", id=video_id).execute()
 
             snippet = video_details["items"][0]["snippet"]
@@ -50,15 +46,13 @@ def get_videos(youtube, channel_id):
 
         request = youtube.search().list_next(request, response)
         if len(videos) > 100:
-            break  # Safety limit
+            break
     return videos
 
 
 def extract_th18_links(description):
-    # Regex to find CoC layout links
     pattern = r"(https?://link\.clashofclans\.com/[^\s]+)"
     links = re.findall(pattern, description)
-    # Filter for TH18 context or actual layout IDs containing TH18
     return [l for l in links if "TH18" in l.upper() or "TH18" in description.upper()]
 
 
@@ -121,7 +115,7 @@ def main():
                     {
                         "title": v["title"],
                         "video_url": v["url"],
-                        "links": list(set(links)),  # Unique links
+                        "links": list(set(links)),
                     }
                 )
 

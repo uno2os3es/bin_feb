@@ -12,7 +12,6 @@ def main():
     with open(fname, encoding="utf-8") as f:
         content = f.read()
 
-    # Replace literal backslash-n with actual newline
     content = content.replace("\\n", "\n")
 
     with open(fname, "w", encoding="utf-8") as f:

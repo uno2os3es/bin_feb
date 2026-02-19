@@ -42,14 +42,12 @@ def get_current_branch():
 
 def get_main_branch_name():
     """Detect the main branch name (main or master)."""
-    # Try to get remote origin's default branch first
     result = run_git_command("git remote show origin", check=False)
     if result and "HEAD branch" in result.stdout:
         for line in result.stdout.split("\n"):
             if "HEAD branch" in line:
                 return line.split(":")[1].strip()
 
-    # Check local branches
     result = run_git_command("git branch -l")
     if result:
         branches = [b.strip().replace("* ", "") for b in result.stdout.split("\n") if b.strip()]
@@ -57,7 +55,6 @@ def get_main_branch_name():
             if branch in ["main", "master"]:
                 return branch
 
-    # Default to main
     return "main"
 
 
@@ -104,7 +101,6 @@ def reset_to_last_commit() -> bool:
     """Reset repository to only keep the last commit."""
     print("Resetting to last commit...")
 
-    # Get the current commit hash
     result = run_git_command("git rev-parse HEAD")
     if not result:
         return False
@@ -112,10 +108,8 @@ def reset_to_last_commit() -> bool:
     current_commit = result.stdout.strip()
     print(f"Current commit: {current_commit}")
 
-    # Create a new orphan branch with only the last commit
     main_branch = get_main_branch_name()
 
-    # Reset to keep only the last commit and remove all history
     commands = [
         "git checkout --orphan temp_branch",
         "git add -A",
@@ -140,11 +134,8 @@ def alternative_reset_method() -> None:
     print("Using alternative reset method...")
 
     commands = [
-        # Create a backup branch just in case
         "git branch backup-before-cleanup",
-        # Reset to the last commit
         "git reset --hard HEAD",
-        # Remove all other references
         "git reflog expire --expire=now --all",
         "git gc --prune=now --aggressive",
     ]
@@ -184,18 +175,15 @@ def main() -> None:
     print("and delete all branches except main/master.")
     print("=" * 60)
 
-    # Check if we're in a git repository
     if not is_git_repository():
         print("Error: Not a git repository!")
         sys.exit(1)
 
-    # Confirm with user
     response = input("\nAre you sure you want to continue? (yes/NO): ")
     if response.lower() not in ["yes", "y"]:
         print("Operation cancelled.")
         sys.exit(0)
 
-    # Create backup
     print("\n1. Creating backup...")
     if not create_backup():
         response = input("Backup failed. Continue anyway? (yes/NO): ")
@@ -203,7 +191,6 @@ def main() -> None:
             print("Operation cancelled.")
             sys.exit(0)
 
-    # Get current status
     print("\n2. Checking repository status...")
     main_branch = get_main_branch_name()
     current_branch = get_current_branch()
@@ -213,7 +200,6 @@ def main() -> None:
     print(f"   Main branch: {main_branch}")
     print(f"   All branches: {', '.join(branches)}")
 
-    # Switch to main branch if not already there
     if current_branch != main_branch:
         print(f"\n3. Switching to main branch: {main_branch}")
         result = run_git_command(
@@ -224,7 +210,6 @@ def main() -> None:
             print(f"Failed to switch to {main_branch}")
             sys.exit(1)
 
-    # Delete branches
     print(f"\n4. Deleting branches except {main_branch}...")
     deleted_branches = delete_branches_except_main()
     if deleted_branches:
@@ -232,12 +217,10 @@ def main() -> None:
     else:
         print("   No branches to delete")
 
-    # Reset commits
     print("\n5. Resetting ...")
     if not alternative_reset_method():
         reset_to_last_commit()
 
-    # Final status
     print("\n6. Final status:")
     result = run_git_command("git log --oneline")
     if result:

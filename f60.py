@@ -5,9 +5,8 @@ import time
 
 
 def parse_minutes() -> float:
-    # why: allow no-arg default
     if len(sys.argv) == 1:
-        return 60.0  # default: last hour
+        return 60.0
 
     try:
         return float(sys.argv[1])

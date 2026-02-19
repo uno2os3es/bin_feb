@@ -10,16 +10,13 @@ from pytesseract import image_to_string
 def preprocess_image(img):
     img = img.convert("L")
     img = ImageOps.autocontrast(img)
-    # Reduce noise
     img = img.filter(ImageFilter.MedianFilter(size=3))
-    # Binarize (simple threshold)
     threshold = 150
     return img.point(lambda x: 255 if x > threshold else 0)
 
 
 def extract_text(image_path):
     img = Image.open(image_path)
-    #    img = preprocess_image(img)
     return image_to_string(img, lang="eng", config="--oem 1 --psm 6")
 
 

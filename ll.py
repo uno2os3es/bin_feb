@@ -3,11 +3,10 @@ import os
 import stat
 import sys
 
-# ANSI color codes
-CYAN = "\033[36m"  # files
-BLUE = "\033[34m"  # directories
-GREEN = "\033[32m"  # executables
-RED = "\033[31m"  # compressed files
+CYAN = "\033[36m"
+BLUE = "\033[34m"
+GREEN = "\033[32m"
+RED = "\033[31m"
 RESET = "\033[0m"
 
 COMPRESSED_EXTS = {
@@ -78,14 +77,12 @@ def list_dir(path="."):
 
         items.append((size, entry, color))
 
-    # --- FIX: Added 'default' to handle empty lists ---
     size_col_width = max(
         (len(human_readable_size(s)) for s, _, _ in items),
         default=4,
     )
     name_col_width = max((len(n) for _, n, _ in items), default=4)
 
-    # Print header
     print(f"{'size'.ljust(size_col_width)}  {'name'}")
     print("-" * (size_col_width + name_col_width + 2))
 
@@ -93,7 +90,6 @@ def list_dir(path="."):
         print("(directory is empty)")
         return
 
-    # Sort by size ascending
     for size, name, color in sorted(items, key=lambda x: x[0]):
         size_str = human_readable_size(size).ljust(size_col_width)
         print(f"{size_str}  {color}{name}{RESET}")

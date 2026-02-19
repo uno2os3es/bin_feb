@@ -34,11 +34,6 @@ def translate_text_chunked(text: str) -> str:
     return "".join(out)
 
 
-# ----------------------------------------------------------------------
-# PYTHON-SAFE TRANSLATION
-# ----------------------------------------------------------------------
-
-
 def translate_python_file(content: str) -> str:
     """Translate ONLY comments & docstrings in a .py file safely."""
     lines = content.splitlines(keepends=True)
@@ -49,14 +44,11 @@ def translate_python_file(content: str) -> str:
     for line in lines:
         stripped = line.strip()
 
-        # Detect docstring start
         if not in_docstring and (stripped.startswith('"""') or stripped.startswith("'''")):
             in_docstring = True
             doc_delim = stripped[:3]
-            # translate inside docstring
             inside = stripped[3:]
             if inside.endswith(doc_delim):
-                # single-line docstring
                 text = inside[:-3]
                 translated = translate_text_chunked(text) if text else ""
                 out.append(line.replace(text, translated))
@@ -68,7 +60,6 @@ def translate_python_file(content: str) -> str:
                 out.append(line.replace(text, translated))
             continue
 
-        # Inside multi-line docstring
         if in_docstring:
             if stripped.endswith(doc_delim):
                 text = line.replace(doc_delim, "")
@@ -81,7 +72,6 @@ def translate_python_file(content: str) -> str:
                 out.append(translated)
             continue
 
-        # Translate comments (# …)
         if "#" in line:
             code, comment = line.split("#", 1)
             translated = translate_text_chunked(comment)
@@ -90,11 +80,6 @@ def translate_python_file(content: str) -> str:
             out.append(line)
 
     return "".join(out)
-
-
-# ----------------------------------------------------------------------
-# GENERIC TEXT FILE TRANSLATION
-# ----------------------------------------------------------------------
 
 
 def translate_text_file(content: str) -> str:
@@ -120,7 +105,6 @@ def main() -> None:
     ext = in_path.suffix.lower()
     content = in_path.read_text(encoding="utf-8")
 
-    # Auto-detect language
     src_lang = args.lang
     if src_lang == "auto":
         src_lang = single_detection(content[:500])

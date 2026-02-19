@@ -2,7 +2,6 @@
 import sys
 from pathlib import Path
 
-# Try to import OpenCV, fall back to Pillow if not available
 try:
     import cv2
     import numpy as np
@@ -32,13 +31,11 @@ def convert_to_jpg(file_path: str) -> bool:
         print(f"Skipping: {path.name} (Unsupported format or not a file)")
         return False
 
-    # If already JPG, nothing to do
     if path.suffix.lower() in {".jpg", ".jpeg"}:
         return True
 
     output_path = path.with_suffix(".jpg")
 
-    # Ask before overwriting
     if output_path.exists():
         response = input(f"'{output_path.name}' exists. Overwrite? (y/n): ").strip().lower()
         if response != "y":
@@ -46,7 +43,6 @@ def convert_to_jpg(file_path: str) -> bool:
 
     try:
         if USE_CV2:
-            # OpenCV logic
             img = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
             if img is None:
                 print(f"Error: Could not decode {path.name}")
@@ -76,7 +72,6 @@ def convert_to_jpg(file_path: str) -> bool:
                 ],
             )
         else:
-            # Pillow logic
             img = Image.open(path)
             if img.mode in ("RGBA", "LA"):
                 background = Image.new(
@@ -92,7 +87,7 @@ def convert_to_jpg(file_path: str) -> bool:
             success = True
 
         if success:
-            path.unlink()  # Delete original file
+            path.unlink()
             print(f"Successfully converted '{path.name}' to jpg.")
             return True
         else:

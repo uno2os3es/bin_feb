@@ -27,7 +27,6 @@ def show_image(img_path):
     h = 100
 
     w = int((img.width / img.height) * h) * 2
-    #    w = int((img.width / img.height) * h)
     img = img.resize((w, h), Image.Resampling.LANCZOS)
     img_arr = np.asarray(img)
 

@@ -8,22 +8,18 @@ _VERSION_OP_RE = re.compile(r"\s*(?:===|==|!=|>=|<=|~=|>|<)\s*")
 
 
 def clean_requirement(line: str) -> str:
-    # Remove comments
     line = line.split("#", 1)[0].strip()
     if not line:
         return ""
 
-    # Remove environment markers ("; something")
     line = line.split(";", 1)[0].strip()
     if not line:
         return ""
 
-    # Remove extras like pkg[extra]
     line = re.sub(r"\[.*?\]", "", line).strip()
     if not line:
         return ""
 
-    # Remove version operators
     parts = _VERSION_OP_RE.split(line, maxsplit=1)
     return parts[0].strip()
 
@@ -72,15 +68,12 @@ def main() -> None:
             cleaned.append(c)
             seen.add(c)
 
-    # Grouped + case-sensitive sorted
     cleaned = sorted(cleaned, key=group_key)
 
-    # Write back in-place
     with open(fname, "w", encoding="utf-8") as f:
         for item in cleaned:
             f.write(item + "\n")
 
-    # Print output file contents
     print("\n=== Cleaned Requirements ===")
     for item in cleaned:
         print(item)

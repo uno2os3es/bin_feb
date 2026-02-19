@@ -9,7 +9,6 @@ for entry in sorted(
     key=lambda e: e.name.lower(),
 ):
     st = entry.stat()
-    # Format modification time as HH:MM
     mtime = datetime.datetime.fromtimestamp(st.st_mtime).strftime("%H:%M")
 
     if entry.is_file():

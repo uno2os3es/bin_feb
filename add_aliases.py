@@ -1,7 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
 
-# List of uu-* commands
 commands = [
     "uu-arch",
     "uu-b2sum",
@@ -108,7 +107,6 @@ commands = [
     "uu-yes",
 ]
 
-# Path to ~/.bash_aliases
 aliases_file = os.path.expanduser("~/.bash.d/.ba")
 
 with open(aliases_file, "a") as f:

@@ -38,11 +38,6 @@ def needs_conversion(path: Path) -> bool:
         return False
 
 
-# ----------------------------------------------------
-# Converters
-# ----------------------------------------------------
-
-
 def convert_in_place(path: Path) -> None:
     with path.open("r+b") as f, mmap.mmap(f.fileno(), 0) as mm:
         data = mm[:]
@@ -71,11 +66,6 @@ def convert_with_temp(path: Path) -> None:
     os.replace(tmp, path)
 
 
-# ----------------------------------------------------
-# Safe wrapper
-# ----------------------------------------------------
-
-
 def safe_convert(path: Path, dry_run: bool = False) -> str:
     if not path.is_file():
         return "SKIP_NOT_FILE"
@@ -100,11 +90,6 @@ def safe_convert(path: Path, dry_run: bool = False) -> str:
             return "ERROR"
 
 
-# ----------------------------------------------------
-# Scanning
-# ----------------------------------------------------
-
-
 def scan_paths(inputs, recursive: bool, excludes) -> list[Path]:
     result = []
 
@@ -127,22 +112,12 @@ def scan_paths(inputs, recursive: bool, excludes) -> list[Path]:
     return out
 
 
-# ----------------------------------------------------
-# Worker for multiprocessing
-# ----------------------------------------------------
-
-
 def worker(args):
     path, dry = args
     res = safe_convert(path, dry_run=dry)
     if res == "ERROR":
         logging.error(f"Failed to convert: {path}")
     return res
-
-
-# ----------------------------------------------------
-# CLI parsing
-# ----------------------------------------------------
 
 
 def parse_args():
@@ -163,20 +138,13 @@ def parse_args():
     return parser.parse_args()
 
 
-# ----------------------------------------------------
-# Main
-# ----------------------------------------------------
-
-
 def main() -> None:
     args = parse_args()
 
-    # Default: process "." recursively when no arguments
     if not args.paths:
         args.paths = ["."]
         args.recursive = True
 
-    # Setup error-only log file
     log_dir = Path.home() / "tmp"
     log_dir.mkdir(exist_ok=True)
     log_file = log_dir / "pydos2unix.log"

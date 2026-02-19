@@ -17,15 +17,12 @@ from fastwalk import walk_files
 
 MAX_IN_FLIGHT = 16
 
-# Standard library imports remain at top
 IGNORED_DIRS = {
     ".git",
     "dist",
     "build",
     "__pycache__",
 }
-
-# ---------- UTILS ----------
 
 
 def is_python_file(path: Path) -> bool:
@@ -39,9 +36,6 @@ def is_python_file(path: Path) -> bool:
         return False
 
 
-# ---------- FORMATTING LOGIC ----------
-
-
 def format_single_file(file: Path, args) -> bool:
     """Core formatting logic using Lazy Imports."""
     start = file.stat().st_size
@@ -49,7 +43,6 @@ def format_single_file(file: Path, args) -> bool:
         original_code = file.read_text(encoding="utf-8")
         code = original_code
 
-        # 1. Remove Unused Imports/Variables
         if args.remove_all_unused_imports:
             import autoflake
 
@@ -59,13 +52,11 @@ def format_single_file(file: Path, args) -> bool:
                 ignore_init_module_imports=True,
             )
 
-        # 2. Sort Imports
         if args.isort:
             import isort
 
             code = isort.code(code)
 
-        # 3. Code Style Formatting
         if args.black:
             import black
 
@@ -77,12 +68,10 @@ def format_single_file(file: Path, args) -> bool:
 
             code = autopep8.fix_code(code, options={"aggressive": 2})
         else:
-            # Lazy import for yapf
             from yapf.yapflib import yapf_api
 
             code, _ = yapf_api.FormatCode(code)
 
-        # 4. Write back only if changed
         if len(code) != len(original_code):
             file.write_text(code, encoding="utf-8")
             print(f"[OK]  {file.name} {start - end}")
@@ -93,9 +82,6 @@ def format_single_file(file: Path, args) -> bool:
     except Exception as e:
         print(f"[ERROR]  {file.name}: {e}")
         return False
-
-
-# ---------- EXECUTION ----------
 
 
 def main() -> None:

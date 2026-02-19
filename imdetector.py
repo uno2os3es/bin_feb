@@ -39,7 +39,7 @@ def has_late_import(path: str) -> bool:
 
     for node in tree.body:
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Str):
-            continue  # module docstring
+            continue
         if isinstance(node, (ast.Import, ast.ImportFrom)) and not seen_non_import:
             continue
         if isinstance(node, (ast.Import, ast.ImportFrom)) and seen_non_import:

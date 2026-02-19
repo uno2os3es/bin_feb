@@ -19,7 +19,6 @@ def delete_empty_dirs(root: Path) -> None:
 
             try:
                 if not any(path.iterdir()):
-                    #                    print(f"[DELETED] {relpath(path)}")
                     path.rmdir()
                     COUNT += 1
             except PermissionError:

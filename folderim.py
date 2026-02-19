@@ -7,10 +7,9 @@ from PIL import Image
 
 # -------- CONFIG --------
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
-HASH_FUNC = dh.phash  # phash / dhash / ahash
-MAX_DISTANCE = 10  # lower = stricter similarity
+HASH_FUNC = dh.phash
+MAX_DISTANCE = 10
 OUT_PREFIX = "group_"
-# ------------------------
 
 
 def is_image(path: Path) -> bool:
@@ -55,9 +54,8 @@ def main():
         if not placed:
             groups.append([(img, h)])
 
-    # Create folders and move files only if there are multiple images in a group
     for idx, group in enumerate(groups, start=1):
-        if len(group) > 1:  # Only create a folder if there are multiple images
+        if len(group) > 1:
             folder = cwd / f"{OUT_PREFIX}{idx:03d}"
             folder.mkdir(exist_ok=True)
 

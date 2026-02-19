@@ -1,7 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import datetime
 
-# Persian weekdays and months
 weekdays = [
     "دوشنبه",
     "سه‌شنبه",
@@ -25,8 +24,6 @@ months = [
     "بهمن",
     "اسفند",
 ]
-
-# Convert Gregorian → Jalali
 
 
 def gregorian_to_jalali(g, m, d):
@@ -67,14 +64,11 @@ def gregorian_to_jalali(g, m, d):
     return jy, jm, jd
 
 
-# ---- Now print the formatted time ----
 now = datetime.datetime()
 jy, jm, jd = gregorian_to_jalali(now.year, now.month, now.day)
 weekday = weekdays[now.weekday()]
 month = months[jm - 1]
 time_str = f"{now.hour:02d}:{now.minute:02d}"
-
-# convert to Persian digits
 
 
 def to_persian(s):

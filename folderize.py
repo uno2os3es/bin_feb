@@ -12,18 +12,14 @@ def falpha(root_dir="."):
     """
     root_path = Path(root_dir).resolve()
 
-    # Get all files recursively
     all_files = [f for f in root_path.rglob("*") if f.is_file()]
 
     for file_path in all_files:
-        # Skip if file is already in an alphabetical folder
         if is_in_alphabetical_folder(file_path, root_path):
             continue
 
-        # Get first character of filename
         first_char = file_path.name[0].upper()
 
-        # Determine folder name
         if first_char.isalpha():
             folder_name = first_char
         elif first_char.isdigit():
@@ -31,15 +27,12 @@ def falpha(root_dir="."):
         else:
             folder_name = "Other"
 
-        # Create destination folder
         dest_folder = root_path / folder_name
         dest_folder.mkdir(exist_ok=True)
 
-        # Handle file existence and renaming
         dest_path = dest_folder / file_path.name
         final_dest = get_unique_filename(dest_path)
 
-        # Move file
         try:
             shutil.move(str(file_path), str(final_dest))
             print(f"Moved: {file_path.name} -> {final_dest}")
@@ -52,7 +45,6 @@ def is_in_alphabetical_folder(file_path, root_path):
     relative_path = file_path.relative_to(root_path)
     if len(relative_path.parts) > 1:
         parent_folder = relative_path.parts[0]
-        # Check if parent is A-Z, 0-9, or Other
         if (len(parent_folder) == 1 and parent_folder.isalpha()) or parent_folder in ["0-9", "Other"]:
             return True
     return False
@@ -66,12 +58,10 @@ def get_unique_filename(dest_path):
     if not dest_path.exists():
         return dest_path
 
-    # Split filename and extension
     stem = dest_path.stem
     suffix = dest_path.suffix
     parent = dest_path.parent
 
-    # Find next available index
     index = 1
     while True:
         new_name = f"{stem}({index}){suffix}"

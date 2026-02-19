@@ -74,21 +74,17 @@ class MmapReader(LineProcessor):
 
         try:
             with open(file_path, "rb") as f:
-                # Use mmap for files larger than 1MB
                 if file_size > 1024 * 1024:
                     with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mmapped_file:
                         offset = 0
                         while offset < len(mmapped_file):
-                            # Find next newline
                             newline_pos = mmapped_file.find(b"\n", offset)
 
                             if newline_pos == -1:
-                                # Last line
                                 line_bytes = mmapped_file[offset:]
                             else:
                                 line_bytes = mmapped_file[offset:newline_pos]
 
-                            # Decode and strip
                             try:
                                 line = line_bytes.decode(encoding).rstrip("\r\n")
 
@@ -104,7 +100,6 @@ class MmapReader(LineProcessor):
                                 break
 
                 else:
-                    # For smaller files, use regular read
                     f.seek(0)
                     for line in f:
                         decoded_line = line.rstrip("\r\n")
@@ -223,7 +218,6 @@ class LineSorter(LineProcessor):
                 chunk.append(line)
 
                 if len(chunk) >= chunk_size:
-                    # Sort and write chunk
                     sorted_chunk = self.sort_in_memory(chunk, reverse, case_insensitive)
 
                     temp_file = temp_dir / f".sort_chunk_{os.getpid()}_{len(temp_files)}.tmp"
@@ -236,7 +230,6 @@ class LineSorter(LineProcessor):
 
                     self.log(f"Written {len(temp_files)} chunk(s)")
 
-            # Write remaining lines
             if chunk:
                 sorted_chunk = self.sort_in_memory(chunk, reverse, case_insensitive)
 
@@ -250,7 +243,6 @@ class LineSorter(LineProcessor):
             return temp_files
 
         except Exception:
-            # Clean up temp files on error
             for temp_file in temp_files:
                 if temp_file.exists():
                     temp_file.unlink()
@@ -364,7 +356,6 @@ class FileSorter(LineProcessor):
         if not input_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        # Determine output path
         if output_path is None:
             output_path = file_path
 
@@ -382,36 +373,29 @@ class FileSorter(LineProcessor):
         start_time = time.time()
 
         try:
-            # Get original stats
             original_size = self.get_file_size(input_path)
             original_lines = sum(1 for _ in self.reader.read_lines(input_path, encoding, skip_empty))
 
             self.log(f"Original file: {original_lines} lines, {self.format_size(original_size)}")
 
-            # Read lines
             lines = list(self.reader.read_lines(input_path, encoding, skip_empty))
 
-            # Sort if requested
             if sort:
                 lines = self.sorter.sort_in_memory(lines, reverse, case_insensitive)
                 self.log("Lines sorted")
 
-            # Deduplicate if requested
             unique_count = len(lines)
             if unique:
                 lines = self.deduplicator.deduplicate_list(lines, preserve_order=not sort)
                 unique_count = original_lines - len(lines)
                 self.log(f"Removed {unique_count} duplicate lines")
 
-            # Write output
             if not self.dry_run:
-                # Create backup if requested
                 if backup and output_path == input_path:
                     backup_path = input_path.with_suffix(input_path.suffix + ".bak")
                     shutil.copy2(input_path, backup_path)
                     self.log(f"Backup created: {backup_path}")
 
-                # Write sorted/unique lines
                 output_path.parent.mkdir(parents=True, exist_ok=True)
 
                 with open(output_path, "w", encoding=encoding) as f:
@@ -423,7 +407,6 @@ class FileSorter(LineProcessor):
             else:
                 self.log("DRY RUN: File not written")
 
-            # Get final stats
             if not self.dry_run:
                 final_size = self.get_file_size(output_path)
             else:
@@ -516,15 +499,12 @@ class FileAnalyzer(LineProcessor):
         file_size = self.get_file_size(file_path)
         lines = list(self.reader.read_lines(file_path, encoding))
 
-        # Count duplicates
         line_counts = Counter(lines)
         duplicate_count = sum(count - 1 for count in line_counts.values())
 
-        # Find longest line
         max_length = max((len(line) for line in lines), default=0)
         avg_length = sum(len(line) for line in lines) / len(lines) if lines else 0
 
-        # Find most common lines
         most_common = line_counts.most_common(10)
 
         return {
@@ -567,7 +547,6 @@ class FileAnalyzer(LineProcessor):
         print(f"{'=' * 60}\n")
 
 
-# CLI Interface
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -635,13 +614,11 @@ Examples:
             print(f"Error: File not found: {args.filename}")
             sys.exit(1)
 
-        # Analyze if requested
         if args.analyze:
             analyzer = FileAnalyzer(verbose=args.verbose)
             analyzer.print_analysis(input_path, args.encoding)
             return
 
-        # Process file
         sorter = FileSorter(verbose=args.verbose, dry_run=args.dry_run)
 
         stats = sorter.process_file(
@@ -656,10 +633,8 @@ Examples:
             encoding=args.encoding,
         )
 
-        # Print statistics
         sorter.print_stats(stats)
 
-        # Save report if requested
         if args.report:
             sorter.save_report(stats, args.report)
 

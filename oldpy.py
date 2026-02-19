@@ -6,7 +6,7 @@ from multiprocessing import Pool
 
 import regex as re
 
-SIZE_THRESHOLD = 1 * 1024 * 1024  # 1MB
+SIZE_THRESHOLD = 1 * 1024 * 1024
 
 OLD_PRINT_RE = re.compile(r"(?m)^[ \t]*print[ \t]+[^(\n]")
 

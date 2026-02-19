@@ -16,8 +16,6 @@ class TSCppRemover:
         self.language = Language(tscpp.language())
         self.parser = Parser(self.language)
 
-        # Query for C/C++ comments
-        # C/C++ has: comment (both // and /* */)
         self.query = Query(
             self.language,
             """
@@ -37,14 +35,12 @@ class TSCppRemover:
         source_bytes = source.encode("utf-8")
         tree = self.parser.parse(source_bytes)
 
-        # Create QueryCursor and execute query
         cursor = QueryCursor(self.query)
         matches = cursor.matches(tree.root_node)
 
         deletions = []
         comment_count = 0
 
-        # matches returns: list[tuple[pattern_index, dict[capture_name, list[Node]]]]
         for pattern_idx, captures_dict in matches:
             for capture_name, nodes in captures_dict.items():
                 for node in nodes:
@@ -52,7 +48,6 @@ class TSCppRemover:
                     end = node.end_byte
                     text = source_bytes[start:end].decode("utf-8")
 
-                    # Skip special comments (preprocessor directives, etc.)
                     stripped = text.strip()
                     if stripped.startswith(
                         (
@@ -61,38 +56,31 @@ class TSCppRemover:
                             "/**",
                             "/*!",
                             "///<",
-                            "//!<",  # Doxygen comments
+                            "//!<",
                         )
                     ):
-                        # Optionally keep documentation comments
-                        # Remove this continue to delete all comments
                         continue
 
                     comment_count += 1
 
-                    # Include trailing newline if present
                     if end < len(source_bytes) and source_bytes[end : end + 1] == b"\n":
                         end += 1
 
                     deletions.append((start, end))
 
-        # Remove duplicates and sort in reverse order
         deletions = sorted(set(deletions), reverse=True)
 
-        # Apply deletions from end to start
         new_source = bytearray(source_bytes)
         for start, end in deletions:
             del new_source[start:end]
 
         new_source = bytes(new_source)
 
-        # Validate the resulting code (basic check)
         tree = self.parser.parse(new_source)
         if tree.root_node.has_error:
             print(f"Warning: Resulted code has syntax errors, returning original")
             return source, 0
 
-        # Decode and cleanup blank lines
         cleaned = new_source.decode("utf-8")
         cleaned = self._cleanup_blank_lines(cleaned)
 
@@ -146,7 +134,6 @@ def process_file(fp):
 
     if comments:
         try:
-            # Write back to file
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(result)
             print(f"[OK] {file_path.name}: {comments} comments removed")
@@ -176,7 +163,6 @@ if __name__ == "__main__":
 
     dir_path = Path.cwd()
 
-    # Find C/C++ files
     files = [p for p in walk_files(dir_path) if Path(p).suffix in [".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".hxx"]]
 
     if not files:

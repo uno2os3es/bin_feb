@@ -53,7 +53,6 @@ def extract_subtitles(video_path, output_dir):
         if title:
             suffix += f".{title}"
 
-        # Prefer SRT output when possible
         out_ext = "srt" if codec in {"subrip", "srt"} else codec
         out_file = output_dir / f"{base}{suffix}.{out_ext}"
 

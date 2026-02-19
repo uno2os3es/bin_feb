@@ -16,18 +16,14 @@ EXCLUDE_DIRS = {".git", "__pycache__", "node_modules"}
 class FileSimilarityDetector:
     def __init__(self, root_dir="."):
         self.root_dir = Path(root_dir)
-        self.file_hashes = {}  # path -> {"xxhash": ..., "ssdeep": ...}
-        self.duplicates = defaultdict(list)  # xxhash -> [paths]
-
-    # ---------- scanning ----------
+        self.file_hashes = {}
+        self.duplicates = defaultdict(list)
 
     def scan_files(self):
         for root, dirs, files in os.walk(self.root_dir):
             dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
             for name in files:
                 yield Path(root) / name
-
-    # ---------- hashing ----------
 
     @staticmethod
     def hash_file(path: Path):
@@ -56,10 +52,7 @@ class FileSimilarityDetector:
                 self.file_hashes[path] = {"xxhash": xh, "ssdeep": sh}
                 self.duplicates[xh].append(path)
 
-        # keep only true duplicates
         self.duplicates = {h: paths for h, paths in self.duplicates.items() if len(paths) > 1}
-
-    # ---------- similarity ----------
 
     def find_similarity_groups(self, threshold: int):
         excluded = {p for group in self.duplicates.values() for p in group}
@@ -89,8 +82,6 @@ class FileSimilarityDetector:
 
         return groups
 
-    # ---------- output / delete ----------
-
     def handle_groups(self, groups, *, move: bool, output_dir: str):
         out = Path(output_dir)
         out.mkdir(exist_ok=True)
@@ -99,15 +90,12 @@ class FileSimilarityDetector:
             Path(group[0])
 
             if move:
-                # KEEP ONE, DELETE REST
                 for victim in group[1:]:
                     try:
                         print(victim)
-                    #                        Path(victim).unlink()
                     except Exception as e:
                         print(f"Failed to delete {victim}: {e}")
             else:
-                # COPY ALL
                 grp_dir = out / f"similarity_group_{idx}"
                 grp_dir.mkdir(exist_ok=True)
                 for p in group:
@@ -115,8 +103,6 @@ class FileSimilarityDetector:
                         shutil.copy2(p, grp_dir / Path(p).name)
                     except Exception as e:
                         print(f"Failed to copy {p}: {e}")
-
-    # ---------- reporting ----------
 
     def print_duplicates(self):
         if not self.duplicates:
@@ -129,9 +115,6 @@ class FileSimilarityDetector:
             for p in paths:
                 print(f"  - {p}")
         print("=" * 40)
-
-
-# ---------- CLI ----------
 
 
 def main():

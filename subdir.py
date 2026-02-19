@@ -82,20 +82,16 @@ def main() -> None:
         if not item.is_file():
             continue
 
-        # Create a folder per file (name does not matter)
         base_dir = cwd / item.stem[:10]
         target_dir = safe_mkdir(base_dir)
 
-        # Move file into its directory
         moved_file = target_dir / item.name
         shutil.move(str(item), moved_file)
 
-        # Try unzip
         ok = unzip_file(moved_file, target_dir)
 
         if ok:
             moved_file.unlink()
-            # delete original archive
             print(f"[OK] Unzipped and removed: {item.name}")
         else:
             print(f"[SKIP] Not a zip or unzip failed: {item.name}")

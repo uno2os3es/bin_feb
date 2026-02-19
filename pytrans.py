@@ -16,7 +16,7 @@ from pathlib import Path
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
 
-MAX_CHARS = 5000  # Character limit per request
+MAX_CHARS = 5000
 
 
 def get_output_filename(input_file):
@@ -60,10 +60,8 @@ def find_chunk_boundary(text, max_chars):
     if len(text) <= max_chars:
         return len(text)
 
-    # Try to find last space/newline before limit
     search_area = text[:max_chars]
 
-    # Priority order for breaking points
     for delimiter in [
         "\n",
         "\r\n",
@@ -78,12 +76,10 @@ def find_chunk_boundary(text, max_chars):
         if last_pos > 0:
             return last_pos + len(delimiter)
 
-    # If no delimiter found, break at last space
     last_space = search_area.rfind(" ")
     if last_space > 0:
         return last_space + 1
 
-    # If still no space, just break at limit (shouldn't happen often)
     return max_chars
 
 
@@ -101,7 +97,6 @@ def chunk_text(text, max_chars):
             chunks.append(remaining)
             break
 
-        # Find good break point
         chunk_end = find_chunk_boundary(remaining, max_chars)
         chunks.append(remaining[:chunk_end])
         pos += chunk_end
@@ -132,7 +127,6 @@ def translate_file(input_file, source_lang="auto"):
     content_length = len(content)
     print(f"[INFO] File size: {content_length} characters")
 
-    # Check if chunking needed
     if content_length <= MAX_CHARS:
         print(f"[INFO] Content fits in single request ({content_length} chars)")
         print("[INFO] Translating...")
@@ -140,7 +134,6 @@ def translate_file(input_file, source_lang="auto"):
         print(f"[INFO] Detected language: {detected_lang}")
         return translated
 
-    # Need to chunk
     chunks = chunk_text(content, MAX_CHARS)
     total_chunks = len(chunks)
     print(f"[INFO] Content split into {total_chunks} chunks")
@@ -167,19 +160,16 @@ def translate_file(input_file, source_lang="auto"):
             except Exception as e:
                 print(f"[ERROR] Failed to translate chunk {i + 1}: {e}")
                 pbar.update(1)
-                # Keep original if translation fails
                 translated_chunks.append(chunk)
     finally:
         pbar.close()
 
-    # Combine chunks
     result = "".join(translated_chunks)
     print(f"\n[INFO] Detected language: {detected_lang}")
     return result
 
 
 def main():
-    # Parse arguments
     if len(sys.argv) < 2:
         print("Usage:  python translate_file.py <input_file> [source_language]")
         print("\nExamples:")
@@ -192,15 +182,12 @@ def main():
     input_file = sys.argv[1]
     source_lang = sys.argv[2] if len(sys.argv) > 2 else "auto"
 
-    # Check input file exists
     if not os.path.exists(input_file):
         print(f"[ERROR] File not found: {input_file}")
         sys.exit(1)
 
-    # Get output filename
     output_file = get_output_filename(input_file)
 
-    # Check if output already exists
     if os.path.exists(output_file):
         print(f"[INFO] Output file already exists: {output_file}")
         print(f"[INFO] Skipping translation (delete {output_file} to re-translate)")
@@ -212,10 +199,8 @@ def main():
     print()
 
     try:
-        # Translate
         translated_content = translate_file(input_file, source_lang)
 
-        # Save result
         print(f"\n[INFO] Saving result to: {output_file}")
         save_file(output_file, translated_content)
 

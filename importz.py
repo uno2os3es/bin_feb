@@ -12,7 +12,7 @@ def is_python_file(path: pathlib.Path) -> bool:
         try:
             with open(path, encoding="utf-8") as f:
                 first_line = f.readline()
-                return "python" in first_line  # Detect shebang
+                return "python" in first_line
         except Exception:
             return False
     return False
@@ -41,25 +41,19 @@ def main():
     output_file = current_dir / "importz.txt"
     all_imports = set()
 
-    # 1. Identify local modules and packages to trim them later
     local_names = {p.stem for p in current_dir.glob("*.py")}
     local_names.update({p.name for p in current_dir.iterdir() if p.is_dir() and (p / "__init__.py").exists()})
 
-    # 2. Get Standard Library names
-    # sys.stdlib_module_names is available in Python 3.10+
     std_libs = getattr(sys, "stdlib_module_names", set())
 
-    # 3. Collect imports from all Python files (including extensionless ones)
     for path in current_dir.rglob("*"):
         if is_python_file(path) and path.name != "importz.txt":
             all_imports.update(get_imports_from_file(path))
 
-    # 4. Filter: Trim standard libs, local files, and __future__
     third_party = sorted(
         [imp for imp in all_imports if imp not in std_libs and imp not in local_names and imp != "__future__"]
     )
 
-    # 5. Save results
     if third_party:
         output_file.write_text(
             "\n".join(third_party),

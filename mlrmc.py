@@ -8,8 +8,6 @@ import tree_sitter_cpp
 import sys
 
 # -------------------------
-# Language setup
-# -------------------------
 
 LANGUAGES = {
     ".py": tree_sitter_python.language(),
@@ -32,11 +30,6 @@ def get_parser(lang):
     return parser
 
 
-# -------------------------
-# Blank-line cleanup
-# -------------------------
-
-
 def _cleanup_blank_lines(text: str) -> str:
     lines = text.splitlines()
     cleaned = []
@@ -52,11 +45,6 @@ def _cleanup_blank_lines(text: str) -> str:
             cleaned.append(line.rstrip())
 
     return "\n".join(cleaned) + "\n"
-
-
-# -------------------------
-# Python docstring removal
-# -------------------------
 
 
 def _collect_python_docstrings(node, deletions):
@@ -90,11 +78,6 @@ def _collect_python_docstrings(node, deletions):
         _collect_python_docstrings(child, deletions)
 
 
-# -------------------------
-# Core processor
-# -------------------------
-
-
 def process_file(path: Path) -> None:
     try:
         ext = path.suffix.lower()
@@ -111,11 +94,9 @@ def process_file(path: Path) -> None:
         deletions = []
 
         def walk(node):
-            # Remove comments for all languages
             if node.type == "comment":
                 text = source[node.start_byte : node.end_byte]
 
-                # Special filtering for Python
                 if ext == ".py":
                     if text.lstrip().startswith(EXCLUDE_PREFIXES):
                         return
@@ -127,7 +108,6 @@ def process_file(path: Path) -> None:
 
         walk(tree.root_node)
 
-        # Python docstrings only
         if ext == ".py":
             _collect_python_docstrings(tree.root_node, deletions)
 
@@ -143,7 +123,6 @@ def process_file(path: Path) -> None:
         cleaned_text = _cleanup_blank_lines(cleaned_text)
         cleaned = cleaned_text.encode("utf-8")
 
-        # Validate parse
         parser.parse(cleaned)
 
         path.write_bytes(cleaned)
@@ -153,21 +132,11 @@ def process_file(path: Path) -> None:
         print(f"[FAIL] {path} -> {e}")
 
 
-# -------------------------
-# File collection
-# -------------------------
-
-
 def collect_supported_files(root: Path) -> list[Path]:
     if root.is_file():
         return [root] if root.suffix.lower() in LANGUAGES else []
 
     return [p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in LANGUAGES]
-
-
-# -------------------------
-# CLI
-# -------------------------
 
 
 def main() -> None:

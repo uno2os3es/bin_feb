@@ -8,17 +8,14 @@ def reduce_image_size(image_path, scale_factor=0.75) -> None:
     """Reduce image size by the given scale factor and overwrite the original file."""
     try:
         with Image.open(image_path) as img:
-            # Calculate new dimensions
             new_width = int(img.width * scale_factor)
             new_height = int(img.height * scale_factor)
 
-            # Resize image using LANCZOS filter for good quality
             resized_img = img.resize(
                 (new_width, new_height),
                 Image.LANCZOS,
             )
 
-            # Save over original file, preserving format and optimizing
             resized_img.save(
                 image_path,
                 optimize=True,
@@ -32,7 +29,6 @@ def reduce_image_size(image_path, scale_factor=0.75) -> None:
 
 
 def main() -> None:
-    # Supported image formats
     image_extensions = [
         "*.jpg",
         "*.jpeg",
@@ -42,7 +38,6 @@ def main() -> None:
         "*.webp",
     ]
 
-    # Get all image files in current directory
     image_files = []
     for extension in image_extensions:
         image_files.extend(glob.glob(extension))
@@ -54,7 +49,6 @@ def main() -> None:
 
     print(f"Found {len(image_files)} image file(s) to process...")
 
-    # Process each image
     for image_file in image_files:
         reduce_image_size(image_file)
 

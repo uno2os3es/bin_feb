@@ -15,7 +15,3 @@ subprocess.run(
     ],
     check=False,
 )
-
-# subprocess.run(['www'])
-
-# input('\n\n\nOK?')

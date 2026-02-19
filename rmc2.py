@@ -40,7 +40,6 @@ class TSRemover:
         source_bytes = source.encode("utf-8")
         tree = self.parser.parse(source_bytes)
 
-        # Create QueryCursor and execute query
         cursor = QueryCursor(self.query)
         matches = cursor.matches(tree.root_node)
 
@@ -48,7 +47,6 @@ class TSRemover:
         comment_count = 0
         docstring_count = 0
 
-        # matches returns: list[tuple[pattern_index, dict[capture_name, list[Node]]]]
         for pattern_idx, captures_dict in matches:
             for capture_name, nodes in captures_dict.items():
                 for node in nodes:

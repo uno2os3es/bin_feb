@@ -17,7 +17,7 @@ def csv_to_json_map(csv_file):
 
     with csv_path.open(newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
-        header = next(reader, None)  # skip header
+        header = next(reader, None)
 
         if not header or len(header) < 2:
             print("Error: CSV must have at least two columns")
@@ -25,7 +25,7 @@ def csv_to_json_map(csv_file):
 
         for _row_num, row in enumerate(reader, start=2):
             if len(row) < 2:
-                continue  # skip malformed rows
+                continue
 
             key = row[0].strip()
             value = row[1].strip()
@@ -33,7 +33,6 @@ def csv_to_json_map(csv_file):
             if key:
                 result[key] = value
 
-    # Pretty JSON output (default)
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(
             result,

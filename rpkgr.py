@@ -20,7 +20,7 @@ def list_installed_packages(site: Path):
     pkgs = {}
     for item in site.iterdir():
         if item.name.endswith(".dist-info"):
-            name_version = item.name[:-10]  # strip .dist-info
+            name_version = item.name[:-10]
             m = re.match(r"(.+)-([\w\.]+)", name_version)
             if not m:
                 continue
@@ -157,7 +157,6 @@ def main() -> None:
         print("No packages specified.")
         return
 
-    # Parallel repacking
     with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = {
             executor.submit(

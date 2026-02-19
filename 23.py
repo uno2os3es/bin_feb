@@ -7,7 +7,6 @@ from pathlib import Path
 
 from fastwalk import walk_files
 
-# Global lock for printing to avoid interleaved output from processes
 print_lock = Lock()
 
 
@@ -18,13 +17,10 @@ def is_python_file(path: Path) -> bool:
     if path.suffix == ".py":
         return True
 
-    # Check for extensionless executable python scripts
     if path.suffix == "":
         try:
-            # Read only the first 64 bytes to check shebang
             with open(path, "rb") as f:
                 head = f.read(64)
-                # Look for standard shebangs like #!/usr/bin/env python or #!/usr/bin/python
                 if b"python" in head and b"#!" in head:
                     return True
         except Exception:
@@ -35,8 +31,6 @@ def is_python_file(path: Path) -> bool:
 def run_command(cmd):
     """Runs a subprocess command and returns (returncode, stdout, stderr)."""
     try:
-        # We set force-exclude so ruff doesn't format files unrelated to the project context
-        # if they happen to be in the list (though we are scanning current dir).
         result = subprocess.run(
             cmd,
             check=False,
@@ -66,7 +60,7 @@ def process_file(file_path) -> None:
         "--unsafe-fixes",
         "--line-length",
         "88",
-        "--quiet",  # We handle output manually
+        "--quiet",
         str(file_path),
     ]
 
@@ -90,7 +84,6 @@ def process_file(file_path) -> None:
         if out_check.strip():
             output.append(out_check.strip())
 
-    # If format failed (rare, usually syntax error)
     if rc_fmt != 0 or err_fmt.strip():
         output.append(f"--- Issues formatting {file_path.name} ---")
         if err_fmt.strip():
@@ -113,7 +106,6 @@ def get_all_files(root_dir):
 
 
 def main() -> None:
-    # Check if ruff is installed
     try:
         subprocess.run(
             ["ruff", "--version"],

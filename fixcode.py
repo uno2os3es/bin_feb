@@ -79,43 +79,36 @@ def clean_text(text: str) -> str:
             out.append("")
             continue
 
-        # Detect start of code
         if DEF_CLASS.match(line):
             in_code = True
 
-        # Comment narrative text
         if not in_code and not is_code_line(line):
             out.append("# " + line.strip())
             continue
 
         stripped = line.strip()
 
-        # Rule 1: reset indentation on def/class
         if DEF_CLASS.match(stripped):
             indent_level = 0
             out.append(stripped)
             indent_level = 1
             continue
 
-        # Rule 2: __main__ guard forces indent = 1
         if MAIN_GUARD.match(stripped):
             indent_level = 1
             out.append('if __name__ == "__main__":')
             continue
 
-        # Dedent on exits
         if stripped.startswith(("return", "pass", "break", "continue", "raise")):
             out.append(INDENT * indent_level + stripped)
             indent_level = max(indent_level - 1, 0)
             continue
 
-        # Normal block start
         if BLOCK_START.match(stripped):
             out.append(INDENT * indent_level + stripped)
             indent_level += 1
             continue
 
-        # Normal statement
         out.append(INDENT * indent_level + stripped)
 
     return "\n".join(out)
@@ -143,8 +136,6 @@ def main():
         print(f"✔ AST valid → {dst}")
     else:
         dst.write_text(cleaned, encoding="utf-8")
-        #        bad = dst.with_suffix(".invalid.py")
-        #       bad.write_text(cleaned, encoding="utf-8")
         print("✘ AST validation failed")
         print(err)
         print("Wrote for inspection")

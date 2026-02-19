@@ -53,7 +53,6 @@ def main():
             q_in.put((frame_id, frame))
             sent += 1
 
-    # stop workers
     for _ in workers:
         q_in.put(None)
 

@@ -26,5 +26,4 @@ def extract_subtitles(input_file, output_file=None, subtitle_index=0):
         print(f"Error extracting subtitles: {e}")
 
 
-# Example usage
 extract_subtitles("your_movie.mkv")

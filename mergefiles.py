@@ -19,7 +19,6 @@ def collect_files(root):
 
         for fname in filenames:
             full = os.path.join(dirpath, fname)
-            # skip output file itself
             if os.path.abspath(full) == os.path.abspath(OUTPUT_FILE) or fname == os.path.basename(__file__):
                 continue
             yield full
@@ -38,7 +37,7 @@ def merge_files(root):
             fo.write(content)
 
             if i != len(files):
-                fo.write("\n\n\n")  # 3 empty lines
+                fo.write("\n\n\n")
 
             print(f"Added: {path}")
 

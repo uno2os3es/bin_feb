@@ -41,8 +41,6 @@ class TSRemover:
         for pattern_index, captures_dict in matches:
             for capture_name, node_list in captures_dict.items():
                 for node in node_list:
-                    # now you have capture_name ("comment", "function_docstring", etc.)
-                    # and node (the Tree-sitter Node object)
                     start = node.start_byte
                     end = node.end_byte
 

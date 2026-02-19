@@ -21,12 +21,11 @@ class ImportVisitor(ast.NodeVisitor):
 
     def visit_Import(self, node):
         for name in node.names:
-            # Get the root module (e.g., 'os' from 'os.path')
             self.imports.add(name.name.split(".")[0])
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node):
-        if node.level == 0 and node.module:  # level 0 means absolute import
+        if node.level == 0 and node.module:
             self.imports.add(node.module.split(".")[0])
         self.generic_visit(node)
 
@@ -49,7 +48,6 @@ def find_imports(start_path):
         except (SyntaxError, UnicodeDecodeError):
             continue
 
-    # Filter out standard libraries and local files
     local_files = {p.stem for p in pathlib.Path(start_path).glob("*.py")}
 
     return sorted(
@@ -59,20 +57,17 @@ def find_imports(start_path):
 
 def get_version(module_name):
     """Tries to find a module version using metadata or internal attributes."""
-    # 1. Try modern importlib.metadata (fastest, no execution needed)
     try:
         return importlib.metadata.version(module_name)
     except importlib.metadata.PackageNotFoundError:
         pass
 
-    # 2. Try importing the module and looking for version attributes
     try:
         spec = importlib.util.find_spec(module_name)
         if spec is None:
             return "Not Installed"
 
         mod = importlib.import_module(module_name)
-        # Search dictionary for 'version' related keys
         for k, v in mod.__dict__.items():
             if ("version" in k.lower() or "ver" in k.lower()) and isinstance(v, (str, numbers.Number)):
                 return str(v)

@@ -13,24 +13,21 @@ except ImportError:
 
 VIDEO_EXTS = {".srt"}
 
-# ---------------- REGEX RULES ---------------- #
 
 LEADING_JUNK = re.compile(
-    r"^\s*[\d\s\.-]{6,}",  # 03.03.03.03. / 39.7 KB / etc
+    r"^\s*[\d\s\.-]{6,}",
     re.IGNORECASE,
 )
 
 EPISODE_PATTERNS = [
-    re.compile(r"S\d{2}E(\d{2})", re.IGNORECASE),  # S01E10
-    re.compile(r"(\d{1,2})x(\d{2})", re.IGNORECASE),  # 01x10
+    re.compile(r"S\d{2}E(\d{2})", re.IGNORECASE),
+    re.compile(r"(\d{1,2})x(\d{2})", re.IGNORECASE),
 ]
 
 TRASH = re.compile(
     r"(HDTV|WEB[-\. ]?DL|WEBRIP|BLURAY|IMOVIE[-\. ]?DL|ELKA|PARISA|KILLERS|FUM|TURBO|FA)",
     re.IGNORECASE,
 )
-
-# --------------------------------------------- #
 
 
 def extract_episode(name: str):

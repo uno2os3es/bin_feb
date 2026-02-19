@@ -19,7 +19,6 @@ class RegexFixer(ast.NodeTransformer):
     def visit_Call(self, node: ast.Call):
         self.generic_visit(node)
 
-        # Check if function is re.<func>
         if isinstance(node.func, ast.Attribute) and (
             isinstance(node.func.value, ast.Name)
             and node.func.value.id == "re"
@@ -31,10 +30,8 @@ class RegexFixer(ast.NodeTransformer):
             if isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str):
                 original = first_arg.value
 
-                # Escape backslashes properly
                 fixed = original.encode("unicode_escape").decode("ascii")
 
-                # Restore already-valid escapes like \n \t
                 fixed = fixed.replace("\\\\n", "\\n")
                 fixed = fixed.replace("\\\\t", "\\t")
                 fixed = fixed.replace("\\\\r", "\\r")

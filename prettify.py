@@ -5,8 +5,6 @@ import cssbeautifier
 import yapf
 from bs4 import BeautifulSoup
 
-# Function to beautify HTML file
-
 
 def beautify_html(file_path) -> bool:
     try:
@@ -24,9 +22,6 @@ def beautify_html(file_path) -> bool:
     return True
 
 
-# Function to beautify CSS file
-
-
 def beautify_css(file_path) -> bool:
     try:
         with open(file_path, encoding="utf-8") as file:
@@ -42,15 +37,11 @@ def beautify_css(file_path) -> bool:
     return True
 
 
-# Function to beautify JS file
-
-
 def beautify_js(file_path) -> bool:
     try:
         with open(file_path, encoding="utf-8") as file:
             content = file.read()
 
-        # Using yapf to beautify JavaScript
         beautified_content, _ = yapf.yapf_api.FormatCode(content)
 
         with open(file_path, "w", encoding="utf-8") as file:
@@ -61,11 +52,8 @@ def beautify_js(file_path) -> bool:
     return True
 
 
-# Function to recursively walk through all files in the directory
-
-
 def beautify_directory(directory) -> None:
-    failed_files = []  # To store files that failed beautification
+    failed_files = []
     for root, _dirs, files in os.walk(directory):
         for file in files:
             file_path = os.path.join(root, file)
@@ -81,9 +69,8 @@ def beautify_directory(directory) -> None:
                 success = beautify_js(file_path)
 
             if not success:
-                failed_files.append(file_path)  # Track failed files
+                failed_files.append(file_path)
 
-    # Report any failed files after processing
     if failed_files:
         print("\nThe following files failed to be beautified:")
         for failed_file in failed_files:
@@ -92,6 +79,5 @@ def beautify_directory(directory) -> None:
         print("\nAll files beautified successfully.")
 
 
-# Start beautifying from the current directory
 if __name__ == "__main__":
     beautify_directory(".")

@@ -6,7 +6,6 @@ from pathlib import Path
 
 import regex as re
 
-# Regex to match any base64 image embedded in text files
 BASE64_IMG_REGEX = re.compile(r"data:image/(?P<ext>[a-zA-Z0-9+]+);base64,(?P<data>[A-Za-z0-9+/=\n\r]+)")
 
 
@@ -26,13 +25,11 @@ def extract_images_from_file(file_path: Path, output_dir: Path):
         ext = m.group("ext").lower()
         b64_data = m.group("data").replace("\n", "").replace("\r", "")
 
-        # Decode safely
         try:
             img_bytes = base64.b64decode(b64_data, validate=False)
         except Exception:
             continue
 
-        # Create unique filename based on content hash
         digest = hashlib.sha1(img_bytes).hexdigest()[:12]
         filename = f"{file_path.stem}_{digest}.{ext}"
         output_path = output_dir / filename

@@ -9,7 +9,6 @@ from fastwalk import walk_files
 from xxhash import xxh64
 
 
-# Function to calculate the hash of a file
 def get_file_hash(path):
     h = xxh64()
     with open(path, "rb") as f:
@@ -24,7 +23,6 @@ def find_and_delete_duplicates(path: Path):
     deleted_count = 0
     total_deleted_size = 0
 
-    # Walk through the directory recursively
     for pth in walk_files("."):
         path = Path(pth)
         if path.is_symlink():
@@ -37,22 +35,18 @@ def find_and_delete_duplicates(path: Path):
                 print(f"Error processing file {path}: {e}")
                 continue
 
-    # For each group of files with the same hash, keep the newest and delete the rest
     for (
         file_hash,
         paths,
     ) in files_by_hash.items():
         if len(paths) > 1:
-            # Count the duplicates (all but one)
             duplicate_count += len(paths) - 1
 
-            # Sort files by modification time (newest first)
             paths.sort(
                 key=lambda x: x.stat().st_mtime,
                 reverse=True,
             )
 
-            # Keep the newest file, and delete the rest
             for file_to_delete in paths[1:]:
                 try:
                     file_size = file_to_delete.stat().st_size
@@ -90,7 +84,6 @@ def remove_duplicates(path) -> None:
         total_deleted_size,
     ) = find_and_delete_duplicates(Path(path))
 
-    # Report results
     print("\nSummary:")
     print(f"dup found: {deleted_count}")
     print(f"del  size: {total_deleted_size} bytes")

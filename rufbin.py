@@ -7,11 +7,9 @@ def is_python_file(file_path):
     """Check if file contains Python code (heuristic detection)."""
     try:
         with Path(file_path).open("r", encoding="utf-8", errors="ignore") as f:
-            content = f.read(1024)  # Read first 1KB
-        # Python shebang
+            content = f.read(1024)
         if content.startswith("#!") and "python" in content.lower():
             return True
-        # Check for Python keywords/signatures
         python_indicators = [
             "def ",
             "class ",
@@ -29,7 +27,6 @@ def is_python_file(file_path):
         for indicator in python_indicators:
             if indicator in content_lower:
                 return True
-        # Check file extension
         return file_path.suffix.lower() == ".py"
     except:
         return False
@@ -78,7 +75,6 @@ def main() -> None:
         else:
             error_count += 1
             errors.append(f"{file_path.name}: {error_msg}")
-    # Summary
     if errors:
         for _error in errors:
             pass

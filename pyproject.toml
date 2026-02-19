@@ -29,24 +29,24 @@ exclude = [
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle
+    "E",    
     "W",
-    "F",    # pyflakes
-    "I",    # import sorting
-    "B",    # bugbear
-    "C4",   # comprehensions
-    "UP",   # pyupgrade
-    "SIM",  # simplify
-    "RET",  # return issues
-    "ARG",  # unused arguments
-    "PL",   # pylint-compatible subset
-    "RUF",  # ruff-specific
+    "F",    
+    "I",    
+    "B",    
+    "C4",   
+    "UP",   
+    "SIM",  
+    "RET",  
+    "ARG",  
+    "PL",   
+    "RUF",  
 ]
 
 ignore = [
-    "E501",     # handled by formatter
-    "PLR2004",  # magic numbers (library APIs often require them)
-    "RET505",   # stylistic
+    "E501",     
+    "PLR2004",  
+    "RET505",   
     "PLC0415",
     "PLR0913",
     "ARG001",
@@ -70,9 +70,6 @@ force-sort-within-sections = true
     "PLR0915",
 ]
 
-# ----------------------------------------
-# Pylint (library-focused)
-# ----------------------------------------
 
 [tool.pylint.master]
 py-version = "3.12"
@@ -82,15 +79,15 @@ load-plugins = ["pylint.extensions.docparams"]
 
 [tool.pylint.messages_control]
 disable = [
-    "C0114",  # missing-module-docstring
-    "C0115",  # missing-class-docstring
-    "C0116",  # missing-function-docstring
-    "R0903",  # too-few-public-methods
-    "R0913",  # too-many-arguments
-    "R0914",  # too-many-locals
-    "R0915",  # too-many-statements
+    "C0114",  
+    "C0115",  
+    "C0116",  
+    "R0903",  
+    "R0913",  
+    "R0914",  
+    "R0915",  
     "W0511",  # TODO
-    "W0703",  # broad-except
+    "W0703",  
 ]
 
 [tool.pylint.format]

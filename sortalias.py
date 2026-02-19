@@ -3,7 +3,6 @@ import sys
 
 
 def alias_name(line: str) -> str:
-    # line format: alias name='value'
     return line.split("=", 1)[0].replace("alias ", "").strip()
 
 

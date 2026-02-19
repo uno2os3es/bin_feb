@@ -22,11 +22,11 @@ def is_probably_python(lines):
     for line in lines:
         if any(kw in line for kw in python_keywords):
             score += 1
-        if re.search(r":\s*$", line):  # colon endings
+        if re.search(r":\s*$", line):
             score += 1
-        if re.match(r"\s{4}", line):  # indentation
+        if re.match(r"\s{4}", line):
             score += 1
-    return score >= 2  # threshold
+    return score >= 2
 
 
 def looks_like_python(code_block) -> bool | None:
@@ -43,9 +43,9 @@ def is_python_like(line) -> bool:
         line,
     ):
         return True
-    if re.match(r"\s*@[A-Za-z_]\w*", line):  # decorators
+    if re.match(r"\s*@[A-Za-z_]\w*", line):
         return True
-    if re.match(r"\s*import\b|\s*from\b", line):  # imports
+    if re.match(r"\s*import\b|\s*from\b", line):
         return True
     return False
 
@@ -60,12 +60,6 @@ if __name__ == "__main__":
     try:
         with open(fname) as f:
             lines = f.readlines()
-        #        prob=[]
-        #        for x in lines:
-        #            if is_probably_python(x):
-        #                prob.append(x)
-        #        with open("prob.py","w") as fp:
-        #            fp.writelines(prob)
         filtered = []
 
         for line in lines:

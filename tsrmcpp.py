@@ -25,7 +25,6 @@ class TSCppRemover:
         for node in root.children:
             self._collect_comments(node, to_delete, source_bytes)
 
-        # Remove from back to front
         new_source = source_bytes
         for start, end in sorted(to_delete, reverse=True):
             new_source = new_source[:start] + new_source[end:]
@@ -40,7 +39,6 @@ class TSCppRemover:
         if node.type == "comment":
             text = source_bytes[node.start_byte : node.end_byte].decode("utf-8").strip()
 
-            # Skip preprocessor directives
             if text.startswith("#"):
                 return
 
@@ -95,12 +93,10 @@ def process_file(fp):
         cprint(f"[NO CHANGE] {file_path.name}", "blue")
         return
 
-    # Validate with Tree-sitter
     if not validate_with_treesitter(remover.parser, result):
         cprint(f"[TS ERROR] {file_path.name} - changes discarded", "red")
         return
 
-    # Write temporarily for clang validation
     file_path.write_text(result, encoding="utf-8")
 
     ok, err = validate_with_clang(file_path)

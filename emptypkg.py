@@ -7,20 +7,19 @@ def is_empty_package(dist_info_path) -> bool:
     """Return True if all files listed in RECORD are inside the dist-info dir."""
     record_file = os.path.join(dist_info_path, "RECORD")
     if not pathlib.Path(record_file).is_file():
-        return False  # no RECORD = can't inspect, assume not empty
+        return False
     with pathlib.Path(record_file).open(newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
         for row in reader:
             if not row:
                 continue
-            rel_path = row[0]  # RECORD lists relative paths
+            rel_path = row[0]
             abs_path = pathlib.Path(
                 os.path.join(
                     pathlib.Path(dist_info_path).parent,
                     rel_path,
                 )
             ).resolve()
-            # If the file is outside the dist-info directory → not empty
             if not abs_path.startswith(pathlib.Path(dist_info_path).resolve() + os.sep):
                 return False
     return True

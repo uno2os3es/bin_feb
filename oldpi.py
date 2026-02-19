@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import regex as re
 from tqdm import tqdm
 
-SIZE_THRESHOLD = 1 * 1024 * 1024  # 1MB
+SIZE_THRESHOLD = 1 * 1024 * 1024
 
 OLD_PRINT_RE = re.compile(r"(?m)^[ \t]*print[ \t]+[^(\n]")
 

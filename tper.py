@@ -10,8 +10,8 @@ from tqdm import tqdm
 
 INPUT_FILE = "words.txt"
 OUTPUT_FILE = "dic.json"
-MAX_WORKERS = 12  # Increase for more speed
-SAVE_EVERY = 1000  # Save to disk after this many new translations
+MAX_WORKERS = 12
+SAVE_EVERY = 1000
 
 lock = Lock()
 
@@ -22,7 +22,6 @@ def translate_word(word):
         try:
             return GoogleTranslator(source="auto", target="en").translate(word)
         except Exception as e:
-            # Keep the warning but do not crash the thread
             print(f"[WARN] Failed '{word}' (attempt {attempt + 1}): {e}")
             time.sleep(0.5)
     return None
@@ -62,11 +61,9 @@ def main():
     words = load_words(INPUT_FILE)
     print(f"[INFO] Loaded {len(words)} Persian words")
 
-    # Load any previously translated results so we can resume
     results = load_existing_results(OUTPUT_FILE)
     print(f"[INFO] Loaded {len(results)} existing translations from {OUTPUT_FILE}")
 
-    # Determine which words still need translation
     to_translate = [w for w in words if w not in results]
     total_remaining = len(to_translate)
     print(f"[INFO] {total_remaining} words to translate (will skip already translated)")
@@ -82,7 +79,6 @@ def main():
         unit="word",
     )
 
-    # Use ThreadPoolExecutor to translate in parallel
     try:
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             future_map = {executor.submit(translate_word, w): w for w in to_translate}
@@ -99,7 +95,6 @@ def main():
                         else:
                             print(f"[FAIL] Could not translate: {persian_word}")
 
-                        # Update progress bar and periodically save
                         pbar.update(1)
                         if new_count % SAVE_EVERY == 0:
                             print(f"[INFO] Saving progress after {new_count} new translations...")
@@ -114,7 +109,6 @@ def main():
     except KeyboardInterrupt:
         print("\n[INFO] Interrupted by user. Saving progress...")
     finally:
-        # Ensure final save and close progress bar
         with lock:
             save_results_atomic(results, OUTPUT_FILE)
         pbar.close()

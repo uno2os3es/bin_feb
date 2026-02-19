@@ -47,7 +47,7 @@ def group_similar_files(hashes, threshold):
             if score >= threshold:
                 group.append(f2)
                 visited.add(f2)
-        if len(group) > 1:  # Only keep groups with >1 file
+        if len(group) > 1:
             groups.append(group)
     return groups
 

@@ -5,7 +5,6 @@ from pathlib import Path
 
 
 def split_file_by_delimiter(fname, delim) -> None:
-    # Read the file contents
     with open(fname) as f:
         content = f.read()
     path = Path(fname)

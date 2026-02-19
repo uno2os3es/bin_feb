@@ -7,7 +7,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-SKIPPED_PATHS = []  # Store permission-denied paths
+SKIPPED_PATHS = []
 
 
 def hash_file(path: Path, chunk_size: int = 8192) -> str:

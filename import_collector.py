@@ -5,13 +5,12 @@ import importlib.util
 import pathlib
 import sys
 
-# Mapping of { import_name : pip_install_name }
 PACKAGE_MAPPING = {
     "cv2": "opencv-python",
     "PIL": "Pillow",
     "sklearn": "scikit-learn",
     "yaml": "PyYAML",
-    "google": "google-cloud-storage",  # Can vary based on specific GCP lib
+    "google": "google-cloud-storage",
     "dotenv": "python-dotenv",
     "bs4": "beautifulsoup4",
     "fitz": "pymupdf",
@@ -59,12 +58,10 @@ def get_imports_from_file(file_path):
 
 def check_status(module_name):
     """Returns True if module is installed, False otherwise."""
-    # Check via metadata
     try:
         importlib.metadata.distribution(module_name)
         return True
     except importlib.metadata.PackageNotFoundError:
-        # Check if it exists in path (for modules that don't match package name)
         spec = importlib.util.find_spec(module_name)
         return spec is not None
 
@@ -76,14 +73,11 @@ def main():
 
     all_imports = set()
 
-    # 1. Local discovery
     local_names = {p.stem for p in current_dir.glob("*.py")}
     local_names.update({p.name for p in current_dir.iterdir() if p.is_dir() and (p / "__init__.py").exists()})
 
-    # 2. Stdlib discovery
     std_libs = getattr(sys, "stdlib_module_names", set())
 
-    # 3. Collection
     for path in current_dir.rglob("*"):
         if is_python_file(path) and path.name not in [
             "importz.txt",
@@ -91,7 +85,6 @@ def main():
         ]:
             all_imports.update(get_imports_from_file(path))
 
-    # 4. Filtering & Mapping
     third_party = [imp for imp in all_imports if imp not in std_libs and imp not in local_names and imp != "__future__"]
 
     missing_for_pip = []
@@ -101,11 +94,9 @@ def main():
         if check_status(imp):
             already_installed.append(imp)
         else:
-            # Map to the correct pip name if an alias exists
             pip_name = PACKAGE_MAPPING.get(imp, imp)
             missing_for_pip.append(pip_name)
 
-    # 5. Output
     if third_party:
         output_file.write_text(
             "\n".join(sorted(third_party)),

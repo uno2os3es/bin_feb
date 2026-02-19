@@ -68,7 +68,6 @@ def query_packages() -> list[list[str]]:
         print(cols)
         rows.append(cols)
 
-    # sort by Installed-Size (column index 6), descending
     rows.sort(key=lambda r: int(r[6] or 0), reverse=True)
     return rows
 

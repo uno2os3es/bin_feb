@@ -3,11 +3,10 @@ import os
 import stat
 import sys
 
-# ANSI color codes
-CYAN = "\033[36m"  # files
-BLUE = "\033[34m"  # directories
-GREEN = "\033[32m"  # executables
-RED = "\033[31m"  # compressed files
+CYAN = "\033[36m"
+BLUE = "\033[34m"
+GREEN = "\033[32m"
+RED = "\033[31m"
 RESET = "\033[0m"
 
 COMPRESSED_EXTS = {
@@ -48,7 +47,7 @@ def get_dir_size(path):
 
 
 def list_dir(path="."):
-    entries = os.listdir(path)  # includes hidden files by default
+    entries = os.listdir(path)
     items = []
 
     for entry in entries:
@@ -63,7 +62,7 @@ def list_dir(path="."):
                 ext = os.path.splitext(entry)[1].lower()
                 if ext in COMPRESSED_EXTS:
                     color = RED
-                elif mode & stat.S_IXUSR:  # executable
+                elif mode & stat.S_IXUSR:
                     color = GREEN
                 else:
                     color = CYAN
@@ -73,15 +72,12 @@ def list_dir(path="."):
 
         items.append((size, entry, color))
 
-    # Determine column widths
     size_col_width = max(len(human_readable_size(s)) for s, _, _ in items)
     name_col_width = max(len(n) for _, n, _ in items)
 
-    # Print header
     print(f"{'size'.ljust(size_col_width)}  {'name'}")
     print("-" * (size_col_width + name_col_width + 2))
 
-    # Sort by size ascending (biggest last)
     for size, name, color in sorted(items, key=lambda x: x[0]):
         size_str = human_readable_size(size).ljust(size_col_width)
         print(f"{size_str}  {color}{name}{RESET}")

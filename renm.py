@@ -10,7 +10,6 @@ from tqdm import tqdm
 
 DIRECTORY = "."
 
-# Detect non‑ASCII characters
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
@@ -18,7 +17,6 @@ def is_english(text):
     return not non_english_pattern.search(text)
 
 
-# Shared cache (Works safely with threads for read/write in this simple context)
 translation_cache = {}
 
 

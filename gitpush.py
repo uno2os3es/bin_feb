@@ -45,7 +45,7 @@ def find_python_scripts_without_extension():
     py_files = []
     for root, _, files in os.walk("."):
         for f in files:
-            if "." in f:  # skip files with extensions
+            if "." in f:
                 continue
 
             path = os.path.join(root, f)
@@ -69,10 +69,8 @@ def main() -> None:
         print("Not inside a Git repository. Doing nothing.")
         return
 
-    # Ensure .gitignore exists
     ensure_gitignore()
 
-    # 1. Collect all Python files: *.py + extensionless python scripts
     python_files = []
 
     for root, _, files in os.walk("."):
@@ -93,13 +91,11 @@ def main() -> None:
             print(f"Black failed for {f}.")
             return
 
-    # 2. git add .
     print("Running git add .")
     if not run("git add ."):
         print("git add failed.")
         return
 
-    # 3. git commit with timestamp
     commit_message = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"Committing with message: {commit_message}")
     commit_success = run(f'git commit -m "{commit_message}"')
@@ -108,7 +104,6 @@ def main() -> None:
         print("Nothing to commit or commit failed.")
         return
 
-    # 4. git push
     print("Pushing changes...")
     if not run("git push"):
         print("git push failed.")

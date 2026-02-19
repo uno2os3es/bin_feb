@@ -15,7 +15,6 @@ from queue import Queue
 
 from fastwalk import walk_files
 
-# -------------------- Globals --------------------
 
 pause_event = threading.Event()
 pause_event.set()
@@ -41,8 +40,6 @@ ARCHIVE_EXTENSIONS = (
     ".apk",
 )
 
-# -------------------- Keyboard --------------------
-
 
 def setup_keyboard_listener():
     try:
@@ -63,9 +60,6 @@ def setup_keyboard_listener():
         return False
 
 
-# -------------------- Helpers --------------------
-
-
 def is_excluded(path: Path, excluded_dirs, excluded_patterns):
     for part in path.parts:
         if part in excluded_dirs:
@@ -83,9 +77,6 @@ def report_result(file_path, line_num=None):
     else:
         print(f"[FOUND] {file_path}")
     results_queue.put((file_path, line_num))
-
-
-# -------------------- Search Logic --------------------
 
 
 def search_in_file(file_path, search_string, search_content):
@@ -194,9 +185,6 @@ def process_file(path: Path, search_string, search_content):
 
     for r in results:
         report_result(*r)
-
-
-# -------------------- Main --------------------
 
 
 def main():

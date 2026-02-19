@@ -134,14 +134,12 @@ def write_matrix(hashes, threshold, output_dir="output", pretty=False) -> None:
 
     if pretty:
         if USE_TABULATE:
-            # Apply colorization to table cells
             colored_table = []
             for row in table[1:]:
                 colored_row = [row[0]] + [colorize_score(cell, threshold) for cell in row[1:]]
                 colored_table.append(colored_row)
             print(tabulate(colored_table, headers=table[0], tablefmt="grid"))
         else:
-            # Simple fallback formatting
             header = " | ".join(table[0])
             print(header)
             print("-" * len(header))

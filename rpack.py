@@ -19,7 +19,7 @@ def list_installed_packages(site: Path):
     pkgs = {}
     for item in site.iterdir():
         if item.name.endswith(".dist-info"):
-            name_version = item.name[:-10]  # strip .dist-info
+            name_version = item.name[:-10]
             m = re.match(r"(.+)-([\w\.]+)", name_version)
             if not m:
                 continue
@@ -41,7 +41,6 @@ def get_wheel_tags(dist_info: Path):
 
 
 def copy_package_files(pkg: str, site: Path, dst: Path) -> None:
-    # Copy code/package directory or module
     candidates = [
         site / pkg,
         site / f"{pkg}.py",

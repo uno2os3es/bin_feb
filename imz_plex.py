@@ -14,14 +14,12 @@ from pathlib import Path
 import regex as re
 from dh import STDLIB
 
-# Termux shebang patterns
 SHEBANG_PATTERNS = [
     r"#!/data/data/com.termux/files/usr/bin/python",
     r"#!/usr/bin/env python",
     r"#! */python",
 ]
 
-# Compressed file extensions
 COMPRESSED_EXTS = {
     ".tar.gz",
     ".tgz",
@@ -33,7 +31,6 @@ COMPRESSED_EXTS = {
     ".7z",
 }
 
-# Pip packages list path and stdlib path
 PIP_LIST_PATH = Path("/sdcard/pip.txt")
 KNOWN_PACKAGES = set()
 STDLIB_MODULES = STDLIB
@@ -56,7 +53,6 @@ def is_python_file(path):
     """Check if file is Python source (with/without extension or shebang)."""
     path = Path(path)
 
-    # No extension or .py
     if not path.suffix or path.suffix == ".py":
         try:
             with open(
@@ -65,11 +61,9 @@ def is_python_file(path):
                 errors="ignore",
             ) as f:
                 first_line = f.readline()
-                # Check shebang
                 for pattern in SHEBANG_PATTERNS:
                     if re.match(pattern, first_line):
                         return True
-                # Check for import-like content
                 content = f.read(1024)
                 if re.search(
                     r"\bimport\b|\bfrom\b\s+\w",
@@ -103,7 +97,6 @@ def extract_imports_from_ast(code):
 def extract_imports_regex(content):
     """Fallback regex-based import extraction."""
     imports = set()
-    # Import patterns
     patterns = [
         r"^\s*import\s+(\w+)",
         r"^\s*from\s+(\w+)\s+import",
@@ -128,7 +121,6 @@ def get_imports_from_file(file_path):
         ) as f:
             content = f.read()
 
-        # Try AST first, then regex
         imports = extract_imports_from_ast(content)
         if not imports:
             imports = extract_imports_regex(content)
@@ -145,7 +137,6 @@ def handle_compressed_file(archive_path):
     path = Path(archive_path)
 
     try:
-        # .zip and .whl
         if path.suffix in {".zip", ".whl"}:
             with zipfile.ZipFile(path, "r") as zf:
                 for name in zf.namelist():
@@ -158,7 +149,6 @@ def handle_compressed_file(archive_path):
                         for imp in imports:
                             all_imports[imp] += 1
 
-        # .tar.gz, .tgz
         elif path.suffix in {".tar.gz", ".tgz"}:
             with tarfile.open(path, "r:gz") as tf:
                 for member in tf.getmembers():
@@ -173,7 +163,6 @@ def handle_compressed_file(archive_path):
                             for imp in imports:
                                 all_imports[imp] += 1
 
-        # .tar.xz
         elif path.suffix == ".tar.xz":
             with tarfile.open(path, "r:xz") as tf:
                 for member in tf.getmembers():
@@ -188,7 +177,6 @@ def handle_compressed_file(archive_path):
                             for imp in imports:
                                 all_imports[imp] += 1
 
-        # .tar.bz2
         elif path.suffix == ".tar.bz2":
             with tarfile.open(path, "r:bz2") as tf:
                 for member in tf.getmembers():
@@ -203,7 +191,6 @@ def handle_compressed_file(archive_path):
                             for imp in imports:
                                 all_imports[imp] += 1
 
-        # .tar.zst (requires zstd)
         elif path.suffix == ".tar.zst":
             try:
                 import zstandard as zstd
@@ -231,7 +218,6 @@ def handle_compressed_file(archive_path):
             except ImportError:
                 pass
 
-        # .7z (requires 7z command)
         elif path.suffix == ".7z":
             try:
                 import subprocess
@@ -244,7 +230,7 @@ def handle_compressed_file(archive_path):
                 )
                 for line in result.stdout.splitlines():
                     if ".py" in line or ("python" in line.lower() and "bin" not in line.lower()):
-                        pass  # Would need extraction, skipping for offline
+                        pass
             except:
                 pass
 
@@ -262,13 +248,11 @@ def walk_directory(root_path):
 
     for path in root.rglob("*"):
         try:
-            # Regular Python files
             if path.is_file() and is_python_file(path):
                 imports = get_imports_from_file(path)
                 for imp in imports:
                     all_imports[imp] += 1
 
-            # Compressed archives
             elif path.is_file() and path.suffix.lower() in COMPRESSED_EXTS:
                 archive_imports = handle_compressed_file(path)
                 for (
@@ -289,7 +273,6 @@ def generate_requirements(imports_count):
         pkg: count for pkg, count in imports_count.items() if pkg in KNOWN_PACKAGES and pkg not in STDLIB_MODULES
     }
 
-    # Sort by frequency
     sorted_imports = sorted(
         filtered.items(),
         key=lambda x: x[1],
@@ -298,7 +281,6 @@ def generate_requirements(imports_count):
 
     with open("requirements.txt", "w") as f:
         for pkg, count in sorted_imports:
-            # Normalize package name (common fixes)
             norm_pkg = pkg.replace("_", "-")
             if norm_pkg in {
                 "numpy",

@@ -7,7 +7,7 @@ from deep_translator import GoogleTranslator
 
 INPUT_FILE = "words.txt"
 OUTPUT_FILE = "dic_mp.json"
-MAX_WORKERS = 16  # Increase for more speed
+MAX_WORKERS = 16
 
 
 def translate_word(word):
@@ -22,7 +22,6 @@ def translate_word(word):
 
 
 def main():
-    # Load Persian words
     with open(INPUT_FILE, encoding="utf-8") as f:
         words = [w.strip() for w in f if w.strip()]
 
@@ -30,7 +29,6 @@ def main():
 
     results = {}
 
-    # Parallel translation
     print("[INFO] Translating in parallel...")
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         future_map = {executor.submit(translate_word, w): w for w in words}
@@ -47,7 +45,6 @@ def main():
             except Exception as e:
                 print(f"[ERROR] Unexpected error for '{persian_word}': {e}")
 
-    # Save JSON
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(
             results,

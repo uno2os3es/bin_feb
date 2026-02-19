@@ -51,7 +51,6 @@ def main() -> None:
     size_before = input_path.stat().st_size
     print(f"Before : {human_size(size_before)}")
 
-    # --- Ghostscript compression ---
     gs_cmd = [
         "gs",
         "-sDEVICE=pdfwrite",
@@ -73,8 +72,6 @@ def main() -> None:
     ]
 
     run(gs_cmd)
-
-    # Replace original file
 
     size_after = temp_gs.stat().st_size
     print(f"After  : {human_size(size_after)}")

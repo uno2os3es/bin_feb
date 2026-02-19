@@ -247,7 +247,7 @@ class Document:
         elif self.format_type == "todo":
             return TodoFormat()
         else:
-            return MarkdownFormat()  # Default to markdown
+            return MarkdownFormat()
 
     def _load(self):
         """Load document from file."""
@@ -347,7 +347,6 @@ class FileManager:
         if not file_path.exists():
             return None
 
-        # Detect format from extension
         ext = file_path.suffix.lower()
         if ext == ".md":
             format_type = "markdown"
@@ -413,11 +412,9 @@ class FileManager:
         results = []
 
         for doc_info in self.list_documents(recursive=True):
-            # Search by filename
             if query.lower() in doc_info["name"].lower():
                 results.append(doc_info)
 
-            # Search by content
             elif search_content:
                 doc = self.open_document(doc_info["path"])
                 if doc and query.lower() in doc.content.lower():
@@ -687,7 +684,6 @@ class TextEditor:
         if 0 <= choice < len(actions):
             action = actions[choice]
             self.gui.show_toast(f"Action: {action}")
-            # Add specific action logic here
 
     def find_and_replace(self):
         """Find and replace text."""
@@ -695,7 +691,6 @@ class TextEditor:
         if not find_text:
             return
 
-        # Show occurrences
         count = self.current_document.content.count(find_text)
 
         if count == 0:
@@ -762,7 +757,6 @@ Last Modified: {info["last_modified"]}
             self.gui.show_toast(f"Setting {choice}: Not yet implemented")
 
 
-# Main entry point
 if __name__ == "__main__":
     editor = TextEditor()
     editor.run()

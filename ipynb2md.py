@@ -14,8 +14,6 @@ if __name__ == "__main__":
         for _i, cell in enumerate(nb.cells, 1):
             out.write("\n")
 
-            #            out.write(f"<!-- [{i}] {cell.cell_type} -->\n\n")
-
             if cell.cell_type == "markdown":
                 out.write(cell.source + "\n\n")
 

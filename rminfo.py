@@ -56,7 +56,6 @@ def remove_header(path) -> None:
             cleaned.append(line)
     print(f"{len(original)}=={len(cleaned)}")
     if cleaned != original:
-        #        ans=input(f'update {path}:(y/n)')
         ans = "y"
         if ans == "y":
             with open(path, "w", encoding="utf-8") as fo:

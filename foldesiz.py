@@ -31,7 +31,7 @@ def calculate_optimal_folders(files):
         int(range_size / target_range_per_folder),
     )
 
-    return min(num_folders, len(files))  # Don't exceed file count
+    return min(num_folders, len(files))
 
 
 def create_range_folders(base_dir, files, num_folders):
@@ -118,7 +118,6 @@ def main():
 
     print(f"Found {len(files)} files.")
 
-    # Calculate optimal number of folders based on size range
     num_folders = calculate_optimal_folders(files)
     print(f"Size range: {min(s[1] for s in files):,} - {max(s[1] for s in files):,} bytes")
     print(f"Creating {num_folders} folders (range-based)")

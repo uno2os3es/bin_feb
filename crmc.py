@@ -42,7 +42,6 @@ def remove_comments_cpp(path: Path) -> None:
             if node.type == "comment":
                 text = source[node.start_byte : node.end_byte]
 
-                # preserve shebang (rare but possible)
                 if text.lstrip().startswith(EXCLUDE_PREFIXES):
                     return
 
@@ -58,16 +57,13 @@ def remove_comments_cpp(path: Path) -> None:
 
         cleaned = bytearray(source)
 
-        # delete in reverse byte order
         for start, end in sorted(deletions, reverse=True):
             del cleaned[start:end]
 
-        # normalize blank lines
         cleaned_text = cleaned.decode("utf-8")
         cleaned_text = _cleanup_blank_lines(cleaned_text)
         cleaned = cleaned_text.encode("utf-8")
 
-        # validate syntax (Tree-sitter parse)
         parser.parse(cleaned)
 
         path.write_bytes(cleaned)

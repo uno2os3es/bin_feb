@@ -22,17 +22,12 @@ def copy_if_match(src_path) -> None:
     if src_path.endswith(ALLOWED_EXTENSIONS):
         try:
             os.makedirs(DEST_DIR, exist_ok=True)
-            #            cont=Path(src_path).read_text()
             dest = os.path.join(
                 DEST_DIR,
                 os.path.basename(src_path),
             )
             shutil.copy2(src_path, dest)
             print(src_path)
-
-        #            with open(dest,'a') as fo:
-        #                fo.write(str(cont))
-        #            print(f'{Path(dest).stat().st_size}')
 
         except Exception as e:
             print(f"Failed to copy {src_path}: {e}")
@@ -62,10 +57,8 @@ class CopyEventHandler(FileSystemEventHandler):
 if __name__ == "__main__":
     path = sys.argv[1] if len(sys.argv) > 1 else "/data/data/com.termux/files/usr/tmp"
 
-    # 1️⃣ Perform startup scan before watching
     startup_scan(path)
 
-    # 2️⃣ Setup watcher
     event_handler = CopyEventHandler()
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)

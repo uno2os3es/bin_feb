@@ -27,7 +27,6 @@ def get_github_repos(username, output_file=None) -> None:
             print(f"No repositories found for user: {username}")
             return
 
-        # Write to file
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(f"GitHub repositories for user: {username}\n")
             f.write("=" * 50 + "\n\n")

@@ -19,13 +19,10 @@ for f in files:
     if name not in packages:
         packages[name] = []
     packages[name].append((version, f))
-# Process each package
 for name, versions in packages.items():
-    # Sort versions, newest first
     versions.sort(reverse=True, key=operator.itemgetter(0))
     latest = versions[0]
     old = versions[1:]
-    # Delete older versions
     for _v, filename in old:
         pathlib.Path(filename).unlink()
         print(f"{filename} removed")

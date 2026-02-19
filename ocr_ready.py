@@ -104,10 +104,8 @@ def process():
         if processed is None:
             continue
 
-        # Save processed image
         cv2.imwrite(str(out_img_path), processed)
 
-        # OCR extraction
         text = pytesseract.image_to_string(processed, config="--oem 1 --psm 6")
 
         with open(out_txt_path, "w", encoding="utf-8") as f:

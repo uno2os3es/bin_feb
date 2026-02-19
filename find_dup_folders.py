@@ -40,7 +40,6 @@ def hash_folder(folder_path):
     if not files:
         return ""
 
-    # IMPORTANT: deterministic order
     for file in sorted(files):
         rel = file.relative_to(folder_path)
         hasher.update(str(rel).encode())

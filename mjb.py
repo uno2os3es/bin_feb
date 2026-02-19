@@ -23,12 +23,12 @@ def minify_json_file(path: Path, dry_run: bool = False) -> bool:
 
     minified = json.dumps(
         data,
-        separators=(",", ":"),  # remove spaces
-        ensure_ascii=False,  # preserve unicode
+        separators=(",", ":"),
+        ensure_ascii=False,
     )
 
     if original.strip() == minified:
-        return False  # already minified
+        return False
 
     if dry_run:
         print(f"[DRY] Would minify: {path}")

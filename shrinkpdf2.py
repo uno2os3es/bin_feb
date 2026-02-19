@@ -51,7 +51,6 @@ def main() -> None:
     size_before = input_path.stat().st_size
     print(f"Before : {human_size(size_before)}")
 
-    # --- qpdf optimization ---
     qpdf_cmd = [
         "qpdf",
         "--linearize",
@@ -62,7 +61,6 @@ def main() -> None:
 
     run(qpdf_cmd)
 
-    # Replace original file
     size_after = temp_qpdf.stat().st_size
     print(f"After  : {human_size(size_after)}")
 

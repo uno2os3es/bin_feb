@@ -28,9 +28,6 @@ def unique_path(path: str) -> str:
     return new
 
 
-# ---------- font name extraction ----------
-
-
 def get_best_name(font, name_id):
     fallback = None
 
@@ -43,11 +40,9 @@ def get_best_name(font, name_id):
         except Exception:
             continue
 
-        # Best: Windows + English
         if rec.platformID == 3 and rec.langID == 0x0409:
             return name
 
-        # Fallback: ASCII only
         if is_ascii_printable(name):
             fallback = name
 
@@ -57,8 +52,8 @@ def get_best_name(font, name_id):
 def get_font_names(path):
     font = TTFont(path)
 
-    family = get_best_name(font, 1)  # Family
-    subfamily = get_best_name(font, 2)  # Style / Weight
+    family = get_best_name(font, 1)
+    subfamily = get_best_name(font, 2)
 
     if not family:
         return None, None
@@ -67,14 +62,10 @@ def get_font_names(path):
 
     subfamily = "Regular" if not subfamily else clean_filename(subfamily)
 
-    # Avoid useless "-Regular-Regular"
     if subfamily.lower() == family.lower():
         subfamily = "Regular"
 
     return family, subfamily
-
-
-# ---------- main ----------
 
 
 def main():

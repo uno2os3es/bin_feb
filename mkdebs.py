@@ -56,7 +56,7 @@ def copy_pkg_files(files, dest) -> None:
         try:
             shutil.copy2(f, target)
         except Exception:
-            pass  # some entries are sockets, ghost paths, etc.
+            pass
 
 
 def build_tar_xz(source_dir, output_path) -> None:
@@ -118,7 +118,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # pkgs = get_installed_packages()
     pkgs = ["tor"]
 
     print(f"[+] Building {len(pkgs)} packages using {args.workers} workers…\n")

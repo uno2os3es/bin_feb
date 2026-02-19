@@ -14,20 +14,13 @@ import cv2
 import pytesseract
 from dh import IMG_EXT
 
-# -----------------------------
-# CONFIGURATION
-# -----------------------------
 OUTPUT_DIR = Path("ocr_results")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# Tesseract English configs you want to test
-OEM_OPTIONS = [0, 1, 2, 3]  # OCR Engine Modes
-PSM_OPTIONS = [3, 4, 6, 11, 12, 13]  # Page Segmentation Modes
+OEM_OPTIONS = [0, 1, 2, 3]
+PSM_OPTIONS = [3, 4, 6, 11, 12, 13]
 
 
-# -----------------------------
-# IMAGE PREPROCESSING
-# -----------------------------
 def prepare_image_for_ocr(img_path: Path):
     """Prepare image for optimal OCR recognition."""
     img = cv2.imread(str(img_path))
@@ -37,13 +30,10 @@ def prepare_image_for_ocr(img_path: Path):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Denoise
     gray = cv2.fastNlMeansDenoising(gray, h=15)
 
-    # Threshold
     thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
 
-    # Deskew (crucial for OCR)
     coords = cv2.findNonZero(thresh)
     rect = cv2.minAreaRect(coords)
     angle = rect[-1]
@@ -56,9 +46,6 @@ def prepare_image_for_ocr(img_path: Path):
     return cv2.warpAffine(thresh, M, (w, h), flags=cv2.INTER_CUBIC)
 
 
-# -----------------------------
-# OCR RUNNER
-# -----------------------------
 def run_tesseract_on_image(img, oem, psm):
     """Execute Tesseract OCR with timing and error safety."""
     config = f"--oem {oem} --psm {psm} -l eng"
@@ -73,9 +60,6 @@ def run_tesseract_on_image(img, oem, psm):
     return text, config, duration, ""
 
 
-# -----------------------------
-# MAIN PIPELINE
-# -----------------------------
 def main():
     image_files = [f for f in Path(".").iterdir() if f.suffix.lower() in IMG_EXT]
 
@@ -100,11 +84,9 @@ def main():
             }
             all_results.append(result)
 
-            # Save raw OCR output
             out_file = OUTPUT_DIR / f"{img_path.stem}__oem{oem}_psm{psm}.txt"
             out_file.write_text(text)
 
-    # Save combined results to CSV
     df = pd.DataFrame(all_results)
     df.to_csv(OUTPUT_DIR / "ocr_summary.csv", index=False)
 

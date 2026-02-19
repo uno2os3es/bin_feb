@@ -17,7 +17,6 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -75,11 +74,8 @@ class CodeBlockExtractor:
         """Extract Python code blocks from HTML content."""
         soup = BeautifulSoup(html_content, "html.parser")
         code_blocks = []
-        # Extract from standard <pre><code> blocks
         code_blocks.extend(self._extract_from_pre_code(soup, source_file))
-        # Extract from <code> blocks
         code_blocks.extend(self._extract_from_code_tags(soup, source_file))
-        # Extract from Canvas (JSON embedded in script tags)
         code_blocks.extend(self._extract_from_canvas(soup, source_file))
         return code_blocks
 
@@ -114,7 +110,6 @@ class CodeBlockExtractor:
         blocks = []
         offset = len(soup.find_all("pre"))
         for idx, code in enumerate(soup.find_all("code")):
-            # Skip if already inside <pre>
             if code.parent.name == "pre":
                 continue
             content = code.get_text()
@@ -142,9 +137,7 @@ class CodeBlockExtractor:
                 try:
                     content = script.string
                     if content:
-                        # Try to parse as JSON
                         data = json.loads(content)
-                        # Recursively search for Python code in JSON structure
                         python_code = self._extract_from_json(data)
                         if python_code:
                             for py_code in python_code:
@@ -182,7 +175,6 @@ class CodeBlockExtractor:
             for item in data:
                 python_codes.extend(self._extract_from_json(item, depth + 1, max_depth))
         elif isinstance(data, str):
-            # Check if string contains Python code indicators
             if any(
                 keyword in data
                 for keyword in [
@@ -222,7 +214,6 @@ class CodeBlockExtractor:
         ]
         content_lower = content.lower()
         keyword_count = sum(1 for keyword in python_keywords if keyword.lower() in content_lower)
-        # Also check for common Python syntax patterns
         python_patterns = [
             r"\bdef\s+\w+\s*\(",
             r"\bclass\s+\w+",
@@ -238,12 +229,7 @@ class CodeBlockExtractor:
     def _extract_filename_from_code(self, content: str) -> str | None:
         """Try to extract a suggested filename from code comments."""
         lines = content.split("\n")
-        # Look for filename in first few lines
         for line in lines[:10]:
-            # Check for patterns like:
-            # # filename.py
-            # # filename: script.py
-            # # name: my_script.py
             match = re.search(
                 r"#\s*(?:filename|name|file)\s*:?\s*([\w\-._]+\.py)",
                 line,
@@ -312,9 +298,7 @@ class FileProcessor:
         source_dir = self.output_dir / source_name
         source_dir.mkdir(parents=True, exist_ok=True)
         for block in code_blocks:
-            # Determine filename
             filename = block.suggested_name or f"{source_name}_block_{block.block_index:03d}.py"
-            # Ensure unique filename
             filepath = source_dir / filename
             counter = 1
             original_filepath = filepath
@@ -326,7 +310,6 @@ class FileProcessor:
                     base_name = original_filepath.stem
                 filepath = source_dir / f"{base_name}_{counter}.py"
                 counter += 1
-            # Save the code block
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(block.content)
             logger.debug(f"Saved code block to {filepath}")
@@ -390,7 +373,7 @@ Examples:
         "-j",
         "--jobs",
         type=int,
-        default=5,  # Default number of threads
+        default=5,
         help="Number of parallel jobs (default: 5)",
     )
     args = parser.parse_args()
@@ -398,15 +381,12 @@ Examples:
     total_blocks = 0
     try:
         if args.url:
-            # Process URL
             logger.info(f"Processing URL: {args.url}")
             total_blocks += processor.process_url(args.url)
         elif args.file:
-            # Process single file
             logger.info(f"Processing file: {args.file}")
             total_blocks += processor.process_file(args.file)
         elif args.path:
-            # Process directory
             logger.info(f"Processing directory: {args.path}")
             html_files = find_html_files(args.path)
             if html_files:
@@ -424,7 +404,6 @@ Examples:
             else:
                 logger.warning(f"No HTML files found in {args.path}")
         else:
-            # Process current directory (default)
             logger.info("Processing HTML files in current directory recursively")
             html_files = find_html_files(".")
             if html_files:

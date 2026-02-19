@@ -107,7 +107,6 @@ class GitHubRepoManager:
             print(f"Error initializing git repo:    {stderr}")
             sys.exit(1)
 
-        # Configure git user for this repo
         self._run_command(
             [
                 "git",
@@ -136,7 +135,6 @@ class GitHubRepoManager:
             print(f"✓ Repository {self.repo_name} already exists on GitHub")
             return True
 
-        # Create repo without push flag first
         returncode, stdout, stderr = self._run_command(
             [
                 "gh",
@@ -173,11 +171,9 @@ class GitHubRepoManager:
 
     def _ensure_content(self):
         """Ensure there's at least one file to commit."""
-        # Check if directory has any files
         files = list(self.current_dir.glob("*"))
         hidden_files = list(self.current_dir.glob(".*"))
 
-        # Filter out . git directory
         files = [f for f in files if f.name != ".git"]
         hidden_files = [f for f in hidden_files if f.name not in [".git", ".", ".."]]
 
@@ -223,7 +219,6 @@ class GitHubRepoManager:
         """Add GitHub remote."""
         print(f"\n🔗 Adding remote:  {self.repo_url}")
 
-        # Check if remote already exists
         returncode, current_url, _ = self._run_command(
             [
                 "git",
@@ -364,7 +359,6 @@ class GitHubRepoManager:
         print(f"Email: {self.git_email}")
         print("=" * 60)
 
-        # Check if gh CLI is installed and authenticated
         if not self._check_gh_cli_installed():
             print("\n❌ Error: GitHub CLI (gh) is not installed.")
             print("Please install it from:  https://cli.github.com")
@@ -377,11 +371,9 @@ class GitHubRepoManager:
 
         print("\n✓ GitHub CLI is installed and authenticated\n")
 
-        # Check if repo already exists locally
         if self._repo_exists_locally():
             use_existing = self.handle_existing_repo()
             if not use_existing:
-                # Remove old remote if exists
                 self._run_command(
                     [
                         "git",
@@ -392,26 +384,18 @@ class GitHubRepoManager:
                     capture_output=True,
                 )
         else:
-            # Initialize new repo
             self._init_local_repo()
 
-        # Ensure there's content to commit
         self._ensure_content()
 
-        # Stage changes
         self._stage_all_changes()
 
-        # Commit changes
         if self._commit_changes():
-            # Rename branch to main
             self._rename_branch_to_main()
 
-            # Create repository on GitHub using gh CLI
             if self._create_github_repo():
-                # Add remote (in case it wasn't added by gh repo create)
                 self._add_remote()
 
-                # Push to GitHub
                 self._push_to_github()
 
                 print("\n" + "=" * 60)

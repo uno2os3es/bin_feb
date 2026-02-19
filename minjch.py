@@ -14,8 +14,8 @@ from rcssmin import cssmin
 
 def minify_html(html: str) -> str:
     """Why: Simple compacting without breaking structure."""
-    html = re.sub(r">\s+<", "><", html)  # collapse >   < gaps
-    html = re.sub(r"\s{2,}", " ", html)  # collapse spaces
+    html = re.sub(r">\s+<", "><", html)
+    html = re.sub(r"\s{2,}", " ", html)
     return html.strip()
 
 

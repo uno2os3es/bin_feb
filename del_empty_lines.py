@@ -15,5 +15,4 @@ def remove_empty_lines(filepath):
         f.truncate()
 
 
-# usage
 remove_empty_lines(sys.argv[1])

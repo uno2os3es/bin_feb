@@ -12,10 +12,8 @@ from pathlib import Path
 
 from dh import unique_path
 
-# File extensions to format
 EXTENSIONS = {".js", ".css", ".html", ".json", ".mjs", ".cjs", ".ts", ".jsx", ".tsx"}
 
-# Patterns to exclude
 EXCLUDE_PATTERNS = {".py", ".ipynb"}
 
 

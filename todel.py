@@ -3,7 +3,6 @@ import os
 
 
 def delete_multiline_string_from_files(search_string, directory=".") -> None:
-    # Recursively walk through the directory
     EXT = [
         ".txt",
         ".py",
@@ -19,7 +18,6 @@ def delete_multiline_string_from_files(search_string, directory=".") -> None:
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
 
-            # Only process files (skip directories)
             if os.path.isfile(file_path) and os.path.splitext(file_path)[1] in EXT:
                 try:
                     with open(
@@ -28,9 +26,7 @@ def delete_multiline_string_from_files(search_string, directory=".") -> None:
                     ) as file:
                         content = file.read()
 
-                    # Check if the string to delete exists in the file
                     if search_string in content:
-                        # Remove the multiline string from the file
                         new_content = content.replace(search_string, "")
 
                         with open(file_path, "w") as file:

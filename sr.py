@@ -11,8 +11,6 @@ import zipfile
 from email.parser import Parser
 from pathlib import Path
 
-# ---------- Utilities ----------
-
 
 def prefix_path():
     p = os.environ.get("PREFIX")
@@ -138,9 +136,6 @@ def detect_wheel_tags():
     return py_tag, abi_tag, plat
 
 
-# ---------- Direct Repack ----------
-
-
 def collect_and_build(distinfo_path, prefix, wheel_out_path):
     base = distinfo_path.parent
     rec_list = read_record_list(distinfo_path)
@@ -152,17 +147,15 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
     dist_name = (md.get("Name") or distinfo_path.name.split("-", 1)[0]).replace("-", "_")
     md.get("Version") or "0.0.0"
 
-    collected_files = []  # List of (source_path, internal_zip_path)
+    collected_files = []
     missing_files = []
 
-    # Process files from RECORD
     for rel in rec_list:
         if not rel or rel.endswith("RECORD") or rel.startswith(("..", "/")):
             continue
 
         src = base / rel
         if not src.exists():
-            # Fallback to prefix
             src = prefix / rel
 
         if src.exists():
@@ -181,7 +174,6 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
         else:
             missing_files.append(rel)
 
-    # Add console scripts
     if "console_scripts" in md:
         for sp in find_script_paths(prefix, md["console_scripts"]):
             collected_files.append((sp, f"bin/{sp.name}"))
@@ -193,7 +185,6 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
         print(f"[*] Aborting wheel build for {dist_name}.")
         return
 
-    # Determine Tags
     py_tag, abi_tag, plat_tag = detect_wheel_tags()
     native_exts = {
         ".so",
@@ -205,7 +196,6 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
     is_platform = any(s.suffix.lower() in native_exts for s, _ in collected_files)
     wheel_tag = f"{py_tag}-{abi_tag}-{plat_tag}" if is_platform else "py3-none-any"
 
-    # Write Zip
     wheel_out_path.parent.mkdir(parents=True, exist_ok=True)
     record_lines = []
 
@@ -219,7 +209,6 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
             h, size = compute_hash_and_size(src)
             record_lines.append(f"{rel},{h},{size}")
 
-        # Create WHEEL file
         wheel_content = f"Wheel-Version: 1.0\nGenerator: repack_tool\nRoot-Is-Purelib: {'false' if is_platform else 'true'}\nTag: {wheel_tag}\n"
         zf.writestr(
             f"{distinfo_path.name}/WHEEL",
@@ -227,7 +216,6 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
         )
         record_lines.append(f"{distinfo_path.name}/WHEEL,,")
 
-        # Create RECORD file
         record_lines.append(f"{distinfo_path.name}/RECORD,,")
         zf.writestr(
             f"{distinfo_path.name}/RECORD",
@@ -274,10 +262,7 @@ def main():
             name = (md.get("Name") or distinfo.name.split("-", 1)[0]).replace("-", "_")
             ver = md.get("Version") or "0"
 
-            # Simple check for platform tags for filename
             _py_tag, _abi_tag, _plat_tag = detect_wheel_tags()
-            # We assume non-platform unless we find native libs later,
-            # but for naming we use a default or detect ahead
             out_name = f"{name}-{ver}-py3-none-any.whl"
 
             collect_and_build(

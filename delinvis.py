@@ -11,7 +11,7 @@ def find_unprintable_positions(text):
         "\r",
         "\t",
     }
-    positions = []  # list of (line, column, char, code)
+    positions = []
 
     line_num = 1
     col_num = 1
@@ -50,7 +50,6 @@ def clean_file(path: str) -> None:
     if positions:
         print(f"Found {len(positions)} unprintable character(s):")
         for line, col, _ch, code in positions:
-            # Show hex code for clarity
             print(f"  Line {line}, Col {col}: char code {code} (0x{code:02X})")
     else:
         print("No unprintable characters found.")

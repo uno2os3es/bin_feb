@@ -67,7 +67,7 @@ class BatchStripper:
         for ext in extensions:
             so_files.extend(Path(directory).rglob(f"*{ext}"))
 
-        so_files = list(set(so_files))  # Remove duplicates
+        so_files = list(set(so_files))
 
         stripper = SoFileStripper(verbose=verbose, verify_ctypes=verify)
 
@@ -136,7 +136,7 @@ class BatchStripper:
                 if attempt < max_retries - 1:
                     if verbose:
                         print(f"  Retry {attempt + 1}/{max_retries - 1}...")
-                    time.sleep(1)  # Wait before retry
+                    time.sleep(1)
 
         return stripper.stats
 
@@ -149,28 +149,24 @@ def main():
 
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
-    # Size threshold command
     size_parser = subparsers.add_parser("size", help="Strip by size threshold")
     size_parser.add_argument("directory", nargs="?", default=".")
     size_parser.add_argument("--min-mb", type=float, default=1.0, help="Minimum size in MB")
     size_parser.add_argument("-v", "--verbose", action="store_true")
     size_parser.add_argument("--no-verify", action="store_true", help="Skip ctypes verification")
 
-    # Extension command
     ext_parser = subparsers.add_parser("ext", help="Strip by extensions")
     ext_parser.add_argument("directory", nargs="?", default=".")
     ext_parser.add_argument("--extensions", nargs="+", default=[".so", ".so.1", ".so.6"])
     ext_parser.add_argument("-v", "--verbose", action="store_true")
     ext_parser.add_argument("--no-verify", action="store_true", help="Skip ctypes verification")
 
-    # Exclude patterns command
     excl_parser = subparsers.add_parser("exclude", help="Strip excluding patterns")
     excl_parser.add_argument("directory", nargs="?", default=".")
     excl_parser.add_argument("--patterns", nargs="+", default=["test", "debug", "profile"])
     excl_parser.add_argument("-v", "--verbose", action="store_true")
     excl_parser.add_argument("--no-verify", action="store_true", help="Skip ctypes verification")
 
-    # Retry command
     retry_parser = subparsers.add_parser("retry", help="Strip with retry")
     retry_parser.add_argument("directory", nargs="?", default=".")
     retry_parser.add_argument("--max-retries", type=int, default=3)

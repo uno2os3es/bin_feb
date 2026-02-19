@@ -18,9 +18,6 @@ def extract_urls_from_text(content):
     return set(url_pattern.findall(content))
 
 
-# Extract URLs from a regular file
-
-
 def extract_urls_from_file(filepath):
     urls = set()
     try:
@@ -36,13 +33,10 @@ def extract_urls_from_file(filepath):
     return urls
 
 
-# Extract URLs from tar archives
-
-
 def extract_urls_from_tar(filepath):
     urls = set()
     try:
-        mode = "r:*"  # detect compression automatically
+        mode = "r:*"
         with tarfile.open(filepath, mode) as tar:
             for member in tar.getmembers():
                 if member.isfile():
@@ -59,9 +53,6 @@ def extract_urls_from_tar(filepath):
     except Exception as e:
         print(f"Failed to read tar {filepath}: {e}")
     return urls
-
-
-# Extract URLs from zip/whl files
 
 
 def extract_urls_from_zip(filepath):
@@ -83,7 +74,6 @@ def extract_urls_from_zip(filepath):
     return urls
 
 
-# Extract URLs from 7z files
 def extract_urls_from_7z(filepath):
     urls = set()
     try:
@@ -98,9 +88,6 @@ def extract_urls_from_7z(filepath):
     except Exception as e:
         print(f"Failed to read 7z {filepath}: {e}")
     return urls
-
-
-# Determine extraction method based on extension
 
 
 def extract_urls(filepath):
@@ -123,14 +110,12 @@ def extract_urls(filepath):
 
 
 if __name__ == "__main__":
-    # Gather all files recursively, skipping hidden dirs
     file_paths = []
     for root, dirs, files in os.walk("."):
         dirs[:] = [d for d in dirs if not d.startswith(".")]
         for file in files:
             file_paths.append(os.path.join(root, file))
 
-    # Extract URLs concurrently
     all_urls = set()
 
     with ThreadPoolExecutor(8) as executor:
@@ -139,7 +124,6 @@ if __name__ == "__main__":
     for future in as_completed(futures):
         all_urls.update(future.result())
 
-    # Save unique URLs to urls.txt
     with open("urls.txt", "w", encoding="utf-8") as f:
         for url in sorted(all_urls):
             f.write(url + "\n")

@@ -43,7 +43,6 @@ def symlink_global_gitignore() -> None:
         return
 
     if local_gitignore.exists():
-        # Do not overwrite existing file
         return
 
     try:
@@ -67,20 +66,16 @@ def main() -> None:
     ensure_git_repo()
     symlink_global_gitignore()
 
-    # Stage everything
     run("git add -A")
 
-    # Commit message with datetime
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     commit_msg = f"Auto-commit at {now}"
 
-    # Commit (do not fail if nothing to commit)
     subprocess.call(
         f"git commit -m '{commit_msg}'",
         shell=True,
     )
 
-    # Push to origin/current-branch
     branch = get_current_branch()
     run(f"git push origin {branch}")
 

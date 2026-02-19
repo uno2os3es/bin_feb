@@ -42,22 +42,19 @@ def main() -> None:
 
             path = os.path.join(base, name)
 
-            # Prevent including output file itself
             if os.path.abspath(path) == os.path.abspath(output_path):
                 continue
 
             snippet = get_first_13(path)
 
-            # Store only the snippet (no header)
             collected.append(snippet)
 
-    # Deduplicate while preserving content
     unique_collected = list(set(collected))
 
     with open(output_path, "w", encoding="utf-8") as out:
         for snippet in unique_collected:
             out.write(snippet)
-            out.write("\n\n\n")  # 3 blank lines
+            out.write("\n\n\n")
 
     print(f"Unique snippets saved → {output_path}")
     print(f"Total unique blocks: {len(unique_collected)}")

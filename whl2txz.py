@@ -71,9 +71,6 @@ def main():
     for pth in cwd.iterdir():
         path = Path(pth)
         if path.is_file():
-            #            if path.suffix == ".whl":
-            #                whl_to_tar_xz(path)
-            #                path.unlink()
             if ".tar.xz" in path.name:
                 tar_xz_to_whl(path)
                 path.unlink()

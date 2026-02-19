@@ -23,7 +23,6 @@ def collect_files(root):
 
         for fname in filenames:
             full = os.path.join(dirpath, fname)
-            # skip output file itself
             if os.path.abspath(full) == os.path.abspath(OUTPUT_FILE) or "license" not in str(fname).lower():
                 continue
             yield full
@@ -40,11 +39,10 @@ def build_all_txt(root) -> None:
                 print(f"Skipping unreadable file: {path}")
                 continue
 
-            #            out.write(f"--- FILE: {path} ---\n")
             out.write(content)
 
             if i != len(files):
-                out.write("\n\n\n")  # 3 empty lines
+                out.write("\n\n\n")
 
             print(f"Added: {path}")
 

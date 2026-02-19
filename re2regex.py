@@ -5,7 +5,6 @@ from pathlib import Path
 
 import regex as re
 
-# Regex patterns for the two states
 NORMAL_IMPORT = r"^import re\b"
 REGEX_IMPORT = r"^import regex as re\b"
 
@@ -17,13 +16,10 @@ def update_file(file_path, reverse=False):
         new_lines = []
         changed = False
 
-        # Define search and replace based on direction
         search_pat = REGEX_IMPORT if reverse else NORMAL_IMPORT
         replacement = "import re" if reverse else "import regex as re"
 
         for line in lines:
-            # Only attempt replacement if we haven't hit the main body of the code
-            # (Crude check: stop if line starts with a char that isn't import/from/whitespace/#)
             if not changed and re.match(search_pat, line):
                 new_lines.append(
                     re.sub(
@@ -58,14 +54,11 @@ def main():
     )
     args = parser.parse_args()
 
-    # Gather all .py files recursively
     py_files = list(Path(".").rglob("*.py"))
 
     print(f"Scanning {len(py_files)} files...")
 
-    # Use ProcessPoolExecutor for parallel processing
     with ProcessPoolExecutor() as executor:
-        # Map the update function to all found files
         results = list(
             executor.map(
                 update_file,
@@ -74,7 +67,6 @@ def main():
             )
         )
 
-    # Filter and print results
     updates = [r for r in results if r]
     for msg in updates:
         print(msg)

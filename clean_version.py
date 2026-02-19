@@ -19,20 +19,16 @@ PKG_NAME_RE = re.compile(
 def extract_package_name(line: str) -> str | None:
     line = line.strip()
 
-    # Skip empty lines and comments
     if not line or line.startswith("#"):
         return None
 
-    # Skip direct references without a clear package name
     if line.startswith(("git+", "http://", "https://")):
         return None
 
-    # Handle PEP 508 direct refs: pkg @ url
     if "@" in line:
         name = line.split("@", 1)[0].strip()
         return name if name else None
 
-    # Handle normal cases: pkg==1.2.3, pkg>=1.0, etc.
     match = PKG_NAME_RE.match(line)
     if match:
         return match.group("name")
@@ -60,7 +56,6 @@ def main() -> None:
         if name:
             packages.append(name)
 
-    # Deduplicate while preserving order
     seen = set()
     cleaned = [p for p in packages if not (p in seen or seen.add(p))]
 

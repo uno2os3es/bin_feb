@@ -76,12 +76,10 @@ def main() -> None:
     old = sys.argv[1]
     new = sys.argv[2]
 
-    # Phase 1: replace contents in all files
     for root, _, files in os.walk(".", topdown=True):
         for fn in files:
             replace_in_file(os.path.join(root, fn), old, new)
 
-    # Phase 2: rename files & folders bottom-up
     for root, dirs, files in os.walk(".", topdown=False):
         for fn in files:
             rename_path(os.path.join(root, fn), old, new)

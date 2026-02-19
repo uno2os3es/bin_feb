@@ -36,7 +36,6 @@ def minify_with_jq(path: Path):
         if size_before == size_after:
             return str(path), False, size_before, size_after, None
 
-        # Atomic write
         with open(tmp_path, "wb") as f:
             f.write(minified_bytes)
 

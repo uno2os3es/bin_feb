@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import regex as re
-from tqdm import tqdm  # For a progress bar. Install it using `pip install tqdm`
+from tqdm import tqdm
 
 
 def extract_regex_patterns(file_path):
@@ -19,7 +19,7 @@ def extract_regex_patterns(file_path):
             content = f.read()
         patterns = regex_pattern.findall(content)
     except (OSError, UnicodeDecodeError):
-        pass  # Skip unreadable files
+        pass
     return [match[2] for match in patterns]
 
 

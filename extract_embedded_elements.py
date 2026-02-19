@@ -19,7 +19,6 @@ DATA_URL_RE = re.compile(
     re.IGNORECASE,
 )
 
-# DATA_URL_RE = re.compile("data:(?P<mime>[-\w.+/]+);base64,(?P<data>[A-Za-z0-9+/=\s]+)",re.IGNORECASE,)
 MIME_EXTENSION_MAP = MIME_TO_EXT
 
 

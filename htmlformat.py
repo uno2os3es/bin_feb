@@ -7,7 +7,6 @@ HTML_EXTS = {".html", ".htm", ".svg", ".xml"}
 SKIP_TAGS = ("pre", "code")
 
 
-# Regex to detect opening/closing of skip blocks
 SKIP_OPEN_RE = re.compile(r"<\s*(pre|code)\b", re.IGNORECASE)
 SKIP_CLOSE_RE = re.compile(r"<\s*/\s*(pre|code)\s*>", re.IGNORECASE)
 
@@ -19,7 +18,6 @@ def split_tags_preserve_indent(line: str) -> str:
     indent = re.match(r"\s*", line).group(0)
     stripped = line.strip()
 
-    # Split between ><
     parts = re.split(r"(>)(\s*)(<)", stripped)
 
     if len(parts) <= 1:

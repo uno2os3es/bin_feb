@@ -124,7 +124,6 @@ def process_css(file, assets_dir):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("files", nargs="*")
-    #    ap.add_argument("files", nargs="+")
     ap.add_argument("-o", "--output", default="bundle.css")
     ap.add_argument("--assets-dir", default="/sdcard/_static/assets")
 

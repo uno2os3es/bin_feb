@@ -102,13 +102,11 @@ class WheelBuilder:
         scripts = []
         entry_points_file = None
 
-        # Find entry_points.txt from RECORD
         for path_str in records:
             if path_str.endswith("entry_points.txt"):
                 entry_points_file = self.site_packages / path_str
                 break
 
-        # Parse entry points to find console scripts
         if entry_points_file and entry_points_file.exists():
             script_names = set()
             in_console_scripts = False
@@ -124,12 +122,10 @@ class WheelBuilder:
                     script_name = line.split("=")[0].strip()
                     script_names.add(script_name)
 
-            # Find matching scripts in bin
             for script_name in script_names:
                 script_path = self.bin_dir / script_name
                 if script_path.exists():
                     scripts.append(script_path)
-                # Windows .exe wrappers
                 exe_path = self.bin_dir / f"{script_name}.exe"
                 if exe_path.exists():
                     scripts.append(exe_path)
@@ -144,12 +140,10 @@ class WheelBuilder:
         data_files = []
         pkg_normalized = package_name.lower().replace("-", "_")
 
-        # Look for package-named directories in share
         for item in self.share_dir.rglob("*"):
             if not item.is_file():
                 continue
 
-            # Check if any parent directory matches package name
             if any(pkg_normalized in p.name.lower() for p in item.parents):
                 try:
                     rel_path = item.relative_to(self.share_dir)
@@ -198,7 +192,6 @@ class WheelBuilder:
         if not dist_info_dir.is_dir():
             return None
 
-        # Parse package info
         parts = dist_info_dir.stem.split("-")
         if len(parts) < 2:
             log.warning(f"Invalid dist-info name: {dist_info_dir.name}")
@@ -209,13 +202,11 @@ class WheelBuilder:
 
         log.info(f"Building wheel for {pkg_name} {version}")
 
-        # Read existing records
         records = self._read_record(dist_info_dir)
         if not records:
             log.warning(f"No RECORD file for {pkg_name}")
             return None
 
-        # Determine tags
         is_pure = self._detect_purity(records)
 
         if is_pure:
@@ -403,7 +394,6 @@ def find_site_packages() -> list[Path]:
     """Find all site-packages directories"""
     candidates = []
 
-    # Current environment
     import site
 
     for sp in site.getsitepackages():
@@ -417,7 +407,6 @@ def find_site_packages() -> list[Path]:
         if p.exists():
             candidates.append(p)
 
-    # Search current directory for venvs
     cwd = Path.cwd()
     for pattern in [".venv", "venv", "env"]:
         for venv in cwd.rglob(pattern):
@@ -489,7 +478,6 @@ Examples:
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    # List mode
     if args.list:
         sites = find_site_packages()
         print(f"Found {len(sites)} site-packages:")
@@ -497,7 +485,6 @@ Examples:
             print(f"  {i}. {sp}")
         return 0
 
-    # Determine site-packages
     if args.site_packages:
         site_packages = args.site_packages.resolve()
         if not site_packages.exists():
@@ -525,11 +512,9 @@ Examples:
 
     log.info(f"Using site-packages: {site_packages}")
 
-    # Build wheels
     builder = WheelBuilder(site_packages, args.output)
 
     if args.package:
-        # Build single package
         dist_info = site_packages / f"{args.package}-*.dist-info"
         matches = list(site_packages.glob(f"{args.package}*.dist-info"))
 
@@ -550,7 +535,6 @@ Examples:
 
         return 0 if built > 0 else 1
     else:
-        # Build all packages
         built = builder.build_all()
         return 0 if built > 0 else 1
 

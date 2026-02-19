@@ -40,7 +40,6 @@ def get_package_name_version(
     elif name.endswith(".egg-info"):
         name = name[:-9]
 
-    # Split name and version
     parts = name.rsplit("-", 1)
     if len(parts) == 2:
         return parts[0], parts[1]
@@ -70,17 +69,14 @@ def read_record_file(dist_dir: Path, site_packages: Path) -> tuple[list[Path], s
                 continue
 
             file_path = row[0]
-            # Handle both absolute and relative paths
             full_path = Path(file_path) if os.path.isabs(file_path) else site_packages / file_path
 
-            # Skip .pyc files as per requirements
             if full_path.suffix == ".pyc":
                 continue
 
             if full_path.exists():
                 existing_files.append(full_path)
             else:
-                # Only track missing non-.pyc files
                 missing_files.add(full_path)
 
     return existing_files, missing_files
@@ -108,11 +104,9 @@ def copy_files_to_temp(
 ):
     """Copy files to temporary directory maintaining structure."""
     for file_path in files:
-        # Calculate relative path from site-packages
         try:
             rel_path = file_path.relative_to(site_packages)
         except ValueError:
-            # File is outside site-packages, use absolute path logic
             rel_path = Path(file_path.name)
 
         dest_path = temp_dir / rel_path
@@ -137,7 +131,6 @@ def create_wheel(
 ) -> bool:
     """Create wheel file from temporary directory."""
     try:
-        # Use wheel pack command if available
         wheel_name = f"{pkg_name}-{pkg_version}"
         if wheel_tag:
             wheel_name += f"-{wheel_tag}"
@@ -146,7 +139,6 @@ def create_wheel(
 
         wheel_file = output_dir / f"{wheel_name}.whl"
 
-        # Create wheel using wheel pack or zip
         cmd = [
             sys.executable,
             "-m",
@@ -162,7 +154,6 @@ def create_wheel(
         if result.returncode == 0:
             return True
         else:
-            # Fallback: create wheel manually using zip
             import zipfile
 
             with zipfile.ZipFile(
@@ -191,17 +182,14 @@ def repack_package(
     """Repack a single package."""
     pkg_name, pkg_version = get_package_name_version(dist_dir)
 
-    # Read RECORD file
     existing_files, missing_files = read_record_file(dist_dir, site_packages)
 
     if not existing_files:
         return False
 
-    # Check for missing critical files (non-.pyc)
     has_missing_critical = any(f.suffix in [".py", ""] or f.is_dir() for f in missing_files)
 
     if has_missing_critical:
-        # Copy to not_repacked directory
         pkg_not_repacked = not_repacked_dir / pkg_name
         pkg_not_repacked.mkdir(parents=True, exist_ok=True)
 
@@ -217,21 +205,17 @@ def repack_package(
 
         return False
 
-    # Get wheel tag
     wheel_tag = get_wheel_tag(dist_dir)
 
-    # Create temporary directory for wheel building
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
 
-        # Copy files to temp directory
         copy_files_to_temp(
             existing_files,
             site_packages,
             temp_path,
         )
 
-        # Create wheel
         return create_wheel(
             pkg_name,
             pkg_version,
@@ -279,15 +263,12 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
     not_repacked_dir.mkdir(parents=True, exist_ok=True)
 
-    # Find all dist-info directories
     all_dist_dirs = find_dist_info_dirs(site_packages)
 
-    # Filter packages if specific ones requested
     if not args.all:
         pkg_set = set(args.packages)
         all_dist_dirs = [d for d in all_dist_dirs if get_package_name_version(d)[0] in pkg_set]
 
-    # Process packages with progress bar
     success_count = 0
     failed_count = 0
 

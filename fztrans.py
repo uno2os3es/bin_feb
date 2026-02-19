@@ -122,7 +122,6 @@ def main():
     fa_en, en_fa = load_dictionary(Path(DICT_FILE))
     all_words = set(fa_en) | set(en_fa)
 
-    # --fzf mode
     if args.fzf:
         selected = fzf_select(all_words)
         if not selected:
@@ -136,7 +135,6 @@ def main():
         print("Not found", file=sys.stderr)
         sys.exit(1)
 
-    # --prefix mode
     if args.prefix:
         matches = prefix_search(args.prefix, all_words)
         if matches:
@@ -145,7 +143,6 @@ def main():
         print("No matches", file=sys.stderr)
         sys.exit(1)
 
-    # --fuzzy mode
     if args.fuzzy:
         matches = fuzzy_search(args.fuzzy, all_words)
         if matches:
@@ -154,7 +151,6 @@ def main():
         print("No close matches", file=sys.stderr)
         sys.exit(1)
 
-    # Direct translation
     if args.word:
         word = " ".join(args.word).strip()
         result = translate(word, fa_en, en_fa)
@@ -164,7 +160,6 @@ def main():
         print("Not found", file=sys.stderr)
         sys.exit(1)
 
-    # Interactive fallback
     interactive_mode(fa_en, en_fa)
 
 

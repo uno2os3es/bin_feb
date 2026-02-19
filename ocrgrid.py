@@ -16,10 +16,6 @@ import numpy as np
 import pytesseract
 from PIL import Image
 
-# -------------------------
-# Image preprocessing
-# -------------------------
-
 
 def pil_to_cv(img: Image.Image) -> np.ndarray:
     return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
@@ -68,11 +64,6 @@ def rotate(img: np.ndarray, angle: int) -> np.ndarray:
     return cv2.warpAffine(img, m, (w, h), flags=cv2.INTER_CUBIC)
 
 
-# -------------------------
-# OCR execution
-# -------------------------
-
-
 def run_tesseract(
     img: Image.Image,
     psm: int,
@@ -89,11 +80,6 @@ def run_tesseract(
         "config": config,
         "text": text,
     }
-
-
-# -------------------------
-# Main
-# -------------------------
 
 
 def main() -> None:

@@ -4,18 +4,15 @@ import subprocess
 import sys
 import zipfile
 
-# Path to your virtual environment's 'pip'
 VENV_PATH = os.path.expanduser("~/venv")
 
 
 def get_installed_version(pkg_name):
     try:
-        # Use the pip from the venv to get the installed version of the package
         result = subprocess.run(
             [os.path.join(VENV_PATH, "bin", "pip"), "show", pkg_name], capture_output=True, text=True
         )
         if result.returncode == 0:
-            # Extract the version from the pip show output
             for line in result.stdout.splitlines():
                 if line.startswith("Version:"):
                     return line.split(":")[1].strip()
@@ -26,13 +23,11 @@ def get_installed_version(pkg_name):
 
 def get_wheel_package_info(wheel_file):
     try:
-        # Open the .whl file as a zip to extract the package metadata
         with zipfile.ZipFile(wheel_file, "r") as zip_ref:
             for file in zip_ref.namelist():
                 if file.endswith("METADATA"):
                     with zip_ref.open(file) as f:
                         metadata = f.read().decode("utf-8")
-                        # Extract the package name and version from the METADATA file
                         for line in metadata.splitlines():
                             if line.startswith("Name:"):
                                 pkg_name = line.split(":")[1].strip()
@@ -58,7 +53,6 @@ def main():
         print(f"Directory {whl_dir} does not exist.")
         return
 
-    # Loop through all .whl files in the specified directory
     for file in os.listdir(whl_dir):
         if file.endswith(".whl"):
             wheel_file = os.path.join(whl_dir, file)

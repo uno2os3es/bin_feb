@@ -39,7 +39,6 @@ def pygments_highlight(html: str) -> str:
         lang = match.group(1)
         code = match.group(2)
 
-        # Unescape HTML entities
         code = code.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
 
         try:
@@ -65,10 +64,8 @@ def md2pdf(pdf_file_path, md_file_path, css_file_path=None, base_url=None):
     if not html.strip():
         raise ValidationError("Input markdown seems empty")
 
-    # 🔥 Apply Pygments HERE
     html = pygments_highlight(html)
 
-    # 📚 Prepend TOC
     html = TOC_HTML + html
 
     html_doc = HTML(string=html, base_url=base_url)

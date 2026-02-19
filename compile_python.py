@@ -24,7 +24,6 @@ def main():
     files = []
     dirs = []
     dir = "/data/data/com.termux/files/usr/lib/python3.12"
-    #    compileall.compile_dir(dir, maxlevels=1, legacy=True, optimize=2)
     for pth in os.listdir(dir):
         path = Path(os.path.join(dir, pth))
         if path.is_symlink():

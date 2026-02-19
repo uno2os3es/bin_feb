@@ -9,9 +9,8 @@ def process_file(fp: Path):
     print(f"processing  ... {fp.name}")
 
     last_tag_pos = -1
-    tags = ("</svg>", "</html>", "</body>", "</script>", "</div>")  # include common closing tags
+    tags = ("</svg>", "</html>", "</body>", "</script>", "</div>")
 
-    # Read file once to find last tag position
     content = []
     with fp.open("r", encoding="utf-8") as f:
         for line in f:
@@ -21,16 +20,14 @@ def process_file(fp: Path):
         for tag in tags:
             idx = line.rfind(tag)
             if idx != -1:
-                # position is line start + tag end
                 last_tag_pos = sum(len(content[j]) for j in range(i)) + idx + len(tag)
                 break
         if last_tag_pos != -1:
             break
 
     if last_tag_pos == -1:
-        return True  # no tag found, keep file as-is
+        return True
 
-    # Trim everything after last tag
     trimmed = "".join(content)[:last_tag_pos]
     fp.write_text(trimmed, encoding="utf-8")
     return True

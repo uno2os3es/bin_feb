@@ -7,10 +7,9 @@ from dh import BIN_EXT, TXT_EXT, is_binary
 
 # -------- CONFIG --------
 LIC_FILE = Path("/sdcard/lic")
-MIN_BLANK_LINES = 3  # Minimum blank lines to separate patterns
+MIN_BLANK_LINES = 3
 NUM_WORKERS = max(cpu_count(), 8)
 EXCLUDE_EXTS = BIN_EXT
-# ------------------------
 
 
 def load_patterns(lic_path: Path) -> list[str]:
@@ -19,12 +18,9 @@ def load_patterns(lic_path: Path) -> list[str]:
         with open(lic_path, encoding="utf-8", errors="ignore") as f:
             content = f.read()
 
-        # Split by 3 or more consecutive blank lines
-        # Pattern: \n followed by 3+ groups of (optional spaces + \n)
         pattern_separator = r"\n(?:\s*\n){" + str(MIN_BLANK_LINES) + r",}"
         patterns = re.split(pattern_separator, content)
 
-        # Clean up patterns: strip whitespace and filter empty ones
         patterns = [p.strip() for p in patterns if p.strip()]
 
         print(f"Loaded {len(patterns)} pattern(s) from {lic_path}")
@@ -43,10 +39,8 @@ def load_patterns(lic_path: Path) -> list[str]:
 
 def escape_for_regex(text: str) -> str:
     """Escape special regex characters but preserve newlines."""
-    # Escape all special regex characters
     escaped = re.escape(text)
-    # Unescape newlines so they match actual newlines
-    return escaped.replace(r"\n", r"\s*\n\s*")  # Allow whitespace around newlines
+    return escaped.replace(r"\n", r"\s*\n\s*")
 
 
 def remove_patterns_from_content(content: str, patterns: list[str]) -> str:
@@ -54,10 +48,8 @@ def remove_patterns_from_content(content: str, patterns: list[str]) -> str:
     cleaned = content
 
     for pattern in patterns:
-        # Escape the pattern for regex matching
         regex_pattern = escape_for_regex(pattern)
 
-        # Try to remove the pattern (case-insensitive, multiline)
         cleaned = re.sub(regex_pattern, "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
 
     return cleaned
@@ -65,7 +57,6 @@ def remove_patterns_from_content(content: str, patterns: list[str]) -> str:
 
 def should_process_file(file_path: Path) -> bool:
     """Check if file should be processed."""
-    # Skip binary files
     if file_path.suffix.lower() in EXCLUDE_EXTS:
         return False
     if file_path.suffix.lower() in TXT_EXT:
@@ -81,14 +72,11 @@ def clean_file_worker(args: tuple) -> tuple:
     file_path, patterns = args
 
     try:
-        # Read the file
         with open(file_path, encoding="utf-8", errors="ignore") as f:
             original_content = f.read()
 
-        # Remove patterns
         cleaned_content = remove_patterns_from_content(original_content, patterns)
 
-        # Only write if content changed
         if cleaned_content != original_content:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(cleaned_content)
@@ -103,7 +91,6 @@ def clean_file_worker(args: tuple) -> tuple:
 
 
 def main():
-    # Load patterns from license file
     if not LIC_FILE.exists():
         print(f"Error: License file not found: {LIC_FILE}")
         return
@@ -116,7 +103,6 @@ def main():
 
     print()
 
-    # Find all text files recursively
     cwd = Path.cwd()
     all_files = [f for f in cwd.rglob("*") if f.is_file() and should_process_file(f)]
 
@@ -128,14 +114,11 @@ def main():
     print(f"Using {NUM_WORKERS} worker(s).\n")
     print("Processing...\n")
 
-    # Prepare arguments for workers
     worker_args = [(file_path, patterns) for file_path in all_files]
 
-    # Process files in parallel
     with Pool(processes=NUM_WORKERS) as pool:
         results = pool.map(clean_file_worker, worker_args)
 
-    # Print results
     success_count = 0
     modified_count = 0
     error_count = 0

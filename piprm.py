@@ -3,7 +3,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Path to your saved list
 PIP_LIST_FILE = "/sdcard/pip.list"
 
 
@@ -21,11 +20,11 @@ def find_dist_info(prefix):
     import site
 
     matches = []
-    for sp in site.getsitepackages():  # system-wide
+    for sp in site.getsitepackages():
         sp_path = Path(sp)
         for d in sp_path.glob(f"{prefix}*.dist-info"):
             matches.append(d)
-    for sp in (site.getusersitepackages(),):  # user site-packages
+    for sp in (site.getusersitepackages(),):
         sp_path = Path(sp)
         for d in sp_path.glob(f"{prefix}*.dist-info"):
             matches.append(d)
@@ -53,7 +52,6 @@ if __name__ == "__main__":
     prefix = sys.argv[1].lower()
     installed = load_installed_packages()
 
-    # Filter installed packages by prefix
     to_uninstall = [pkg for pkg in installed if pkg.lower().startswith(prefix)]
 
     uninstall_packages(to_uninstall)

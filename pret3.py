@@ -3,14 +3,11 @@ import os
 
 import jsbeautifier
 
-# Function to beautify a JS, CSS, or HTML file in place
-
 
 def beautify_file(file_path) -> None:
     with open(file_path, encoding="utf-8") as file:
         content = file.read()
 
-    # Detect file extension and beautify accordingly
     if file_path.endswith(".js"):
         beautified_content = jsbeautifier.beautify(content)
     elif file_path.endswith(".css"):
@@ -18,15 +15,10 @@ def beautify_file(file_path) -> None:
     elif file_path.endswith(".html"):
         beautified_content = jsbeautifier.html(content)
     else:
-        # Skip files that are not JS, CSS, or HTML
         return
 
-    # Write the beautified content back to the file
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(beautified_content)
-
-
-# Function to recursively walk through all files in the directory
 
 
 def beautify_directory(directory) -> None:
@@ -38,6 +30,5 @@ def beautify_directory(directory) -> None:
                 beautify_file(file_path)
 
 
-# Start beautifying from the current directory
 if __name__ == "__main__":
     beautify_directory(".")

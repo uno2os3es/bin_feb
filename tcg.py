@@ -21,11 +21,9 @@ def get_clipboard():
 def detect_shebang(content: str) -> str | None:
     stripped = content.lstrip()
 
-    # If content already has a shebang, do nothing
     if stripped.startswith("#!"):
         return None
 
-    # Simple heuristics
     if "import " in content or "def " in content or stripped.startswith("python"):
         return TERMUX_PYTHON
 
@@ -49,7 +47,6 @@ def create_symlink(out_file):
     base_name = os.path.basename(out_file)
     name_without_ext, ext = os.path.splitext(base_name)
 
-    # Create symlink only if there is an extension
     if ext and os.path.abspath(os.getcwd()) == os.path.abspath(os.path.expanduser("~/bin")):
         symlink_path = os.path.join(
             os.path.dirname(out_file),
@@ -107,13 +104,11 @@ def main():
     with open(out_file, "w") as f:
         f.write(final_content)
 
-    # Make executable only in ~/bin
     if cwd == bin_dir:
         os.chmod(out_file, 0o755)
     if cwd == bin_dir2:
         os.chmod(out_file, 0o755)
 
-    # Create symlink if the output file has an extension
     create_symlink(out_file)
 
 

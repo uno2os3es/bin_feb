@@ -12,7 +12,7 @@ from pathlib import Path
 
 from deep_translator import GoogleTranslator
 
-CHUNK_SIZE = 2000  # limit chunk size for translation API
+CHUNK_SIZE = 2000
 
 
 def read_text_file(path: Path) -> str:
@@ -41,7 +41,6 @@ def translate_chunks(chunks: list[str]) -> str:
     translated_parts = []
 
     for chunk in chunks:
-        # why: API may fail on long strings; chunking prevents errors.
         translated_parts.append(translator.translate(chunk))
 
     return "".join(translated_parts)
