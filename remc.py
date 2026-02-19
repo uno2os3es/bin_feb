@@ -3,7 +3,6 @@
 Remove multi-line docstrings from Python files recursively or from a single file.
 Handles docstrings in classes, functions, and modules.
 """
-
 import ast
 import shutil
 import sys
@@ -50,8 +49,8 @@ class DocstringRemover:
         while i < len(lines):
             line = lines[i]
 
-            if '"""' in line or "'''" in line:
-                delimiter = '"""' if '"""' in line else "'''"
+            if '\"\"\"' in line or "\'\'\'" in line:
+                delimiter = '\"\"\"' if '\"\"\"' in line else "\'\'\'"
                 count = line.count(delimiter)
 
                 if count >= 2:
@@ -157,7 +156,6 @@ class DocstringRemover:
         if not files:
             print("No Python files found")
             return self.stats
-
         for file_path in files:
             ok, removed = self.process_file(file_path, method)
             if ok:

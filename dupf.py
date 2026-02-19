@@ -57,7 +57,6 @@ def find_and_delete_duplicates(path: Path):
                 try:
                     file_size = file_to_delete.stat().st_size
                     print(os.path.relpath(file_to_delete))
-                    # os.remove(file_to_delete)
                     deleted_count += 1
                     total_deleted_size += file_size
                 except Exception as e:

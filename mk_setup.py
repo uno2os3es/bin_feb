@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-# mk_setuppy.py
+
 
 from __future__ import annotations
 
@@ -11,6 +11,34 @@ from email.parser import Parser
 from pathlib import Path
 
 EXT_SUFFIXES = (".so", ".pyd", ".dll")
+
+
+def read_entry_points(root: Path) -> dict[str, list[str]]:
+    dist_info = next(root.glob("*.dist-info"), None)
+    if not dist_info:
+        return {}
+
+    ep_file = dist_info / "entry_points.txt"
+    if not ep_file.exists():
+        return {}
+
+    sections: dict[str, list[str]] = {}
+    current_section = None
+
+    for line in ep_file.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        if line.startswith("[") and line.endswith("]"):
+            current_section = line[1:-1]
+            sections[current_section] = []
+            continue
+
+        if current_section:
+            sections[current_section].append(line)
+
+    return sections
 
 
 def extract_wheel(whl: Path, dst: Path) -> None:
@@ -56,15 +84,29 @@ def find_extensions(root: Path) -> list[str]:
     return modules
 
 
-def generate_setup_py(meta: dict, extensions: list[str]) -> str:
+def generate_setup_py(meta: dict, extensions: list[str], entry_points: dict[str, list[str]]) -> str:
     ext_block = (
         "from setuptools import Extension\n\n"
         "ext_modules = [\n"
-        + "\n".join(f'    Extension("{m}", sources=["{m.replace(".", "/")}.*"]),' for m in extensions)
+        + "\n".join(
+            f'    Extension("{m}", sources=["{m.replace(".", "/")}.*"]),'
+            for m in extensions
+        )
         + "\n]\n"
         if extensions
         else "ext_modules = []\n"
     )
+
+    ep_block = ""
+    if entry_points:
+        formatted = "{\n"
+        for section, values in entry_points.items():
+            formatted += f'        "{section}": [\n'
+            for v in values:
+                formatted += f'            "{v}",\n'
+            formatted += "        ],\n"
+        formatted += "    }"
+        ep_block = f"    entry_points={formatted},\n"
 
     return f"""\
 from setuptools import setup, find_packages
@@ -76,17 +118,14 @@ setup(
     packages=find_packages() or ["."],
     install_requires={meta["install_requires"]},
     ext_modules=ext_modules,
-)
+{ep_block})
 """
-
-
 def generate_pyproject_toml() -> str:
     return """\
 [build-system]
 requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 """
-
 
 def main() -> None:
     if len(sys.argv) != 2:
@@ -96,6 +135,7 @@ def main() -> None:
     root = load_root(input_path)
 
     meta = read_metadata(root)
+    entry_points=read_entry_points(root)
     extensions = find_extensions(root)
 
     out_dir = Path("output") / meta["name"]
@@ -103,7 +143,8 @@ def main() -> None:
 
     shutil.copytree(root, out_dir, dirs_exist_ok=True)
 
-    (out_dir / "setup.py").write_text(generate_setup_py(meta, extensions))
+    (out_dir / "setup.py").write_text(generate_setup_py(meta, extensions, entry_points))
+
     (out_dir / "pyproject.toml").write_text(generate_pyproject_toml())
 
     print(f"✔ setup.py generated for {meta['name']}")

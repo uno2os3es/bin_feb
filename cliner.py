@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import mmap
-import re
+import regex as re
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
 

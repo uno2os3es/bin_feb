@@ -1,46 +1,41 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
-from collections import deque
-from multiprocessing import Pool
-from pathlib import Path
-from sys import exit
-from time import perf_counter
-
 from fastwalk import walk_files
-
-
-def process_file(fp):
+from pathlib import Path
+def process_file(fp: Path):
     if not fp.exists():
         return False
     print(f"processing  ... {fp.name}")
-    lines = fp.read_text(encoding="utf-8").splitlines()
-    cleaned = []
-    for line in lines:
-        if not any(p in line for p in ("</svg>", "</html>")):
-            cleaned.append(line)
-        else:
-            cleaned.append(line)
+
+    last_tag_pos = -1
+    tags = ("</svg>", "</html>", "</body>", "</script>", "</div>")  # include common closing tags
+
+    # Read file once to find last tag position
+    content = []
+    with fp.open("r", encoding="utf-8") as f:
+        for line in f:
+            content.append(line)
+
+    for i, line in reversed(list(enumerate(content))):
+        for tag in tags:
+            idx = line.rfind(tag)
+            if idx != -1:
+                # position is line start + tag end
+                last_tag_pos = sum(len(content[j]) for j in range(i)) + idx + len(tag)
+                break
+        if last_tag_pos != -1:
             break
-    fp.write_text("".join(cleaned))
+
+    if last_tag_pos == -1:
+        return True  # no tag found, keep file as-is
+
+    # Trim everything after last tag
+    trimmed = "".join(content)[:last_tag_pos]
+    fp.write_text(trimmed, encoding="utf-8")
     return True
 
-
-def main():
-    start = perf_counter()
-    files = []
-    for pth in walk_files("."):
-        path = Path(pth)
-        if path.is_symlink():
-            continue
-        if path.is_file() and path.suffix in {".html", ".htm", ".svg"}:
-            files.append(path)
-
-    p = Pool(8)
-    p.imap_unordered(process_file, files)
-    p.close()
-    p.join()
-    print(f"{perf_counter() - start} seconds")
-
-
-if __name__ == "__main__":
-    exit(main())
+if __name__=="__main__":
+    dir=Path().cwd().resolve()
+    for pth in walk_files(dir):
+        path=Path(pth)
+        if path.suffix in {".html",".htm",".svg",".xml"}:
+            process_file(path)

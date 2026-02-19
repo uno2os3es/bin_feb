@@ -9,21 +9,23 @@ import pdfplumber
 def process_file(fp):
     i = 1
     with pdfplumber.open(fp) as pdf:
+
         for page in pdf.pages:
             text = page.extract_text(encoding="utf-8")
-            if not os.path.exists(Path(fp).stem):
+            outdir=Path(fp).stem
+            if not os.path.exists(outdir):
                 os.mkdir(outdir)
-            txtfile = f"{outdir}/{Path(fp).stem}{i!s}.txt"
+            if i <10:
+                txtfile = f"{outdir}/{Path(fp).stem}00{i!s}.txt"
+            elif i<100 and i>=10:
+                txtfile = f"{outdir}/{Path(fp).stem}0{i!s}.txt"
+            else:
+                txtfile = f"{outdir}/{Path(fp).stem}{i!s}.txt"
             with open(txtfile, "w") as fo:
                 fo.write(text)
-            del fo
-            del text
 
             print(f"{txtfile} created")
             i += 1
-            del page
-    del i
-    del pdf
 
 
 def main():

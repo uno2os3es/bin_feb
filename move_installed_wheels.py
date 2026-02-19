@@ -6,9 +6,11 @@ from pathlib import Path
 from importlib import metadata
 from packaging.utils import parse_wheel_filename
 from packaging.version import Version
+from termcolor import cprint
 
 WHL_DIR = Path("/sdcard/whl")
 DEST_DIR = Path("/sdcard/installed")
+DEST_DIR2 = Path("/sdcard/invalid")
 
 def ensure_venv():
     if sys.prefix == sys.base_prefix:
@@ -54,18 +56,19 @@ def main():
                 installed_version = installed_pkgs[norm_name]
 
                 if installed_version == Version(str(version)):
-                    print(f"[MATCH] {dist_name}=={version} → moving")
+                    cprint(f"[MATCH] {dist_name}=={version} → moving","cyan")
                     shutil.move(str(wheel), DEST_DIR / wheel.name)
                     moved += 1
                 else:
+                    shutil.move(str(wheel), DEST_DIR / wheel.name)
+                    moved += 1
                     print(f"[DIFF VERSION] {dist_name} "
                           f"(installed {installed_version}, wheel {version})")
 
-            else:
-                print(f"[NOT INSTALLED] {dist_name}")
 
         except Exception as e:
             print(f"[ERROR] {wheel.name}: {e}")
+            shutil.move(str(wheel), DEST_DIR2 / wheel.name)
 
     print(f"\nDone. Moved {moved} wheel(s).")
 

@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import pathlib
+from pathlib import Path
 import shutil
 from multiprocessing import Pool, cpu_count
 
@@ -41,7 +41,7 @@ def scan_and_remove(base_path):
         dirs_to_remove = [d for d in dirs if d in DIR_NAMES]
         for d in dirs_to_remove:
             # Remove from dirs list so os.walk doesn't recurse into it
-            if pathlib.Path(d).parent == "site-packages":
+            if str(Path(d).parent) == "site-packages":
                 print("not allowed")
                 continue
             yield os.path.join(root, d)

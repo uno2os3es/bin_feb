@@ -2,7 +2,7 @@
 # update_summary.py - Auto-updates SUMMARY.md with all .md files in the directory
 
 import os
-import re
+import regex as re
 
 
 def update_summary():

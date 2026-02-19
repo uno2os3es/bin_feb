@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import re
+import regex as re
 from pathlib import Path
 
 # -------- CONFIG --------

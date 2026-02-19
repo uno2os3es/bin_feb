@@ -1,4 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+import ast
 from pathlib import Path
 from multiprocessing import Pool, cpu_count
 from tree_sitter import Parser,Language
@@ -6,12 +7,30 @@ import tree_sitter_python
 import sys
 from termcolor import cprint
 from dh import folder_size, format_size
+
 EXCLUDE_PREFIXES = (b"#!/", b"# fmt:", b"# type:")
 
 parser = Parser()
 parser.language=Language(tree_sitter_python.language())
 
 
+def process_again(pt):
+    try:
+        new_lines=[]
+        text=pt.read_text(encoding="utf-8")
+        lines=text.splitlines()
+        for line in lines:
+            striped=line.strip()
+            if striped.startswith('"""') and striped.endswith('"""') and striped!='"""':
+                print(line)
+                continue
+            new_lines.append(line)
+        new_code="\n".join(new_lines)
+        _=ast.parse(new_code)
+        pt.write_text(new_code,encoding="utf-8")
+        return
+    except:
+        return
 def _cleanup_blank_lines(text: str) -> str:
     lines = text.splitlines()
     cleaned = []
@@ -91,6 +110,7 @@ def remove_comments_and_docstrings(path: Path) -> None:
         parser.parse(cleaned)
 
         path.write_bytes(cleaned)
+        process_again(path)
         print(f"[OK] {path.name}")
 
     except Exception as e:

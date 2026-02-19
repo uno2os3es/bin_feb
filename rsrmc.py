@@ -32,7 +32,8 @@ def _cleanup_blank_lines(text: str) -> str:
     return "\n".join(cleaned) + "\n"
 
 
-def remove_comments_rust(path: Path) -> None:
+def process_file(path: Path) -> None:
+    print(f"processing {path.name}")
     try:
         source = path.read_bytes()
         tree = parser.parse(source)
@@ -91,9 +92,8 @@ def main() -> None:
         sys.exit("No Rust files found")
     init_size=folder_size(root)
 
-    with Pool(cpu_count()) as pool:
-        pool.map(remove_comments_rust, files)
-
+    for f in files:
+        process_file(f)
     end_size=folder_size(root)
     difsize=init_size-end_size
     cprint(f"{format_size(difsize)}","cyan")
