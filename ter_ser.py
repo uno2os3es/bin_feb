@@ -38,7 +38,6 @@ def main():
         path = Path(pth)
         if path.is_file() and path.suffix == ".js":
             files.append(path)
-
     with Pool(8) as p:
         pending = deque()
         for f in files:

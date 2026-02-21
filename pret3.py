@@ -7,7 +7,6 @@ import jsbeautifier
 def beautify_file(file_path) -> None:
     with open(file_path, encoding="utf-8") as file:
         content = file.read()
-
     if file_path.endswith(".js"):
         beautified_content = jsbeautifier.beautify(content)
     elif file_path.endswith(".css"):
@@ -16,7 +15,6 @@ def beautify_file(file_path) -> None:
         beautified_content = jsbeautifier.html(content)
     else:
         return
-
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(beautified_content)
 

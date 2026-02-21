@@ -1,15 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import mmap
 import os
 import tokenize
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import regex as re
 from tqdm import tqdm
 
 SIZE_THRESHOLD = 1 * 1024 * 1024
-
 OLD_PRINT_RE = re.compile(r"(?m)^[ \t]*print[ \t]+[^(\n]")
 
 
@@ -54,14 +53,11 @@ def tokenizer_confirm(
         tokens = list(tokenize.tokenize(src.readline))
     except Exception:
         return None
-
     for i, tok in enumerate(tokens):
         if tok.type == tokenize.NAME and tok.string == "print":
             line = tok.line.rstrip()
-
             if line.strip() == "print":
                 continue
-
             j = i + 1
             while j < len(tokens) and tokens[j].type in {
                 tokenize.NL,
@@ -70,10 +66,8 @@ def tokenizer_confirm(
                 tokenize.DEDENT,
             }:
                 j += 1
-
             if j < len(tokens) and tokens[j].string != "(":
                 return line
-
     return None
 
 
@@ -81,27 +75,21 @@ def autofix_file(filepath: str) -> bool:
     try:
         with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
-
         if any(l.strip() == "from rich import print" for l in lines):
             return False
-
         changed = False
         for i, line in enumerate(lines):
             stripped = line.lstrip()
-
             if stripped.rstrip() == "print":
                 continue
-
             if stripped.startswith("print ") and not stripped.startswith("print("):
                 indent = line[: len(line) - len(stripped)]
                 content = stripped[len("print ") :].rstrip()
                 lines[i] = f"{indent}print({content})\n"
                 changed = True
-
         if changed:
             with open(filepath, "w", encoding="utf-8") as f:
                 f.writelines(lines)
-
         return changed
     except Exception:
         return False
@@ -110,14 +98,11 @@ def autofix_file(filepath: str) -> bool:
 def process_file(filepath: str, autofix: bool) -> tuple[str, str] | None:
     if not regex_flag(filepath):
         return None
-
     confirmed = tokenizer_confirm(filepath)
     if not confirmed:
         return None
-
     if autofix:
         autofix_file(filepath)
-
     return filepath, confirmed
 
 
@@ -127,7 +112,6 @@ def collect_py_files(root: str) -> list[str]:
         for name in filenames:
             if name.endswith(".py"):
                 out.append(os.path.join(dirpath, name))
-
     return out
 
 
@@ -142,12 +126,9 @@ def main() -> None:
         default=os.cpu_count(),
     )
     args = parser.parse_args()
-
     py_files = collect_py_files(args.path)
-
     with ThreadPoolExecutor(max_workers=args.workers) as executor:
         futures = [executor.submit(process_file, f, args.autofix) for f in py_files]
-
         for future in tqdm(
             as_completed(futures),
             total=len(futures),

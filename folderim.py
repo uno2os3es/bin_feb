@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import shutil
 from pathlib import Path
+import shutil
 
 import dh
 from PIL import Image
@@ -28,40 +28,31 @@ def compute_hash(path: Path):
 def main():
     cwd = Path.cwd()
     images = [p for p in cwd.iterdir() if is_image(p)]
-
     if not images:
         print("No images found.")
         return
-
     hashes = {}
     for img in images:
         h = compute_hash(img)
         if h is not None:
             hashes[img] = h
-
     groups = []
-
     for img, h in hashes.items():
         placed = False
-
         for group in groups:
             ref_hash = group[0][1]
             if h - ref_hash <= MAX_DISTANCE:
                 group.append((img, h))
                 placed = True
                 break
-
         if not placed:
             groups.append([(img, h)])
-
     for idx, group in enumerate(groups, start=1):
         if len(group) > 1:
             folder = cwd / f"{OUT_PREFIX}{idx:03d}"
             folder.mkdir(exist_ok=True)
-
             for img, _ in group:
                 shutil.move(str(img), folder / img.name)
-
     print(f"Done. Created {len([g for g in groups if len(g) > 1])} groups with multiple images.")
 
 

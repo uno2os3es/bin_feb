@@ -48,7 +48,6 @@ def detect_icon(name: str, mode: int) -> str:
 def get_git_status_for_dir(
     path: str,
 ) -> dict[str, dict[str, str]]:
-    """Return {filename: {"index": X, "work": Y, "raw": XY}}."""
     try:
         p = subprocess.run(
             [
@@ -66,29 +65,23 @@ def get_git_status_for_dir(
         )
     except FileNotFoundError:
         return {}
-
     out = p.stdout
     result = {}
-
     records = out.split(b"\x00")
-
     for rec in records:
         if not rec.startswith(b"1 "):
             continue
         parts = rec.split(b" ")
         if len(parts) < 8:
             continue
-
         xy = parts[1].decode("utf-8")
         x, y = xy[0], xy[1]
         filename = parts[-1].decode("utf-8", errors="ignore")
-
         result[filename] = {
             "index": x,
             "work": y,
             "raw": xy,
         }
-
     return result
 
 
@@ -144,26 +137,20 @@ def output_long(
     for e in entries:
         st = e.stat
         mode_s = mode_to_string(st.st_mode)
-
         nlink = st.st_nlink
         user = pwd.getpwuid(st.st_uid).pw_name
         group = grp.getgrgid(st.st_gid).gr_name
-
         size = human_size(st.st_size) if human else str(st.st_size)
-
         mtime = datetime.datetime.fromtimestamp(st.st_mtime)
         tstr = mtime.strftime("%Y-%m-%d %H:%M")
-
         name = e.name
         if icons:
             name = f"{detect_icon(e.name, st.st_mode)} {name}"
         if colors:
             name = colorize(name, st.st_mode, e.link_target)
-
         gitmark = ""
         if e.git:
             gitmark = f" {e.git['raw']}"
-
         print(f"{mode_s} {nlink:2} {user:8} {group:8} {size:>6} {tstr} {name}{gitmark}")
 
 
@@ -182,7 +169,6 @@ def output_columns(
                 width = shutil.get_terminal_size().columns
             except Exception:
                 width = 48
-
     width = max(20, width)
     cols = 2
     col_width = width // cols
@@ -209,7 +195,6 @@ def output_columns(
             txt = colorize(txt, e.stat.st_mode, e.link_target)
         txt = truncate(txt, col_width - 1)
         rendered.append(txt)
-
     for i in range(0, len(rendered), cols):
         row = rendered[i : i + cols]
         padded = [r + " " * (col_width - real_len(r)) for r in row]
@@ -227,25 +212,20 @@ def print_tree(
     except PermissionError:
         print(prefix + " [permission denied]")
         return
-
     for i, name in enumerate(names):
         path = os.path.join(base, name)
         is_last = i == len(names) - 1
         connector = "└── " if is_last else "├── "
-
         try:
             st = os.lstat(path)
         except FileNotFoundError:
             continue
-
         txt = name
         if icons:
             txt = f"{detect_icon(name, st.st_mode)} {txt}"
         if colors:
             txt = colorize(txt, st.st_mode)
-
         print(prefix + connector + txt)
-
         if stat.S_ISDIR(st.st_mode):
             new_prefix = prefix + ("    " if is_last else "│   ")
             print_tree(path, new_prefix, icons, colors)
@@ -259,11 +239,9 @@ def list_recursive(base: str, args, depth=0) -> None:
     except PermissionError:
         print("Permission denied:", base)
         return
-
     names = sorted(names)
     gitmap = get_git_status_for_dir(base) if args.git else {}
     entries = []
-
     for n in names:
         if not args.all and n.startswith("."):
             continue
@@ -272,19 +250,15 @@ def list_recursive(base: str, args, depth=0) -> None:
             st = os.lstat(path)
         except FileNotFoundError:
             continue
-
         link_t = None
         if stat.S_ISLNK(st.st_mode):
             try:
                 link_t = os.readlink(path)
             except OSError:
                 link_t = None
-
         git = gitmap.get(n)
         entries.append(Entry(path, n, st, link_t, git))
-
     print_entries(entries, args)
-
     for e in entries:
         if stat.S_ISDIR(e.stat.st_mode):
             list_recursive(e.path, args, depth + 1)
@@ -308,7 +282,6 @@ def print_entries(entries: list[Entry], args) -> None:
             )
         print(json.dumps(out, indent=2))
         return
-
     if args.long:
         output_long(
             entries,
@@ -316,7 +289,6 @@ def print_entries(entries: list[Entry], args) -> None:
             colors=not args.no_color,
         )
         return
-
     output_columns(
         entries,
         icons=args.icons,
@@ -341,7 +313,6 @@ def main() -> None:
     p.add_argument("--git", action="store_true")
     p.add_argument("--no-color", action="store_true")
     args = p.parse_args()
-
     for path in args.paths:
         if len(args.paths) > 1:
             print(f"{path}:")
@@ -355,7 +326,6 @@ def main() -> None:
         if args.recursive:
             list_recursive(path, args)
             continue
-
         if os.path.isfile(path) or os.path.islink(path):
             try:
                 st = os.lstat(path)
@@ -373,14 +343,12 @@ def main() -> None:
             )
             print_entries([e], args)
             continue
-
         try:
             names = os.listdir(path)
         except PermissionError:
             print("Permission denied:", path)
             continue
         names = sorted(names)
-
         gitmap = get_git_status_for_dir(path) if args.git else {}
         entries = []
         for n in names:
@@ -406,7 +374,6 @@ def main() -> None:
                     gitmap.get(n),
                 )
             )
-
         print_entries(entries, args)
 
 

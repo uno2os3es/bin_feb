@@ -17,7 +17,6 @@ def merge_python_files():
     output_filename = f"{folder_name}.py"
     py_files = [f for f in os.listdir(current_dir) if f.endswith(".py") and f != output_filename]
     py_files.sort()
-
     with open(output_filename, "w", encoding="utf-8") as outfile:
         for py_file in py_files:
             with open(py_file, encoding="utf-8") as infile:
@@ -25,7 +24,6 @@ def merge_python_files():
                 content = resolve_imports(content, current_dir)
                 outfile.write(f"\n\n# --- {py_file} ---\n\n")
                 outfile.write(content)
-
     print(f"Merged {len(py_files)} files into {output_filename}")
 
 

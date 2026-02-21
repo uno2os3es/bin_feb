@@ -1,13 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from pathlib import Path
 import shutil
 import sysconfig
-from pathlib import Path
 
 from fastwalk import walk
 
 
 def format_size(bytes_size: int) -> str:
-    """Format size in KB or MB for readability."""
     if bytes_size < 1024 * 1024:
         return f"{bytes_size / 1024:.2f} KB"
     else:
@@ -15,9 +14,7 @@ def format_size(bytes_size: int) -> str:
 
 
 def get_skip_dirs():
-    """Return absolute paths of dirs to skip (system site-packages pip/setuptools/wheel)."""
     skip = set()
-
     site_packages = Path(sysconfig.get_paths()["purelib"])
     for d in ("regex",):
         skip.add(str(site_packages / d))
@@ -48,7 +45,6 @@ def clean_pyc_and_pycache(
                 files_removed += 1
             except Exception as e:
                 print(f"⚠️ error deleting {path}: {e}")
-
     for d in d2r:
         if d.exists():
             try:
@@ -56,7 +52,6 @@ def clean_pyc_and_pycache(
                 dirs_removed += 1
             except Exception as e:
                 print(f"⚠️ Could not delete {path}: {e}")
-
     print(f"   • .pyc files removed: {files_removed}")
     print(f"   • Total size freed: {format_size(total_size)}")
     print(f"   • __pycache__ directories removed: {dirs_removed}")

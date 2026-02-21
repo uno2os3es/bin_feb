@@ -1,13 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import mmap
+from multiprocessing import Pool
 import os
 import tokenize
-from multiprocessing import Pool
 
 import regex as re
 
 SIZE_THRESHOLD = 1 * 1024 * 1024
-
 OLD_PRINT_RE = re.compile(r"(?m)^[ \t]*print[ \t]+[^(\n]")
 
 
@@ -52,14 +51,11 @@ def tokenizer_confirm(
         tokens = list(tokenize.tokenize(src.readline))
     except Exception:
         return None
-
     for i, tok in enumerate(tokens):
         if tok.type == tokenize.NAME and tok.string == "print":
             line = tok.line.rstrip()
-
             if line.strip() == "print":
                 continue
-
             j = i + 1
             while j < len(tokens) and tokens[j].type in {
                 tokenize.NL,
@@ -68,17 +64,14 @@ def tokenizer_confirm(
                 tokenize.DEDENT,
             }:
                 j += 1
-
             if j < len(tokens) and tokens[j].string != "(":
                 return line
-
     return None
 
 
 def process_file(filepath):
     if not regex_flag(filepath):
         return None
-
     confirmed = tokenizer_confirm(filepath)
     if not confirmed:
         return None
@@ -93,7 +86,6 @@ def collect_py_files(root: str) -> list[str]:
         for name in filenames:
             if name.endswith(".py"):
                 out.append(os.path.join(dirpath, name))
-
     return out
 
 

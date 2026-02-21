@@ -1,19 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import shutil
-import subprocess
-import sys
 from pathlib import Path
+import shutil
+import sys
+import tarfile
+import zipfile
+import py7zr
 
 
 def safe_mkdir(base: Path) -> Path:
-    """
-    Create a unique directory.
-    If base exists, append _1, _2, ...
-    """
     if not base.exists():
         base.mkdir()
         return base
-
     i = 1
     while True:
         candidate = base.with_name(f"{base.name}_{i}")
@@ -24,72 +21,62 @@ def safe_mkdir(base: Path) -> Path:
 
 
 def unzip_file(archive: Path, target_dir: Path) -> bool:
-    """
-    Try to unzip archive into target_dir.
-    Returns True on success, False otherwise.
-    """
-    if ".tar.gz" in archive.name.lower():
-        try:
-            result = subprocess.run(
-                ["tar", "xzvf", archive.name],
-                cwd=target_dir,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
-            return result.returncode == 0
-        except (
-            subprocess.CalledProcessError,
-            FileNotFoundError,
-        ):
-            return False
-    if archive.suffix == ".whl":
-        try:
-            result = subprocess.run(
-                ["unzip", archive.name],
-                cwd=target_dir,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
-            return result.returncode == 0
-        except (
-            subprocess.CalledProcessError,
-            FileNotFoundError,
-        ):
-            return False
-    else:
-        try:
-            result = subprocess.run(
-                ["7z", "x", archive.name],
-                cwd=target_dir,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True,
-            )
-            return result.returncode == 0
-        except (
-            subprocess.CalledProcessError,
-            FileNotFoundError,
-        ):
-            return False
+    archive_lower = archive.name.lower()
+
+    try:
+        # Handle tar.gz files
+        if archive_lower.endswith(".tar.gz") or archive_lower.endswith(".tgz"):
+            with tarfile.open(archive, "r:gz") as tar:
+                tar.extractall(target_dir)
+            return True
+
+        # Handle tar.bz2 files
+        elif archive_lower.endswith(".tar.bz2") or archive_lower.endswith(".tbz2"):
+            with tarfile.open(archive, "r:bz2") as tar:
+                tar.extractall(target_dir)
+            return True
+
+        # Handle tar.xz files
+        elif archive_lower.endswith(".tar.xz") or archive_lower.endswith(".txz"):
+            with tarfile.open(archive, "r:xz") as tar:
+                tar.extractall(target_dir)
+            return True
+
+        # Handle plain tar files
+        elif archive_lower.endswith(".tar"):
+            with tarfile.open(archive, "r:") as tar:
+                tar.extractall(target_dir)
+            return True
+
+        # Handle zip files (including .whl which is a zip format)
+        elif archive.suffix == ".whl" or archive_lower.endswith(".zip"):
+            with zipfile.ZipFile(archive, "r") as zip_ref:
+                zip_ref.extractall(target_dir)
+            return True
+
+        # Handle 7z files using py7zr
+        else:
+            try:
+                with py7zr.SevenZipFile(archive, mode="r") as sz:
+                    sz.extractall(target_dir)
+                return True
+            except py7zr.exceptions.Bad7zFile:
+                return False
+
+    except (tarfile.TarError, zipfile.BadZipFile, py7zr.exceptions.Bad7zFile, OSError, EOFError, FileNotFoundError):
+        return False
 
 
 def main() -> None:
     cwd = Path.cwd()
-
     for item in cwd.iterdir():
         if not item.is_file():
             continue
-
         base_dir = cwd / item.stem[:10]
         target_dir = safe_mkdir(base_dir)
-
         moved_file = target_dir / item.name
         shutil.move(str(item), moved_file)
-
         ok = unzip_file(moved_file, target_dir)
-
         if ok:
             moved_file.unlink()
             print(f"[OK] Unzipped and removed: {item.name}")

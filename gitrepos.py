@@ -5,32 +5,19 @@ import requests
 
 
 def get_github_repos(username, output_file=None) -> None:
-    """Get all repositories for a GitHub user and save to file.
-
-    Args:
-        username (str): GitHub username
-        output_file (str): Output filename (default: {username}.txt)
-
-    """
     if output_file is None:
         output_file = f"{username}.txt"
-
     url = f"https://api.github.com/users/{username}/repos"
-
     try:
         response = requests.get(url)
         response.raise_for_status()
-
         repos = response.json()
-
         if not repos:
             print(f"No repositories found for user: {username}")
             return
-
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(f"GitHub repositories for user: {username}\n")
             f.write("=" * 50 + "\n\n")
-
             for repo in repos:
                 name = repo["name"]
                 description = repo["description"] or "No description"
@@ -38,15 +25,12 @@ def get_github_repos(username, output_file=None) -> None:
                 stars = repo["stargazers_count"]
                 forks = repo["forks_count"]
                 language = repo["language"] or "Not specified"
-
                 f.write(f"Repository: {name}\n")
                 f.write(f"Description: {description}\n")
                 f.write(f"URL: {url}\n")
                 f.write(f"Stars: {stars} | Forks: {forks} | Language: {language}\n")
                 f.write("-" * 50 + "\n")
-
         print(f"Successfully saved {len(repos)} repositories to {output_file}")
-
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data: {e}")
     except json.JSONDecodeError as e:

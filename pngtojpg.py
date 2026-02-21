@@ -8,7 +8,6 @@ for root, _dirs, files in os.walk("."):
         if file.lower().endswith(".png"):
             png_path = os.path.join(root, file)
             jpg_path = os.path.splitext(png_path)[0] + ".jpg"
-
             try:
                 img = Image.open(png_path).convert("RGB")
                 img.save(jpg_path, "JPEG")

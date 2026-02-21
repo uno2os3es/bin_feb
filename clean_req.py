@@ -11,26 +11,17 @@ def clean_requirement(line: str) -> str:
     line = line.split("#", 1)[0].strip()
     if not line:
         return ""
-
     line = line.split(";", 1)[0].strip()
     if not line:
         return ""
-
     line = re.sub(r"\[.*?\]", "", line).strip()
     if not line:
         return ""
-
     parts = _VERSION_OP_RE.split(line, maxsplit=1)
     return parts[0].strip()
 
 
 def group_key(name: str):
-    """Group by first character class:
-    0 = Uppercase
-    1 = Lowercase
-    2 = Other
-    Sort case-sensitively within group.
-    """
     first = name[0]
     if first.isupper():
         return (0, name)
@@ -47,9 +38,7 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
-
     fname = sys.argv[1]
-
     try:
         with open(fname, encoding="utf-8") as f:
             lines = f.readlines()
@@ -59,7 +48,6 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
-
     cleaned = []
     seen = set()
     for line in lines:
@@ -67,13 +55,10 @@ def main() -> None:
         if c and c not in seen:
             cleaned.append(c)
             seen.add(c)
-
     cleaned = sorted(cleaned, key=group_key)
-
     with open(fname, "w", encoding="utf-8") as f:
         for item in cleaned:
             f.write(item + "\n")
-
     print("\n=== Cleaned Requirements ===")
     for item in cleaned:
         print(item)

@@ -1,10 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import sys
 from collections import Counter
 from pathlib import Path
+import sys
 
-import regex as re
 from dh import unique_path
+import regex as re
 
 USER_KEYWORDS_FILE = Path("/sdcard/keywords")
 
@@ -12,7 +12,6 @@ USER_KEYWORDS_FILE = Path("/sdcard/keywords")
 def load_user_keywords(path):
     if not path.is_file():
         return set()
-
     keywords = set()
     with path.open(errors="ignore") as f:
         for line in f:
@@ -41,11 +40,9 @@ def main():
     except FileNotFoundError:
         print("File not found")
         sys.exit(1)
-
     words = extract_words(text)
     filtered = [w for w in words if w not in EXCLUDE]
     dst = ""
-
     for word, count in Counter(filtered).most_common(50):
         dst = dst + str(word) if count == 5 else dst + str(word) + "_"
         print(f"{word:<15} {count}")

@@ -8,16 +8,13 @@ def sort_packages_by_size(filename: str):
         reader = csv.DictReader(f)
         rows = list(reader)
         fieldnames = reader.fieldnames
-
     if "Installed-Size" not in fieldnames:
         print("Error: 'Installed-Size' column not found in CSV")
         return
-
     rows.sort(
         key=lambda x: int(x.get("Installed-Size") or 0),
         reverse=True,
     )
-
     with open(
         filename,
         "w",
@@ -27,7 +24,6 @@ def sort_packages_by_size(filename: str):
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-
     print(f"File '{filename}' sorted by Installed-Size and overwritten.")
 
 

@@ -1,23 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import stat
 from pathlib import Path
+import stat
 
 import fastwalk
 
 
 def get_mode(path: Path) -> int:
-    """
-    Return permission bits only (e.g. 0o775, 0o664),
-    stripping file type flags.
-    """
     return stat.S_IMODE(path.stat().st_mode)
 
 
 def normalize_permissions(homedir: str) -> None:
     DIR_PERM = 0o775
     FILE_PERM = 0o664
-
     for pth in fastwalk.walk(homedir):
         path = Path(pth)
         try:
@@ -26,7 +21,6 @@ def normalize_permissions(homedir: str) -> None:
                 if current_perm != DIR_PERM:
                     os.chmod(path, DIR_PERM)
                     print(f"Set permissions for directory: {path} from {oct(current_perm)} to {oct(DIR_PERM)}")
-
             elif path.is_file():
                 if current_perm != FILE_PERM:
                     os.chmod(path, FILE_PERM)
@@ -45,13 +39,10 @@ def normalize_permissions(homedir: str) -> None:
                             print(f"{h10!s}")
                 except:
                     pribt(f"error reading {path}")
-
         except PermissionError as e:
             print(f"Permission denied: {path} ({e})")
-
         except FileNotFoundError:
             continue
-
         except OSError as e:
             print(f"OS error on {path}: {e}")
 

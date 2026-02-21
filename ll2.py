@@ -3,14 +3,12 @@ import datetime
 import os
 
 directory = "."
-
 for entry in sorted(
     os.scandir(directory),
     key=lambda e: e.name.lower(),
 ):
     st = entry.stat()
     mtime = datetime.datetime.fromtimestamp(st.st_mtime).strftime("%H:%M")
-
     if entry.is_file():
         size = st.st_size
         for unit in ["B", "K", "M", "G"]:
@@ -20,5 +18,4 @@ for entry in sorted(
             size /= 1024.0
     else:
         size_str = "--"
-
     print(f"{entry.name:25} {size_str:>6}   {mtime}")

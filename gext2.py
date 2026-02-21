@@ -1,12 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import ast
+from multiprocessing import Pool, cpu_count
 import os
+from pathlib import Path
 import shutil
 import tarfile
-import zipfile
-from multiprocessing import Pool, cpu_count
-from pathlib import Path
 from typing import Any
+import zipfile
 
 import regex as re
 
@@ -28,11 +28,6 @@ ALLOWED_PYTHON_EXTENSIONS = (
 
 
 class EntityExtractor(ast.NodeVisitor):
-    """
-    Traverses the Python Abstract Syntax Tree (AST) to identify and store
-    functions, classes, and module-level constants, handling nested structures.
-    """
-
     def __init__(
         self,
         source_content: str,
@@ -44,7 +39,6 @@ class EntityExtractor(ast.NodeVisitor):
         self.scope_stack = []
 
     def _get_source_slice(self, node: ast.AST) -> str:
-        """Extracts the source code corresponding to the AST node."""
         start_line = node.lineno - 1
         end_line = node.end_lineno or node.lineno
         code_slice = self.source_lines[start_line:end_line]
@@ -61,7 +55,6 @@ class EntityExtractor(ast.NodeVisitor):
         entity_type: str,
         name: str,
     ):
-        """Prepares and saves the entity data."""
         entity_code = self._get_source_slice(node)
         scope_prefix = "_".join(self.scope_stack)
         full_name = f"{scope_prefix}_{name}" if scope_prefix else name
@@ -99,25 +92,23 @@ class EntityExtractor(ast.NodeVisitor):
         self.scope_stack.pop()
 
     def visit_Assign(self, node: ast.Assign):
-        if not self.scope_stack:
-            if len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
-                target_name = node.targets[0].id
-                if re.match(
-                    r"^[A-Z_][A-Z0-9_]*$",
+        if not self.scope_stack and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            target_name = node.targets[0].id
+            if re.match(
+                r"^[A-Z_][A-Z0-9_]*$",
+                target_name,
+            ):
+                self._extract_and_save(
+                    node,
+                    "constant",
                     target_name,
-                ):
-                    self._extract_and_save(
-                        node,
-                        "constant",
-                        target_name,
-                    )
+                )
 
     def generic_visit(self, node: ast.AST):
         super().generic_visit(node)
 
 
 def get_unique_filepath(base_path: Path) -> Path:
-    """Finds a unique filename by appending a counter if the file already exists."""
     if not base_path.exists():
         return base_path
     name = base_path.stem
@@ -131,7 +122,6 @@ def get_unique_filepath(base_path: Path) -> Path:
 
 
 def save_entity(entity: dict[str, Any]):
-    """Saves a single extracted entity to the output folder."""
     filename_base = f"{entity['full_name']}.py"
     output_path_base = OUTPUT_DIR / entity["type"] / filename_base
     output_path_base.parent.mkdir(parents=True, exist_ok=True)
@@ -146,7 +136,6 @@ def save_entity(entity: dict[str, Any]):
 
 
 def extract_entities_from_content(content: str, path: Path) -> list[dict[str, Any]]:
-    """Parses content using AST and extracts entities."""
     try:
         tree = ast.parse(content)
         extractor = EntityExtractor(content, path)
@@ -162,7 +151,6 @@ def extract_entities_from_content(content: str, path: Path) -> list[dict[str, An
 def is_python_file_no_extension(
     path: Path,
 ) -> bool:
-    """Heuristically checks if a file with no extension might be a Python file."""
     if path.suffix:
         return False
     try:
@@ -184,7 +172,6 @@ def is_python_file_no_extension(
 def process_single_file(
     path: Path,
 ) -> list[dict[str, Any]]:
-    """Reads a file and extracts entities."""
     try:
         if path.suffix == ".py" or is_python_file_no_extension(path):
             content = path.read_text(encoding="utf-8", errors="ignore")
@@ -198,7 +185,6 @@ def process_single_file(
 def process_archive(
     path: Path,
 ) -> list[dict[str, Any]]:
-    """Handles compressed files (.zip, .tar.*, .whl) and extracts entities from Python files within."""
     entities = []
     if path.suffix == ".zst":
         try:
@@ -277,7 +263,6 @@ def process_archive(
 def worker_process(
     path_str: str,
 ) -> list[dict[str, Any]]:
-    """Worker function for the multiprocessing pool."""
     path = Path(path_str)
     if path.name.endswith(ARCHIVE_EXTENSIONS):
         return process_archive(path)

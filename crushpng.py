@@ -1,13 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import subprocess
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from tqdm import tqdm
 
 
 def find_png_files(directory):
-    """Recursively find all .png files in the given directory."""
     png_files = []
     for root, _, files in os.walk(directory):
         for file in files:
@@ -17,7 +16,6 @@ def find_png_files(directory):
 
 
 def optimize_png(file_path):
-    """Optimize a single PNG file using pngcrush."""
     try:
         subprocess.run(
             ["pngcrush", "-ow", file_path],
@@ -31,17 +29,13 @@ def optimize_png(file_path):
 def main():
     current_dir = os.getcwd()
     png_files = find_png_files(current_dir)
-
     if not png_files:
         print("No PNG files found in the current directory.")
         return
-
     print(f"Found {len(png_files)} PNG files to optimize.")
-
     with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {executor.submit(optimize_png, file): file for file in png_files}
         results = []
-
         with tqdm(
             total=len(png_files),
             desc="Optimizing PNGs",
@@ -50,7 +44,6 @@ def main():
             for future in as_completed(futures):
                 results.append(future.result())
                 pbar.update(1)
-
     success = sum(1 for r in results if r[0])
     print(f"\nOptimization complete. Success: {success}/{len(png_files)} files.")
 

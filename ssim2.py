@@ -14,7 +14,6 @@ try:
     USE_TABULATE = True
 except ImportError:
     USE_TABULATE = False
-
 try:
     from colorama import Fore, Style, init
 
@@ -49,7 +48,6 @@ def group_similar_files(hashes, threshold):
     visited = set()
     groups = []
     files = list(hashes.keys())
-
     for i, f1 in enumerate(files):
         if f1 in visited:
             continue
@@ -109,12 +107,10 @@ def colorize_score(score, threshold):
 
 
 def write_matrix(hashes, threshold, output_dir="output", pretty=False) -> None:
-    """Write pairwise similarity matrix, only showing scores >= threshold, with colors in console."""
     pathlib.Path(output_dir).mkdir(exist_ok=True, parents=True)
     files = list(hashes.keys())
     matrix_file = os.path.join(output_dir, "similarity_matrix.csv")
     table = [["File", *files]]
-
     with pathlib.Path(matrix_file).open("w", encoding="utf-8", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["File", *files])
@@ -129,9 +125,7 @@ def write_matrix(hashes, threshold, output_dir="output", pretty=False) -> None:
                 row.append(score)
             writer.writerow(row)
             table.append(row)
-
     print(f"Threshold-filtered similarity matrix written to {matrix_file}")
-
     if pretty:
         if USE_TABULATE:
             colored_table = []
@@ -152,22 +146,17 @@ def main() -> None:
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} <threshold> [copy|csv|json|matrix]")
         sys.exit(1)
-
     try:
         threshold = int(sys.argv[1])
     except ValueError:
         print("Threshold must be an integer (0–100).")
         sys.exit(1)
-
     mode = sys.argv[2] if len(sys.argv) > 2 else "copy"
-
     files = get_all_files(".")
     print(f"Found {len(files)} files. Computing hashes...")
     hashes = compute_hashes(files)
-
     print("Comparing files...")
     groups = group_similar_files(hashes, threshold)
-
     if not groups and mode != "matrix":
         print("No similar files found.")
     elif mode == "copy":

@@ -1,7 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
-import os
 from collections import defaultdict
+import os
 from pathlib import Path
 
 import click
@@ -22,7 +21,6 @@ def find_and_delete_duplicates(path: Path):
     duplicate_count = 0
     deleted_count = 0
     total_deleted_size = 0
-
     for pth in walk_files("."):
         path = Path(pth)
         if path.is_symlink():
@@ -34,19 +32,16 @@ def find_and_delete_duplicates(path: Path):
             except Exception as e:
                 print(f"Error processing file {path}: {e}")
                 continue
-
     for (
         file_hash,
         paths,
     ) in files_by_hash.items():
         if len(paths) > 1:
             duplicate_count += len(paths) - 1
-
             paths.sort(
                 key=lambda x: x.stat().st_mtime,
                 reverse=True,
             )
-
             for file_to_delete in paths[1:]:
                 try:
                     file_size = file_to_delete.stat().st_size
@@ -57,7 +52,6 @@ def find_and_delete_duplicates(path: Path):
                     print(f"Error deleting file {file_to_delete}: {e}")
         else:
             continue
-
     return (
         duplicate_count,
         deleted_count,
@@ -76,14 +70,12 @@ def find_and_delete_duplicates(path: Path):
     ),
 )
 def remove_duplicates(path) -> None:
-    """Finds and deletes duplicate files in the specified directory, keeping only the newest one."""
     print(f"Searching for duplicates in directory: {path}")
     (
         _duplicate_count,
         deleted_count,
         total_deleted_size,
     ) = find_and_delete_duplicates(Path(path))
-
     print("\nSummary:")
     print(f"dup found: {deleted_count}")
     print(f"del  size: {total_deleted_size} bytes")

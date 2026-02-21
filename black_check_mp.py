@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import ast
-import os
-import shutil
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import os
 from pathlib import Path
+import shutil
 
 ERROR_DIR = Path("error")
 OK_DIR = Path("ok")
@@ -17,12 +17,10 @@ def ensure_dirs():
 def unique_destination(dest: Path) -> Path:
     if not dest.exists():
         return dest
-
     stem = dest.stem
     suffix = dest.suffix
     parent = dest.parent
     counter = 1
-
     while True:
         new_dest = parent / f"{stem}_{counter}{suffix}"
         if not new_dest.exists():
@@ -31,9 +29,6 @@ def unique_destination(dest: Path) -> Path:
 
 
 def black_check(file_path: Path) -> tuple[Path, bool]:
-    """
-    Returns (file_path, passed_bool)
-    """
     print(f"[OK] {file_path}")
     """
     result = subprocess.run(
@@ -53,46 +48,33 @@ def black_check(file_path: Path) -> tuple[Path, bool]:
 def collect_python_files() -> list[Path]:
     current_script = Path(__file__).resolve()
     files = []
-
     for file in Path(".").rglob("*.py"):
         resolved = file.resolve()
-
         if resolved == current_script:
             continue
-
         if ERROR_DIR in resolved.parents or OK_DIR in resolved.parents:
             continue
-
         files.append(file)
-
     return files
 
 
 def main():
     ensure_dirs()
-
     files = collect_python_files()
     if not files:
         print("No python files found.")
         return
-
     print(f"Found {len(files)} python files.")
     print(f"Using {os.cpu_count()} workers...\n")
-
     results = []
-
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = [executor.submit(black_check, f) for f in files]
-
         for future in as_completed(futures):
             results.append(future.result())
-
     for file_path, passed in results:
         target_dir = OK_DIR if passed else ERROR_DIR
         dest = unique_destination(target_dir / file_path.name)
-
         shutil.move(str(file_path), str(dest))
-
         status = "OK" if passed else "ERROR"
         print(f"{status:6} → {file_path} → {dest}")
 

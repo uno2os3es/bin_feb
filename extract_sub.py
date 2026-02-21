@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
 import json
-import subprocess
 from pathlib import Path
+import subprocess
 
 
 def run(cmd):
@@ -36,26 +36,20 @@ def probe_subtitles(video_path):
 def extract_subtitles(video_path, output_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
     subs = probe_subtitles(video_path)
-
     if not subs:
         print("No embedded subtitle streams found.")
         return
-
     base = video_path.stem
-
     for s in subs:
         idx = s["index"]
         codec = s.get("codec_name", "sub")
         lang = s.get("tags", {}).get("language", "und")
         title = s.get("tags", {}).get("title", "").replace(" ", "_")
-
         suffix = f".{lang}"
         if title:
             suffix += f".{title}"
-
         out_ext = "srt" if codec in {"subrip", "srt"} else codec
         out_file = output_dir / f"{base}{suffix}.{out_ext}"
-
         cmd = [
             "ffmpeg",
             "-y",
@@ -65,7 +59,6 @@ def extract_subtitles(video_path, output_dir):
             f"0:s:{subs.index(s)}",
             str(out_file),
         ]
-
         try:
             run(cmd)
             print(f"Extracted: {out_file}")
@@ -82,14 +75,11 @@ def main():
         default="subtitles",
         help="Output directory",
     )
-
     args = parser.parse_args()
     video_path = Path(args.movie).resolve()
     output_dir = Path(args.output).resolve()
-
     if not video_path.exists():
         raise FileNotFoundError(video_path)
-
     extract_subtitles(video_path, output_dir)
 
 

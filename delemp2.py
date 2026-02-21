@@ -1,21 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import sys
 from pathlib import Path
+import sys
 
 EXCLUDED_DIRS = {".git"}
 
 
 def clean_lines(lines: list[str], collapse: bool) -> tuple[list[str], int]:
     removed = 0
-
     if not collapse:
         cleaned = [l for l in lines if l.strip()]
         removed = len(lines) - len(cleaned)
         return cleaned, removed
-
     cleaned = []
     blank_run = 0
-
     for line in lines:
         if line.strip():
             blank_run = 0
@@ -26,7 +23,6 @@ def clean_lines(lines: list[str], collapse: bool) -> tuple[list[str], int]:
                 cleaned.append(line)
             else:
                 removed += 1
-
     return cleaned, removed
 
 
@@ -34,7 +30,6 @@ def clean_file(
     path: Path,
     collapse: bool,
 ) -> tuple[bool, int, str]:
-
     try:
         with open(
             path,
@@ -42,12 +37,9 @@ def clean_file(
             errors="ignore",
         ) as f:
             lines = f.readlines()
-
         cleaned, removed = clean_lines(lines, collapse)
-
         if removed == 0:
             return False, 0, ""
-
         with open(
             path,
             "w",
@@ -55,7 +47,6 @@ def clean_file(
             errors="ignore",
         ) as f:
             f.writelines(cleaned)
-
         return True, removed, path.suffix.lower()
     except Exception:
         return False, 0, ""

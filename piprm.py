@@ -1,13 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
 
 PIP_LIST_FILE = "/sdcard/pip.list"
 
 
 def load_installed_packages():
-    """Load installed package names from your saved pip.list"""
     path = Path(PIP_LIST_FILE)
     if not path.exists():
         print(f"{PIP_LIST_FILE} not found")
@@ -16,7 +15,6 @@ def load_installed_packages():
 
 
 def find_dist_info(prefix):
-    """Find *.dist-info dirs in site-packages matching the prefix"""
     import site
 
     matches = []
@@ -48,10 +46,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} <package_prefix>")
         sys.exit(1)
-
     prefix = sys.argv[1].lower()
     installed = load_installed_packages()
-
     to_uninstall = [pkg for pkg in installed if pkg.lower().startswith(prefix)]
-
     uninstall_packages(to_uninstall)

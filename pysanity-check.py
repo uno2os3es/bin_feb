@@ -14,7 +14,6 @@ def get_installed_python_packages() -> list[tuple[str, str]]:
 def check_package_importable(
     package_name: str,
 ) -> tuple[bool, str]:
-    """Check if a Python package is importable."""
     try:
         importlib.import_module(package_name)
         return True, "OK"
@@ -25,7 +24,6 @@ def check_package_importable(
 
 
 def get_latest_version(package_name: str) -> str:
-    """Get the latest version of a package from PyPI."""
     try:
         result = subprocess.run(
             [
@@ -55,14 +53,12 @@ def main():
     print("=== Python Packages Sanity Check ===")
     installed_pkgs = get_installed_python_packages()
     print(f"Found {len(installed_pkgs)} installed Python packages.\n")
-
     issues_found = 0
     for pkg_name, pkg_version in installed_pkgs:
         is_ok, msg = check_package_importable(pkg_name)
         if not is_ok:
             print(f"[!] {pkg_name} (v{pkg_version}): {msg}")
             issues_found += 1
-
     print("\n=== Version Check (Optional) ===")
     print("Checking for outdated packages (this may take a while)...")
     outdated_pkgs = []
@@ -76,7 +72,6 @@ def main():
                     latest_version,
                 )
             )
-
     if outdated_pkgs:
         print("Outdated packages found:")
         for (
@@ -87,7 +82,6 @@ def main():
             print(f"- {pkg_name}: {pkg_version} (latest: {latest_version})")
     else:
         print("All packages are up to date.")
-
     print("\n=== Summary ===")
     print(f"Issues found: {issues_found}")
     if issues_found == 0:

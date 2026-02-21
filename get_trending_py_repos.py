@@ -1,17 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 # file: github_trending_python.py
-"""
-Fetch GitHub trending Python repositories (daily / weekly / monthly)
-and save results to CSV and JSON.
-"""
-
 import csv
-import json
 from dataclasses import asdict, dataclass
+import json
 from pathlib import Path
 
-import requests
 from bs4 import BeautifulSoup
+import requests
 
 BASE_URL = "https://github.com/trending/python"
 TIMEFRAMES = ["daily", "weekly", "monthly"]
@@ -32,23 +27,17 @@ def fetch_trending(timeframe: str) -> list[Repo]:
     url = f"{BASE_URL}?since={timeframe}"
     response = requests.get(url, timeout=10)
     response.raise_for_status()
-
     soup = BeautifulSoup(response.text, "html.parser")
     repos = []
-
     for article in soup.select("article.Box-row"):
         name = article.h2.text.strip().replace("\n", "").replace(" ", "")
         repo_url = "https://github.com" + article.h2.a["href"]
-
         description_tag = article.find("p")
         description = description_tag.text.strip() if description_tag else ""
-
         language_tag = article.find("span", itemprop="programmingLanguage")
         language = language_tag.text.strip() if language_tag else ""
-
         stars_tag = article.select_one("a[href$='stargazers']")
         stars = stars_tag.text.strip() if stars_tag else "0"
-
         repos.append(
             Repo(
                 name=name,
@@ -59,7 +48,6 @@ def fetch_trending(timeframe: str) -> list[Repo]:
                 timeframe=timeframe,
             )
         )
-
     return repos
 
 
@@ -83,13 +71,10 @@ def save_json(repos: list[Repo], path: Path) -> None:
 
 def main() -> None:
     OUTPUT_DIR.mkdir(exist_ok=True)
-
     all_repos: list[Repo] = []
-
     for timeframe in TIMEFRAMES:
         repos = fetch_trending(timeframe)
         all_repos.extend(repos)
-
         save_csv(
             repos,
             OUTPUT_DIR / f"python_trending_{timeframe}.csv",
@@ -98,7 +83,6 @@ def main() -> None:
             repos,
             OUTPUT_DIR / f"python_trending_{timeframe}.json",
         )
-
     print(f"Saved {len(all_repos)} repos to {OUTPUT_DIR.resolve()}")
 
 

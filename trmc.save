@@ -67,4 +67,3 @@ if __name__ == "__ma":
     code = fn.read_text(encoding="utf-8", errors="ignore")
     result = tsrmc.rmc(code)
     fn.write_text(result)
-

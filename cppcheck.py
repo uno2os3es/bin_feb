@@ -1,19 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
-from sys import argv
-import subprocess
-from fastwalk import walk_files
 from pathlib import Path
+import subprocess
+
+from fastwalk import walk_files
 
 
 def validate_cpp(path: Path) -> tuple[bool, str]:
     proc = subprocess.run(
         ["clang++", "-fsyntax-only", str(path)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
-
     if proc.returncode == 0:
         return True, ""
     return False, proc.stderr

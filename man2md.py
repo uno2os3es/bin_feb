@@ -6,7 +6,6 @@ import regex as re
 
 
 def read_man_file(filename):
-    """Read raw man file content."""
     try:
         with open(
             filename,
@@ -19,33 +18,23 @@ def read_man_file(filename):
 
 
 def man_to_markdown(content):
-    """
-    Convert roff/troff macros to Markdown.
-    Handles headings, subsections, bold/italic, paragraphs, lists, code blocks,
-    inline code, definitions, examples, and BR/IR macros.
-    """
     lines = content.splitlines()
     md_lines = []
     in_code_block = False
     pending_tp = None
-
     for line in lines:
         if line.startswith(".TH"):
             continue
-
         if line.startswith(".SH"):
             header = line[3:].strip()
             md_lines.append(f"# {header.title()}")
             continue
-
         if line.startswith(".SS"):
             subheader = line[3:].strip()
             md_lines.append(f"## {subheader.title()}")
             continue
-
         line = re.sub(r"\.B\s+(.+)", r"**\1**", line)
         line = re.sub(r"\.I\s+(.+)", r"*\1*", line)
-
         if line.startswith(".BR"):
             parts = line.split(maxsplit=1)
             if len(parts) > 1:
@@ -60,7 +49,6 @@ def man_to_markdown(content):
                         formatted.append(t.strip())
                 md_lines.append(" ".join(formatted))
                 continue
-
         if line.startswith(".IR"):
             parts = line.split(maxsplit=1)
             if len(parts) > 1:
@@ -75,11 +63,9 @@ def man_to_markdown(content):
                         formatted.append(t.strip())
                 md_lines.append(" ".join(formatted))
                 continue
-
         if line.startswith(".PP"):
             md_lines.append("")
             continue
-
         if line.startswith(".IP"):
             parts = line.split(maxsplit=2)
             if len(parts) >= 2 and parts[1].isdigit():
@@ -92,7 +78,6 @@ def man_to_markdown(content):
                 rest = parts[2] if len(parts) > 2 else ""
                 md_lines.append(f"- {item} {rest}".strip())
                 continue
-
         if line.startswith(".TP"):
             pending_tp = True
             continue
@@ -101,22 +86,18 @@ def man_to_markdown(content):
             pending_tp = False
             md_lines.append(f"- {term}:")
             continue
-
         if line.startswith(".nf") or line.startswith(".RS") or line.startswith(".EX"):
             if not in_code_block:
                 md_lines.append("```sh")
                 in_code_block = True
             continue
-
         if line.startswith(".fi") or line.startswith(".RE") or line.startswith(".EE"):
             if in_code_block:
                 md_lines.append("```")
                 in_code_block = False
             continue
-
         if line.startswith("."):
             continue
-
         if re.match(r"^\s*\$", line) or re.match(
             r"^\s*(ls|cat|grep|echo|pwd|cd|mkdir|rm|touch|man)\b",
             line,
@@ -135,10 +116,8 @@ def man_to_markdown(content):
             line,
         )
         md_lines.append(line)
-
     if in_code_block:
         md_lines.append("```")
-
     return "\n".join(md_lines)
 
 
@@ -146,16 +125,13 @@ def main():
     if len(sys.argv) != 2:
         print("Usage: python man2md.py <manfile>")
         sys.exit(1)
-
     filename = sys.argv[1]
     raw = read_man_file(filename)
     markdown = man_to_markdown(raw)
-
     base, _ = os.path.splitext(filename)
     outname = base + ".md"
     with open(outname, "w", encoding="utf-8") as f:
         f.write(markdown)
-
     print(f"Converted {filename} → {outname}")
 
 

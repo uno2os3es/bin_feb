@@ -1,28 +1,25 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import sys
 from pathlib import Path
+import sys
 
-import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
+import regex as re
 
 DIRECTORY = "."
 CHUNK_SIZE = 2000
 TARGET_LANGUAGE = "en"
-
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
 def chunk_text(text, chunk_size=CHUNK_SIZE):
-    """Split text into chunks of approx chunk_size words."""
     words = text.split()
     for i in range(0, len(words), chunk_size):
         yield " ".join(words[i : i + chunk_size])
 
 
 def translate_text(text):
-    """Translate text using deep-translator."""
     try:
         return GoogleTranslator(source="auto", target=TARGET_LANGUAGE).translate(text)
     except Exception as e:
@@ -31,28 +28,22 @@ def translate_text(text):
 
 
 def translate_file(filepath):
-    """Translate the contents of a single file in chunks."""
     with open(filepath, encoding="utf-8") as f:
         content = f.read()
-
     if not non_english_pattern.search(content):
         print(f"No non-English content found in {filepath}, skipping.")
         return
-
     translated_chunks = []
     for chunk in chunk_text(content):
         translated_chunk = translate_text(chunk)
         translated_chunks.append(translated_chunk)
-
     translated_content = "\n\n".join(translated_chunks)
-
     new_filepath = os.path.join(
         os.path.dirname(filepath),
         f"translated_{os.path.basename(filepath)}",
     )
     with open(new_filepath, "w", encoding="utf-8") as f:
         f.write(translated_content)
-
     print(f"saved as {new_filepath}")
 
 

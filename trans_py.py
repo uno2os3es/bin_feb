@@ -1,21 +1,19 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import ast
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+from pathlib import Path
 import shutil
 import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 
-import regex as re
 from deep_translator import GoogleTranslator
+import regex as re
 
 PYTHON_EXT = ".py"
 BACKUP_EXT = ".bak"
 CHUNK_SIZE = 5000
 TARGET_LANG = "en"
 SRC_LANG = "auto"
-
 _thread_local = threading.local()
 
 
@@ -75,13 +73,10 @@ def translate_docstring(docstr):
 def process_file(filepath):
     backup_path = filepath + BACKUP_EXT
     shutil.copyfile(filepath, backup_path)
-
     with open(filepath, encoding="utf-8") as f:
         code = f.read()
-
     if len(code) > CHUNK_SIZE:
         pass
-
     try:
         parsed = ast.parse(
             code,
@@ -91,11 +86,9 @@ def process_file(filepath):
     except Exception as e:
         print(f"Failed to parse {filepath}: {e}")
         return
-
     lines = code.splitlines(keepends=False)
     new_lines = list(lines)
     offset_map = {}
-
     for node in ast.walk(parsed):
         if isinstance(
             node,
@@ -118,7 +111,6 @@ def process_file(filepath):
                         break
                 else:
                     continue
-
                 doc_lines = []
                 line_idx = docstring_line
                 quote_type = '"""' if lines[line_idx].lstrip().startswith('"""') else "'''"
@@ -143,7 +135,6 @@ def process_file(filepath):
                 offset = len(translated_lines) - (end - start)
                 for k in range(end, len(new_lines)):
                     offset_map[k] = offset_map.get(k, 0) + offset
-
     final_lines = []
     for line in new_lines:
         final_lines.append(line)
@@ -153,10 +144,8 @@ def process_file(filepath):
             if trans:
                 indentation = re.match(r"\s*", line).group(0)
                 final_lines.append(f"{indentation}# {trans}")
-
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("\n".join(final_lines) + "\n")
-
     print(f"Translated: {filepath}")
 
 
@@ -174,7 +163,6 @@ def main():
     if not py_files:
         print("No Python files found.")
         return
-
     with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = {executor.submit(process_file, f): f for f in py_files}
         for future in as_completed(futures):

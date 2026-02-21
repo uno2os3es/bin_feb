@@ -15,7 +15,6 @@ def common_suffix(strings):
 
 prefix = common_prefix(files)
 suffix = common_suffix(files)
-
 for f in files:
     p = Path(f)
     core = f[len(prefix) : len(f) - len(suffix)]

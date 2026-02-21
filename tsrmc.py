@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 import ast
-import sys
-import os
-from multiprocessing import Pool, cpu_count, Manager
+from multiprocessing import Pool, cpu_count
 from pathlib import Path
 
-import tree_sitter_python as tspython
 from dh import folder_size, format_size
 from fastwalk import walk_files
 from termcolor import cprint
 from tree_sitter import Language, Parser, Query, QueryCursor
+import tree_sitter_python as tspython
 
 ts_remover = None
 
@@ -21,22 +19,14 @@ class TSRemover:
         self.query = Query(
             self.language,
             """
-            (comment) @comment
-
-            (module
-              (expression_statement
-                (string) @module_docstring))
-
-            (function_definition
-              body: (block
-                (expression_statement
-                  (string) @function_docstring)))
-
-            (class_definition
-              body: (block
-                (expression_statement
-                  (string) @class_docstring)))
-        """,
+(comment) @comment
+(block
+  . (expression_statement
+    (string)) @docstring)
+(module
+  . (expression_statement
+    (string)) @docstring)
+""",
         )
 
     def remove_comments(self, source: str):
@@ -47,8 +37,7 @@ class TSRemover:
         deletions = []
         comment_count = 0
         docstring_count = 0
-
-        for pattern_index, captures_dict in matches:
+        for _pattern_index, captures_dict in matches:
             for capture_name, node_list in captures_dict.items():
                 for node in node_list:
                     start = node.start_byte
@@ -66,22 +55,16 @@ class TSRemover:
                     if end < len(source_bytes) and source_bytes[end : end + 1] == b"\n":
                         end += 1
                     deletions.append((start, end))
-
         deletions = sorted(set(deletions), reverse=True)
-
         new_source = source_bytes
         for start, end in sorted(deletions, reverse=True):
             new_source = new_source[:start] + new_source[end:]
-
         tree = self.parser.parse(new_source)
         if tree.root_node.has_error:
             print("resulted code is not valid")
             return source_bytes, 0, 0
-
         cleaned = new_source.decode("utf-8")
-
         cleaned = self._cleanup_blank_lines(cleaned)
-
         return cleaned, comment_count, docstring_count
 
     @staticmethod
@@ -109,18 +92,16 @@ def process_file(fp):
     global ts_remover
     file_path = Path(fp)
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             code = f.read()
     except Exception as e:
         cprint(f"[ERROR] {file_path.name} failed to read: {e}", "yellow")
         return ("error", file_path, 0, 0)
-
     try:
         result, comments, docstrings = ts_remover.remove_comments(code)
     except Exception as e:
         cprint(f"[ERROR] {file_path.name} processing: {e}", "yellow")
         return ("error", file_path, 0, 0)
-
     if comments != 0 or docstrings != 0:
         try:
             ast.parse(result)
@@ -141,19 +122,14 @@ if __name__ == "__main__":
     files = [Path(p) for p in walk_files(dir_path) if Path(p).is_file() and Path(p).suffix == ".py"]
     init_size = folder_size(dir_path)
     results = []
-
     nproc = min(cpu_count() or 1, 8)
-
     with Pool(processes=nproc, initializer=ts_remover_initializer) as pool:
         results = pool.map(process_file, files)
-
     end_size = folder_size(dir_path)
     size_diff = init_size - end_size
-
     changed = sum(1 for r in results if r and r[0] == "changed")
     errors = [r for r in results if r and r[0] == "error"]
     nochg = sum(1 for r in results if r and r[0] == "nochange")
-
     print(f"\nProcessed: {len(files)} files: {changed} changed, {nochg} unchanged, {len(errors)} errors")
     if errors:
         print("Files with errors:")

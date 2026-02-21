@@ -14,7 +14,6 @@ LANG_EXTENSIONS = {
     "ruby": [".rb"],
     "php": [".php"],
 }
-
 COMMENT_PATTERNS = {
     "python": r"^\s*#",
     "javascript": r"^\s*//",
@@ -26,7 +25,6 @@ COMMENT_PATTERNS = {
     "ruby": r"^\s*#",
     "php": r"^\s*//",
 }
-
 SHEBANG_LANGUAGES = {
     "python": [
         "#!/usr/bin/python",
@@ -42,7 +40,6 @@ SHEBANG_LANGUAGES = {
 
 
 def get_language_from_shebang(file_path):
-    """Try to detect the language of a file from its shebang (if no extension is present)."""
     if ".git" in str(file_path):
         return None
     try:
@@ -61,7 +58,6 @@ def get_language_from_shebang(file_path):
 
 
 def count_lines_of_code(file_path, lang):
-    """Count the lines of code, comments, and blank lines in a given file."""
     if ".git" in str(file_path):
         return 0, 0, 0
     with open(file_path, encoding="utf-8") as file:
@@ -82,7 +78,6 @@ def count_lines_of_code(file_path, lang):
 
 
 def scan_directory(directory="."):
-    """Scan the directory for source code files and count lines."""
     stats = {
         "total": {
             "code": 0,
@@ -98,12 +93,10 @@ def scan_directory(directory="."):
             for lang in LANG_EXTENSIONS
         },
     }
-
     for root, _, files in os.walk(directory):
         for file in files:
             file_path = os.path.join(root, file)
             file_extension = os.path.splitext(file)[1].lower()
-
             if not file_extension:
                 lang = get_language_from_shebang(file_path)
                 if lang:
@@ -115,7 +108,6 @@ def scan_directory(directory="."):
                     stats["total"]["comments"] += comments
                     stats["total"]["blank"] += blanks
                     continue
-
             for (
                 lang,
                 extensions,
@@ -129,16 +121,13 @@ def scan_directory(directory="."):
                     stats["total"]["comments"] += comments
                     stats["total"]["blank"] += blanks
                     break
-
     return stats
 
 
 def display_stats(stats) -> None:
-    """Display the line count statistics."""
     print(f"Total lines of code: {stats['total']['code']}")
     print(f"Total comment lines: {stats['total']['comments']}")
     print(f"Total blank lines: {stats['total']['blank']}\n")
-
     print("Language-based statistics:")
     for lang, lang_stats in stats["languages"].items():
         if lang_stats["code"] > 0:

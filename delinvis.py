@@ -12,7 +12,6 @@ def find_unprintable_positions(text):
         "\t",
     }
     positions = []
-
     line_num = 1
     col_num = 1
     for ch in text:
@@ -38,14 +37,12 @@ def clean_text(text):
 def clean_file(path: str) -> None:
     backup_path = path + ".bak"
     shutil.copy2(path, backup_path)
-
     with open(
         path,
         encoding="utf-8",
         errors="ignore",
     ) as f:
         data = f.read()
-
     positions = find_unprintable_positions(data)
     if positions:
         print(f"Found {len(positions)} unprintable character(s):")
@@ -53,7 +50,6 @@ def clean_file(path: str) -> None:
             print(f"  Line {line}, Col {col}: char code {code} (0x{code:02X})")
     else:
         print("No unprintable characters found.")
-
     cleaned = clean_text(data)
     with open(
         path,
@@ -68,12 +64,10 @@ def main():
     if len(sys.argv) != 2:
         print(f"Usage: {os.path.basename(sys.argv[0])} <filename>")
         sys.exit(1)
-
     fname = sys.argv[1]
     if not os.path.isfile(fname):
         print(f"Error: '{fname}' is not a file")
         sys.exit(1)
-
     clean_file(fname)
 
 

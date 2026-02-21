@@ -4,7 +4,6 @@ import sysconfig
 
 
 def is_empty_package(dist_info_path) -> bool:
-    """Return True if all files listed in RECORD are inside the dist-info dir."""
     record_file = os.path.join(dist_info_path, "RECORD")
     if not pathlib.Path(record_file).is_file():
         return False

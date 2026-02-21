@@ -1,8 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 # file: move_binary_files.py
-
-import shutil
 from pathlib import Path
+import shutil
 
 from dh import is_binary
 
@@ -11,7 +10,6 @@ def main():
     current_dir = Path.cwd()
     binary_dir = current_dir / "binary"
     binary_dir.mkdir(exist_ok=True)
-
     files_moved = 0
     for f in current_dir.iterdir():
         if f.is_file() and is_binary(Path(f)):
@@ -21,7 +19,6 @@ def main():
                 files_moved += 1
             except Exception as e:
                 print(f"Failed to move {f.name}: {e}")
-
     if files_moved == 0:
         print("No binary files found to move.")
     else:

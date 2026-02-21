@@ -1,17 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""Recursively find files named:
-- METADATA
-- PKGINFO
-- PKG-INFO.
-
-including those inside:
-- .zip
-- .whl
-- .tar.gz / .tgz / .tar
-
-and remove all lines starting with "Tag: py2-none-any".
-"""
-
 import os
 import shutil
 import tarfile
@@ -23,14 +10,12 @@ PREFIX = "Tag: py2-none-any"
 
 
 def clean_text(text: str) -> str:
-    """Remove PREFIX lines from raw text."""
     return "\n".join(line for line in text.splitlines() if not line.startswith(PREFIX)) + (
         "\n" if text.endswith("\n") else ""
     )
 
 
 def clean_file(path: str) -> None:
-    """Remove Requires-Dist lines from a normal file."""
     try:
         with open(
             path,
@@ -40,7 +25,6 @@ def clean_file(path: str) -> None:
             original = f.read()
     except Exception:
         return
-
     cleaned = clean_text(original)
     if cleaned != original:
         with open(path, "w", encoding="utf-8") as f:
@@ -48,7 +32,6 @@ def clean_file(path: str) -> None:
 
 
 def process_zip(path: str) -> None:
-    """Rewrite a zip/whl file with cleaned metadata."""
     tmp = tempfile.mktemp(suffix=".zip")
     with (
         zipfile.ZipFile(path, "r") as zin,
@@ -69,27 +52,21 @@ def process_zip(path: str) -> None:
 
 
 def process_tar(path: str) -> None:
-    """Rewrite a tar/tar.gz/tgz file with cleaned metadata."""
     tmp_dir = tempfile.mkdtemp()
     tmp_tar = tempfile.mktemp(suffix=".tar.gz")
-
     with tarfile.open(path, "r:*") as tar:
         tar.extractall(tmp_dir)
-
     for root, _, files in os.walk(tmp_dir):
         for name in files:
             if name in TARGET_FILES:
                 clean_file(os.path.join(root, name))
-
     with tarfile.open(tmp_tar, "w:gz") as tar:
         tar.add(tmp_dir, arcname="")
-
     shutil.move(tmp_tar, path)
     shutil.rmtree(tmp_dir)
 
 
 def dispatch_archive(path: str) -> None:
-    """Detect archive type and process accordingly."""
     name = path.lower()
     if name.endswith(".zip") or name.endswith(".whl"):
         process_zip(path)
@@ -101,11 +78,9 @@ def main() -> None:
     for root, _, files in os.walk("."):
         for name in files:
             full_path = os.path.join(root, name)
-
             if name in TARGET_FILES:
                 clean_file(full_path)
                 continue
-
             if name.lower().endswith(
                 (
                     ".zip",

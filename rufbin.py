@@ -1,10 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import subprocess
 from pathlib import Path
+import subprocess
 
 
 def is_python_file(file_path):
-    """Check if file contains Python code (heuristic detection)."""
     try:
         with Path(file_path).open("r", encoding="utf-8", errors="ignore") as f:
             content = f.read(1024)
@@ -33,7 +32,6 @@ def is_python_file(file_path):
 
 
 def format_with_ruff(file_path):
-    """Format a single file using ruff format."""
     try:
         print(f"processing {file_path.name}")
         result = subprocess.run(
@@ -58,7 +56,6 @@ def format_with_ruff(file_path):
 
 
 def main() -> None:
-    """Main function - scan and format Python files."""
     current_dir = Path()
     python_files = [item for item in current_dir.iterdir() if item.is_file() and is_python_file(item)]
     if not python_files:

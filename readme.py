@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from pathlib import Path
 import pydoc
 import sys
-from pathlib import Path
 
 README_CANDIDATES = [
     "README.md",
@@ -25,12 +25,10 @@ def main():
     if not readme:
         print("No README file found in current directory.", file=sys.stderr)
         sys.exit(1)
-
     try:
         text = readme.read_text(encoding="utf-8")
     except UnicodeDecodeError:
         text = readme.read_text(errors="replace")
-
     pydoc.pager(text)
 
 

@@ -1,14 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import os
 from datetime import UTC, datetime, timedelta
+import os
 
-import regex as re
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
+import regex as re
 
 load_dotenv()
 API_KEY = os.getenv("YOUTUBE_API_KEY")
-
 CHANNELS = {
     "Blueprint_CoC": "UCQJJGSWnPUCb8uKV_MoJeOA",
     "iTzu": "UCLKKvlo0yK8OgWvjCiZQ3sA",
@@ -18,7 +17,6 @@ CHANNELS = {
 
 def get_videos(youtube, channel_id):
     past_date = (datetime.now(UTC) - timedelta(days=30)).isoformat()
-
     videos = []
     request = youtube.search().list(
         part="snippet",
@@ -28,13 +26,11 @@ def get_videos(youtube, channel_id):
         order="date",
         type="video",
     )
-
     while request:
         response = request.execute()
         for item in response.get("items", []):
             video_id = item["id"]["videoId"]
             video_details = youtube.videos().list(part="snippet", id=video_id).execute()
-
             snippet = video_details["items"][0]["snippet"]
             videos.append(
                 {
@@ -43,7 +39,6 @@ def get_videos(youtube, channel_id):
                     "url": f"https://www.youtube.com/watch?v={video_id}",
                 }
             )
-
         request = youtube.search().list_next(request, response)
         if len(videos) > 100:
             break
@@ -60,9 +55,7 @@ def create_html(channel_name, base_data):
     date_str = datetime.now().strftime("%d-%m-%Y")
     dir_name = f"output/{date_str}_{channel_name}"
     os.makedirs(dir_name, exist_ok=True)
-
     file_path = os.path.join(dir_name, "bases.html")
-
     html_content = f"""
     <html>
     <head>
@@ -77,7 +70,6 @@ def create_html(channel_name, base_data):
     <body>
         <h1>TH18 Bases from {channel_name} (Last 30 Days)</h1>
     """
-
     for item in base_data:
         html_content += f"""
         <div class="card">
@@ -88,9 +80,7 @@ def create_html(channel_name, base_data):
         for link in item["links"]:
             html_content += f'<li><a href="{link}">Get Base Layout</a></li>'
         html_content += "</ul></div>"
-
     html_content += "</body></html>"
-
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(html_content)
     print(f"Generated: {file_path}")
@@ -100,14 +90,11 @@ def main():
     if not API_KEY:
         print("Error: API_KEY not found in .env file.")
         return
-
     youtube = build("youtube", "v3", developerKey=API_KEY)
-
     for name, cid in CHANNELS.items():
         print(f"Processing {name}...")
         vids = get_videos(youtube, cid)
         results = []
-
         for v in vids:
             links = extract_th18_links(v["description"])
             if links:
@@ -118,7 +105,6 @@ def main():
                         "links": list(set(links)),
                     }
                 )
-
         if results:
             create_html(name, results)
         else:

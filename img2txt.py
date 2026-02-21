@@ -1,7 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
 from pathlib import Path
-from sys import argv
 
 from PIL import Image, ImageFilter, ImageOps
 from pytesseract import image_to_string

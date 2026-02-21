@@ -1,17 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import json
-import regex as re
-import sys
 from pathlib import Path
+import sys
+
+import regex as re
 
 
 def sanitize_pkg_name(name: str) -> str:
-    """
-    Convert npm package names to filesystem-safe folder names.
-    Examples:
-      @babel/core -> babel__core
-      lodash-es   -> lodash-es
-    """
     name = name.lstrip("@")
     name = name.replace("/", "__")
     return re.sub(r"[^\w.-]", "_", name)
@@ -20,27 +15,21 @@ def sanitize_pkg_name(name: str) -> str:
 def rename_package_dirs(root: Path, dry_run: bool = False) -> None:
     for pkg_json in root.rglob("package.json"):
         pkg_dir = pkg_json.parent
-
         try:
             with pkg_json.open(encoding="utf-8") as f:
                 data = json.load(f)
         except Exception:
             continue
-
         pkg_name = data.get("name")
         if not pkg_name:
             continue
-
         new_name = sanitize_pkg_name(pkg_name)
         new_dir = pkg_dir.parent / new_name
-
         if pkg_dir.name == new_name:
             continue
-
         if new_dir.exists():
             print(f"[SKIP] {new_dir} already exists")
             continue
-
         if dry_run:
             print(f"[DRY] {pkg_dir} -> {new_dir}")
         else:

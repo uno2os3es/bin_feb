@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import subprocess
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+import subprocess
 from time import perf_counter
 
 import fastwalk
@@ -58,7 +58,6 @@ def main() -> None:
         print("No files found.")
         return
     print(f"Formatting {len(files_to_format)} files...")
-
     with ProcessPoolExecutor(max_workers=12) as executor:
         results = executor.map(format_file, files_to_format)
         sum(1 for success in results if success)

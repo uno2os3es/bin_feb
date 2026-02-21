@@ -1,16 +1,15 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import argparse
 import base64
+from configparser import ConfigParser
+from email.parser import Parser
 import hashlib
 import os
+from pathlib import Path
 import shutil
 import sys
 import sysconfig
 import zipfile
-from configparser import ConfigParser
-from email.parser import Parser
-from pathlib import Path
 
 
 def prefix_path():
@@ -160,7 +159,6 @@ def compute_hash_and_size(path):
 
 
 def collect_files_for_dist(distinfo_path, site_dirs, prefix):
-    """Returns a list of (src_path, relative_path_in_wheel) to include for this distribution."""
     site_dirs[0] if site_dirs else Path(".")
     collected = []
     base = distinfo_path.parent
@@ -305,11 +303,6 @@ def build_wheel_from_tree(
     workdir,
     wheel_out_path,
 ):
-    """tree_items: list of (src_path (Path), rel_path (Path)) to copy into workdir
-    dist_name, version used for naming if needed
-    workdir: Path where to create wheel contents
-    wheel_out_path: final .whl file path to write.
-    """
     for src, rel in tree_items:
         dest = workdir / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -317,7 +310,6 @@ def build_wheel_from_tree(
             shutil.move(src, dest)
         elif src.is_dir():
             continue
-
     distinfo_dirs = list(workdir.glob("*.dist-info"))
     if not distinfo_dirs:
         dinfo_name = f"{dist_name}-{version}.dist-info"
@@ -325,7 +317,6 @@ def build_wheel_from_tree(
         distinfo_dir.mkdir(parents=True, exist_ok=True)
     else:
         distinfo_dir = distinfo_dirs[0]
-
     wheel_file = distinfo_dir / "WHEEL"
     if not wheel_file.exists():
         content = [
@@ -336,7 +327,6 @@ def build_wheel_from_tree(
             "",
         ]
         wheel_file.write_text("\n".join(content), encoding="utf-8")
-
     record_lines = []
     all_files = []
     for root, _dirs, files in os.walk(workdir):
@@ -355,7 +345,6 @@ def build_wheel_from_tree(
         "\n".join(record_lines) + "\n",
         encoding="utf-8",
     )
-
     wheel_out_path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(
         wheel_out_path,
@@ -384,10 +373,8 @@ def main() -> None:
         help="Repack all installed packages",
     )
     args = parser.parse_args()
-
     if not args.packages and not args.all:
         args.all = True
-
     prefix = prefix_path()
     site_dirs = [Path(os.getcwd())]
     if not site_dirs:
@@ -397,7 +384,6 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(2)
-
     dists = find_distributions(site_dirs)
     if args.all:
         to_do = list(dists.values())
@@ -417,12 +403,10 @@ def main() -> None:
                 )
             else:
                 to_do.append(found)
-
     repack_root = Path.home() / "tmp" / "repack"
     wheel_dir = Path.home() / "tmp" / "wheels"
     repack_root.mkdir(parents=True, exist_ok=True)
     wheel_dir.mkdir(parents=True, exist_ok=True)
-
     for distinfo in to_do:
         try:
             base_name = distinfo.name
@@ -436,7 +420,6 @@ def main() -> None:
             dist_name = md.get("Name") or base.split("-", 1)[0]
             version = md.get("Version") or (base.split("-", 1)[1] if "-" in base else "0")
             print(f"Repacking {dist_name} {version} ...")
-
             items, md = collect_files_for_dist(distinfo, site_dirs, prefix)
             if not items:
                 print(
@@ -448,10 +431,8 @@ def main() -> None:
             if workdir.exists():
                 shutil.rmtree(workdir)
             workdir.mkdir(parents=True, exist_ok=True)
-
             wheel_name = f"{dist_name.replace('-', '_')} -{version} -py3-none-any.whl"
             wheel_out = wheel_dir / wheel_name
-
             built = build_wheel_from_tree(
                 items,
                 dist_name,

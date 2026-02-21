@@ -22,9 +22,7 @@ def sort_key(color: str):
 def main(path: str):
     with open(path, encoding="utf-8") as f:
         colors = [line.strip() for line in f if HEX_RE.match(line.strip())]
-
     colors.sort(key=sort_key)
-
     with open(path, "w", encoding="utf-8") as f:
         for c in colors:
             f.write(c.lower() + "\n")
@@ -34,5 +32,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: sort_colors.py colors.txt")
         sys.exit(1)
-
     main(sys.argv[1])

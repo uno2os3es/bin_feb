@@ -25,11 +25,9 @@ def show_image(img_path):
     except FileNotFoundError:
         sys.exit("Image not found.")
     h = 100
-
     w = int((img.width / img.height) * h) * 2
     img = img.resize((w, h), Image.Resampling.LANCZOS)
     img_arr = np.asarray(img)
-
     for x in range(0, h):
         for y in range(0, w):
             pix = img_arr[x][y]

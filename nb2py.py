@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import sys
 from pathlib import Path
+import sys
 
 import nbformat
 
@@ -13,8 +13,6 @@ with open(OUTPUT, "w", encoding="utf-8") as out:
             out.write('"""\n')
             out.write(cell.source + "\n")
             out.write('"""\n\n')
-
         elif cell.cell_type == "code":
             out.write(cell.source + "\n\n")
-
 print(f"Exported → {OUTPUT}")

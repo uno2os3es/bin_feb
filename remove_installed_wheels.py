@@ -1,7 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
 import subprocess
-import sys
 import zipfile
 
 VENV_PATH = os.path.expanduser("~/venv")
@@ -52,7 +51,6 @@ def main():
     if not os.path.exists(whl_dir):
         print(f"Directory {whl_dir} does not exist.")
         return
-
     for file in os.listdir(whl_dir):
         if file.endswith(".whl"):
             wheel_file = os.path.join(whl_dir, file)

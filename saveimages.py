@@ -3,8 +3,8 @@ import argparse
 import os
 from urllib.parse import urljoin
 
-import requests
 from bs4 import BeautifulSoup
+import requests
 
 
 def download_image(url, output_dir):
@@ -26,10 +26,8 @@ def extract_images_from_url(url, output_dir):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         img_tags = soup.find_all("img")
-
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-
         for img in img_tags:
             img_url = img.get("src")
             if img_url:
@@ -44,5 +42,4 @@ if __name__ == "__main__":
     parser.add_argument("url", type=str, help="URL to extract images from")
     parser.add_argument("output_dir", type=str, help="Output directory to save images")
     args = parser.parse_args()
-
     extract_images_from_url(args.url, args.output_dir)

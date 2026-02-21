@@ -47,16 +47,13 @@ class MultiPartDownloader:
         if not self.support_resume:
             print("Server does not support resume. Downloading in single part...")
             self.num_threads = 1
-
         existing_size = self.check_existing_file()
         if existing_size == self.file_size:
             print("File already downloaded.")
             return
-
         if existing_size > 0 and not self.support_resume:
             print("Cannot resume. Starting from scratch.")
             existing_size = 0
-
         part_size = math.ceil((self.file_size - existing_size) / self.num_threads)
         threads = []
         for i in range(self.num_threads):
@@ -67,10 +64,8 @@ class MultiPartDownloader:
             thread = threading.Thread(target=self.download_range, args=(start, end, i))
             threads.append(thread)
             thread.start()
-
         for thread in threads:
             thread.join()
-
         print("Download completed!")
 
 
@@ -78,6 +73,5 @@ if __name__ == "__main__":
     url = input("Enter the file URL: ")
     output_path = input("Enter the output file path: ")
     num_threads = int(input("Enter the number of threads (default 4): ") or 8)
-
     downloader = MultiPartDownloader(url, output_path, num_threads)
     downloader.download()

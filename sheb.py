@@ -7,10 +7,8 @@ TARGET_SHEBANG = "#!/data/data/com.termux/files/usr/bin/python"
 def is_python_file(filepath):
     if os.path.getsize(filepath) == 0 or filepath.endswith("__init__.py"):
         return False
-
     if filepath.endswith(".py"):
         return True
-
     try:
         with open(filepath) as f:
             first_line = f.readline().strip()
@@ -34,10 +32,8 @@ def is_python_file(filepath):
 def process_file(filepath):
     with open(filepath, "r+") as f:
         lines = f.readlines()
-
         if not lines:
             return
-
         if lines and lines[0].startswith("#!"):
             lines[0] = TARGET_SHEBANG + "\n"
             if len(lines) > 1 and lines[1].strip() != "":
@@ -57,11 +53,9 @@ def process_file(filepath):
             if has_python_code:
                 lines.insert(0, TARGET_SHEBANG + "\n")
                 lines.insert(1, "\n")
-
         f.seek(0)
         f.writelines(lines)
         f.truncate()
-
     if "bin" in filepath.split(os.sep):
         os.chmod(filepath, 0o755)
 

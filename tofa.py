@@ -1,9 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import os
+from pathlib import Path
 import sys
 import time
-from pathlib import Path
 
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
@@ -12,7 +11,6 @@ MAX_CHARS = 5000
 
 
 def get_output_filename(input_file):
-    """Generate output filename:  fname_fa.extension"""
     path = Path(input_file)
     stem = path.stem
     suffix = path.suffix
@@ -20,40 +18,30 @@ def get_output_filename(input_file):
 
 
 def load_file(input_file):
-    """Load file content with encoding detection."""
     encodings = [
         "utf-8",
         "latin-1",
         "cp1252",
         "iso-8859-1",
     ]
-
     for encoding in encodings:
         try:
             with open(input_file, encoding=encoding) as f:
                 return f.read()
         except (OSError, UnicodeDecodeError):
             continue
-
     raise OSError(f"Could not read file {input_file} with any encoding")
 
 
 def save_file(output_file, content):
-    """Save content to file."""
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(content)
 
 
 def find_chunk_boundary(text, max_chars):
-    """
-    Find a good chunk boundary respecting word boundaries.
-    Tries to split at the last space before max_chars limit.
-    """
     if len(text) <= max_chars:
         return len(text)
-
     search_area = text[:max_chars]
-
     for delimiter in [
         "\n",
         "\r\n",
@@ -67,37 +55,27 @@ def find_chunk_boundary(text, max_chars):
         last_pos = search_area.rfind(delimiter)
         if last_pos > 0:
             return last_pos + len(delimiter)
-
     last_space = search_area.rfind(" ")
     if last_space > 0:
         return last_space + 1
-
     return max_chars
 
 
 def chunk_text(text, max_chars):
-    """
-    Split text into chunks respecting word boundaries and character limit.
-    """
     chunks = []
     pos = 0
-
     while pos < len(text):
         remaining = text[pos:]
-
         if len(remaining) <= max_chars:
             chunks.append(remaining)
             break
-
         chunk_end = find_chunk_boundary(remaining, max_chars)
         chunks.append(remaining[:chunk_end])
         pos += chunk_end
-
     return chunks
 
 
 def translate_chunk(text, source_lang="auto"):
-    """Translate a single chunk with retry."""
     for attempt in range(3):
         try:
             translator = GoogleTranslator(source=source_lang, target="fa")
@@ -106,31 +84,24 @@ def translate_chunk(text, source_lang="auto"):
         except Exception as e:
             print(f"[WARN] Translation failed (attempt {attempt + 1}/3): {e}")
             time.sleep(1 + attempt)
-
     raise Exception("Failed to translate chunk after 3 attempts")
 
 
 def translate_file(input_file, source_lang="auto"):
-    """
-    Translate entire file, chunking if necessary.
-    """
     print(f"[INFO] Reading file: {input_file}")
     content = load_file(input_file)
     content_length = len(content)
     print(f"[INFO] File size: {content_length} characters")
-
     if content_length <= MAX_CHARS:
         print(f"[INFO] Content fits in single request ({content_length} chars)")
         print("[INFO] Translating...")
         translated, detected_lang = translate_chunk(content, source_lang)
         print(f"[INFO] Detected language: {detected_lang}")
         return translated
-
     chunks = chunk_text(content, MAX_CHARS)
     total_chunks = len(chunks)
     print(f"[INFO] Content split into {total_chunks} chunks")
     print(f"[INFO] Chunk sizes: {[len(c) for c in chunks]}")
-
     translated_chunks = []
     detected_lang = None
     pbar = tqdm(
@@ -138,7 +109,6 @@ def translate_file(input_file, source_lang="auto"):
         desc="Translating",
         unit="chunk",
     )
-
     try:
         for i, chunk in enumerate(chunks):
             print(f"\n[INFO] Translating chunk {i + 1}/{total_chunks} ({len(chunk)} chars)...")
@@ -155,7 +125,6 @@ def translate_file(input_file, source_lang="auto"):
                 translated_chunks.append(chunk)
     finally:
         pbar.close()
-
     result = "".join(translated_chunks)
     print(f"\n[INFO] Detected language: {detected_lang}")
     return result
@@ -170,36 +139,27 @@ def main():
         print(f"  {sys.argv[0]}document.txt en")
         print("\nSupported languages:  auto, en ,fa , fr, de, es, it, pt, ru, zh, ja, ko, ar, etc.")
         sys.exit(1)
-
     input_file = sys.argv[1]
     source_lang = sys.argv[2] if len(sys.argv) > 2 else "auto"
-
     if not os.path.exists(input_file):
         print(f"[ERROR] File not found: {input_file}")
         sys.exit(1)
-
     output_file = get_output_filename(input_file)
-
     if os.path.exists(output_file):
         print(f"[INFO] Output file already exists: {output_file}")
         print(f"[INFO] Skipping translation (delete {output_file} to re-translate)")
         sys.exit(0)
-
     print(f"[INFO] Input:   {input_file}")
     print(f"[INFO] Output: {output_file}")
     print(f"[INFO] Source language: {source_lang}")
     print()
-
     try:
         translated_content = translate_file(input_file, source_lang)
-
         print(f"\n[INFO] Saving result to: {output_file}")
         save_file(output_file, translated_content)
-
         print("\n[SUCCESS] Translation complete!")
         print(f"[INFO] Output file: {output_file}")
         print(f"[INFO] Output size: {len(translated_content)} characters")
-
     except Exception as e:
         print(f"\n[ERROR] Translation failed: {e}")
         sys.exit(1)

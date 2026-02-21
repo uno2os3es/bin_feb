@@ -3,7 +3,6 @@ import os
 
 
 def scan_directory(directory="."):
-    """Scan the directory for source code files and count lines."""
     stats = {
         "total": {
             "code": 0,
@@ -19,12 +18,10 @@ def scan_directory(directory="."):
             for lang in LANG_EXTENSIONS
         },
     }
-
     for root, _, files in os.walk(directory):
         for file in files:
             file_path = os.path.join(root, file)
             file_extension = os.path.splitext(file)[1].lower()
-
             if not file_extension:
                 lang = get_language_from_shebang(file_path)
                 if lang:
@@ -39,7 +36,6 @@ def scan_directory(directory="."):
                     stats["total"]["comments"] += comments
                     stats["total"]["blank"] += blanks
                     continue
-
             for (
                 lang,
                 extensions,
@@ -56,13 +52,10 @@ def scan_directory(directory="."):
                     stats["total"]["comments"] += comments
                     stats["total"]["blank"] += blanks
                     break
-
     return stats
 
 
 def display_stats(stats) -> None:
-    """Display the line count statistics."""
-
     for lang_stats in stats["languages"].values():
         if lang_stats["code"] > 0:
             pass

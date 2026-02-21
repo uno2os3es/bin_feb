@@ -1,14 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-python_formatter.py
-Requirements: pip install yapf black autopep8 isort autoflake
-"""
-
 from __future__ import annotations
 
 import argparse
-import contextlib
 from collections import deque
+import contextlib
 from multiprocessing import Pool
 from pathlib import Path
 from time import perf_counter
@@ -16,7 +11,6 @@ from time import perf_counter
 from fastwalk import walk_files
 
 MAX_IN_FLIGHT = 16
-
 IGNORED_DIRS = {
     ".git",
     "dist",
@@ -37,12 +31,10 @@ def is_python_file(path: Path) -> bool:
 
 
 def format_single_file(file: Path, args) -> bool:
-    """Core formatting logic using Lazy Imports."""
     start = file.stat().st_size
     try:
         original_code = file.read_text(encoding="utf-8")
         code = original_code
-
         if args.remove_all_unused_imports:
             import autoflake
 
@@ -51,12 +43,10 @@ def format_single_file(file: Path, args) -> bool:
                 remove_all_unused_imports=True,
                 ignore_init_module_imports=True,
             )
-
         if args.isort:
             import isort
 
             code = isort.code(code)
-
         if args.black:
             import black
 
@@ -71,7 +61,6 @@ def format_single_file(file: Path, args) -> bool:
             from yapf.yapflib import yapf_api
 
             code, _ = yapf_api.FormatCode(code)
-
         if len(code) != len(original_code):
             file.write_text(code, encoding="utf-8")
             print(f"[OK]  {file.name} {start - end}")
@@ -111,7 +100,6 @@ def main() -> None:
         help="Autoflake cleanup",
     )
     args = p.parse_args()
-
     start_time = perf_counter()
     dir = Path().cwd()
     files = []
@@ -124,13 +112,10 @@ def main() -> None:
             and not path.is_symlink()
         ):
             files.append(path)
-
     if not files:
         print("No Python files detected.")
         return
-
     print(f"Formatting {len(files)} files...")
-
     with Pool(8) as p:
         pending = deque()
         for name in files:
@@ -147,7 +132,6 @@ def main() -> None:
                 pending.popleft().get()
         while pending:
             pending.popleft().get()
-
     duration = perf_counter() - start_time
     print(f"Total Runtime: {duration:.4f} seconds")
 

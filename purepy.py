@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import sys
 
 import requests
 
@@ -43,16 +43,12 @@ def main() -> None:
     if len(sys.argv) < 2:
         print("Usage: python detect_pure_python.py <package_list.txt>")
         sys.exit(1)
-
     infile = sys.argv[1]
-
     pure = set()
     native = set()
     missing = set()
-
     with open(infile) as f:
         packages = [line.strip() for line in f if line.strip()]
-
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {executor.submit(check_package, pkg): pkg for pkg in packages}
         for future in as_completed(futures):
@@ -63,16 +59,12 @@ def main() -> None:
                 native.add(pkg)
             else:
                 missing.add(pkg)
-
     with open("pure_python.txt", "w") as f:
         f.write("\n".join(sorted(pure)))
-
     with open("native_extensions.txt", "w") as f:
         f.write("\n".join(sorted(native)))
-
     with open("not_found.txt", "w") as f:
         f.write("\n".join(sorted(missing)))
-
     print("Done!")
     print(f"Pure Python: {len(pure)}")
     print(f"Native-required: {len(native)}")

@@ -7,7 +7,6 @@ from tqdm import tqdm
 
 
 def format_file(file_path):
-    """Executes Prettier on a single file and returns the path if it fails."""
     try:
         subprocess.run(
             [
@@ -42,21 +41,16 @@ def main():
     )
     exclude_dirs = {".git"}
     exclude_extensions = (".min.js", ".min.css")
-
     files_to_format = []
-
     print("Scanning directory for files...")
     for root, dirs, files in os.walk("."):
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
-
         for file in files:
             if file.endswith(target_extensions) and not file.endswith(exclude_extensions):
                 files_to_format.append(os.path.join(root, file))
-
     if not files_to_format:
         print("No matching files found.")
         return
-
     errors = []
     with (
         tqdm(
@@ -67,13 +61,11 @@ def main():
         concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor,
     ):
         future_to_file = {executor.submit(format_file, f): f for f in files_to_format}
-
         for future in concurrent.futures.as_completed(future_to_file):
             err = future.result()
             if err:
                 errors.append(err)
             pbar.update(1)
-
     print("\n" + "=" * 30)
     print(f"Finished processing {len(files_to_format)} files.")
     if errors:

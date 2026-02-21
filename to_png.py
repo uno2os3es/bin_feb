@@ -15,7 +15,6 @@ except ImportError:
     from PIL import Image
 
     USE_CV2 = False
-
 IGNORED_DIRS = {
     ".git",
     "dist",
@@ -27,30 +26,23 @@ IGNORED_DIRS = {
 
 
 def convert_file(file_path: str) -> bool:
-    """Convert an image to JPG, handling transparency with a white background."""
     path = Path(file_path)
-
     if not path.is_file() or path.suffix.lower() not in dh.IMG_EXT:
         print(f"Skipping: {path.name} (Unsupported format or not a file)")
         return False
-
     if path.suffix.lower() == ".png":
         return True
-
     output_path = path.with_suffix(".png")
-
     if output_path.exists():
         response = input(f"'{output_path.name}' exists. Overwrite? (y/n): ").strip().lower()
         if response != "y":
             return False
-
     try:
         if USE_CV2:
             img = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
             if img is None:
                 print(f"Error: Could not decode {path.name}")
                 return False
-
             if img.shape[2] == 4:
                 b, g, r, a = cv2.split(img)
                 white_bg = np.full(
@@ -65,7 +57,6 @@ def convert_file(file_path: str) -> bool:
                 final_img = cv2.merge((img_b, img_g, img_r))
             else:
                 final_img = img
-
             success = cv2.imwrite(
                 str(output_path),
                 final_img,
@@ -88,7 +79,6 @@ def convert_file(file_path: str) -> bool:
                 final_img = img
             final_img.save(output_path, "JPEG", quality=95)
             success = True
-
         if success:
             path.unlink()
             print(f"Successfully converted '{path.name}' to png.")
@@ -96,7 +86,6 @@ def convert_file(file_path: str) -> bool:
         else:
             print(f"Failed to write '{output_path.name}'")
             return False
-
     except Exception as e:
         print(f"Error converting '{path.name}': {e}")
         return False
@@ -104,25 +93,19 @@ def convert_file(file_path: str) -> bool:
 
 def main() -> None:
     start_size = dh.folder_size(".")
-
     files = [
         f
         for f in Path(".").rglob("*")
         if f.is_file() and not any(part in IGNORED_DIRS for part in f.parts) and dh.is_image(f)
     ]
-
     if not files:
         print("No image files detected.")
         return
-
     print(f"converting {len(files)} files...")
-
     with ThreadPoolExecutor(max_workers=8) as executor:
         results = list(executor.map(convert_file, files))
-
     changed_count = sum(1 for r in results if r)
     print(f"Done. {changed_count} files modified.")
-
     result = dh.folder_size(".") - start_size
     if result < 0:
         print(f"size reduced: - {dh.format_size(abs(result))} ")

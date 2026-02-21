@@ -1,20 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-- Auto language detection
-- OCR for JPG/PNG
-- Image preprocessing for better OCR accuracy
-- Saves raw OCR text separately
-- Chunked translation to avoid API limits.
-"""
-
 import argparse
-import sys
 from pathlib import Path
+import sys
 
-import pytesseract
 from deep_translator import GoogleTranslator
 from langdetect import DetectorFactory, detect
 from PIL import Image, ImageEnhance, ImageFilter
+import pytesseract
 
 DetectorFactory.seed = 0
 TEXT_EXT = {".txt", ".md", ".csv", ".json", ".py"}
@@ -42,7 +34,6 @@ def read_text_file(path: Path) -> str:
 def preprocess_image(
     img: Image.Image,
 ) -> Image.Image:
-    """Improve OCR accuracy by cleaning the image."""
     img = img.convert("L")
     img = ImageEnhance.Contrast(img).enhance(2.0)
     img = img.point(lambda x: 0 if x < 160 else 255)
@@ -50,7 +41,6 @@ def preprocess_image(
 
 
 def read_image_ocr(path: Path) -> str:
-    """Extract text from image using OCR with preprocessing."""
     try:
         img = Image.open(path)
         img = preprocess_image(img)

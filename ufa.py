@@ -1,22 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-Convert escaped Unicode sequences (\\uXXXX, \\UXXXXXXXX) in a file
-to their real Unicode characters.
-Examples:
-    \\u0020 -> space
-    \\u00A9 -> ©
-    \\U0001F600 -> 😀
-"""
-
 from __future__ import annotations
 
 from pathlib import Path
 
 
 def unicode_unescape(text: str) -> str:
-    """
-    Decode escaped unicode sequences safely.
-    """
     return bytes(text, "utf-8").decode("unicode_escape")
 
 

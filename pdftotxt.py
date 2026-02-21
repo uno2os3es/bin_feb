@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import sys
 from pathlib import Path
+import sys
 
 import pdfplumber
 
@@ -22,7 +22,6 @@ def process_file(fp):
                 txtfile = f"{outdir}/{Path(fp).stem}{i!s}.txt"
             with open(txtfile, "w") as fo:
                 fo.write(text)
-
             print(f"{txtfile} created")
             i += 1
 

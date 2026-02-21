@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 from multiprocessing import Pool
 from pathlib import Path
 from sys import exit
@@ -43,7 +42,6 @@ def main():
             files.append(path)
     with Pool(8) as pool:
         pool.imap_unordered(process_file, files)
-
     print(f"{perf_counter() - start} sec")
 
 

@@ -1,9 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
-import os
-import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 from pathlib import Path
+import subprocess
 from sys import exit
 from time import perf_counter
 
@@ -33,15 +32,12 @@ def main():
             continue
         if path.is_file():
             files.append(path)
-
     with ThreadPoolExecutor(8) as executor:
         futures = [executor.submit(process_file, fp) for fp in files]
-
     for future in as_completed(futures):
         s = future.result()
         if not s[0]:
             print(s[1])
-
     print(f"{perf_counter() - start} seconds")
 
 

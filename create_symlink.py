@@ -2,7 +2,6 @@
 import os
 
 source_dir = os.path.expanduser("~/bin")
-
 for filename in os.listdir(source_dir):
     if filename.endswith(".py"):
         src_file = os.path.join(source_dir, filename)

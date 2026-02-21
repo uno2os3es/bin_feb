@@ -1,13 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+from pathlib import Path
 import tarfile
 import zipfile
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 
+from dh import BIN_EXT, TXT_EXT
 import py7zr
 import regex as re
-from dh import BIN_EXT, TXT_EXT
 
 url_pattern = re.compile(r'https?://[^\s"\']+')
 EXT = BIN_EXT
@@ -96,7 +96,6 @@ def extract_urls(filepath):
         return extract_urls_from_file(filepath)
     elif path.suffix in [".zip", ".whl"]:
         return extract_urls_from_zip(filepath)
-
     elif path.suffix.startswith(".tar") or path.suffix in [
         ".tar.gz",
         ".tar.xz",
@@ -115,17 +114,12 @@ if __name__ == "__main__":
         dirs[:] = [d for d in dirs if not d.startswith(".")]
         for file in files:
             file_paths.append(os.path.join(root, file))
-
     all_urls = set()
-
     with ThreadPoolExecutor(8) as executor:
         futures = [executor.submit(extract_urls, fp) for fp in file_paths]
-
     for future in as_completed(futures):
         all_urls.update(future.result())
-
     with open("urls.txt", "w", encoding="utf-8") as f:
         for url in sorted(all_urls):
             f.write(url + "\n")
-
     print(f"Extracted {len(all_urls)} unique URLs to urls.txt")

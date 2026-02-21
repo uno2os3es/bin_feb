@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import sys
 from pathlib import Path
+import sys
 from time import perf_counter
 
 
@@ -17,7 +17,6 @@ def main():
             str1 = '"' + str(line.strip()) + '", ' if '"' not in line else "'" + str(line.strip()) + "', "
             fo.write(str1)
         fo.write("}")
-
     print(f"{perf_counter() - start} seconds")
 
 

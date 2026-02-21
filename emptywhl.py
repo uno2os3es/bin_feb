@@ -3,7 +3,6 @@ import zipfile
 
 
 def is_empty_wheel(wheel_path) -> bool:
-    """Return True if all files recorded in RECORD are inside the dist-info dir."""
     with zipfile.ZipFile(wheel_path, "r") as z:
         dist_info_dirs = [name for name in z.namelist() if name.endswith((".dist-info/", ".dist-info"))]
         if not dist_info_dirs:

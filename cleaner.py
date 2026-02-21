@@ -1,19 +1,17 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import sys
 from pathlib import Path
+import sys
 
-import regex as re
 from fastwalk import walk_files
+import regex as re
 
 
 def clean_log(path):
-    """Clean tmux artifacts while preserving newlines and line structure."""
     print(f"[] {path}")
     ansi_tmux_re = re.compile(
         rb"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])|" rb"\x08|\x0C|\x0F|\x18|\x1C|" rb"\(\d+[a-z]\(B|\(0[Bqtxl]\(B"
     )
-
     status_re = re.compile(
         rb"\b\d{4}[MGB]\b|"
         rb"\d{3,4}\s+\([^\)]+\)|"
@@ -24,13 +22,9 @@ def clean_log(path):
     try:
         with open(path, "rb") as f:
             content = f.read()
-
         content = status_re.sub(b"", content)
-
         content = ansi_tmux_re.sub(b"", content)
-
         text = content.decode("utf-8", errors="replace")
-
         cleaned_lines = []
         for line in text.splitlines(keepends=True):
             cleaned_line = re.sub(
@@ -39,14 +33,10 @@ def clean_log(path):
                 line,
             )
             cleaned_lines.append(cleaned_line)
-
         result = "".join(cleaned_lines)
-
         with open(path, "w", encoding="utf-8") as f:
             f.write(result)
-
         print(f"✓ Cleaned (newlines preserved): {os.path.basename(path)}")
-
     except Exception as e:
         print(f"✗ Error: {e}", file=sys.stderr)
         sys.exit(1)

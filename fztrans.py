@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
+from difflib import get_close_matches
 import json
+from pathlib import Path
 import readline
 import subprocess
 import sys
-from difflib import get_close_matches
-from pathlib import Path
 
 DICT_FILE = "/sdcard/isaac/dic.json"
 
@@ -17,10 +17,8 @@ def load_dictionary(path: Path):
             file=sys.stderr,
         )
         sys.exit(1)
-
     with path.open(encoding="utf-8") as f:
         data = json.load(f)
-
     fa_en = {str(k).strip(): str(v).strip() for k, v in data.items()}
     en_fa = {v: k for k, v in fa_en.items()}
     return fa_en, en_fa
@@ -69,7 +67,6 @@ def fzf_select(all_words):
             file=sys.stderr,
         )
         sys.exit(1)
-
     selection = proc.stdout.strip()
     return selection if selection else None
 
@@ -77,20 +74,16 @@ def fzf_select(all_words):
 def interactive_mode(fa_en, en_fa):
     all_words = set(fa_en) | set(en_fa)
     setup_readline(all_words)
-
     print("Offline Persian ↔ English Translator")
     print("TAB for suggestions, Ctrl+C to exit\n")
-
     while True:
         try:
             word = input("> ").strip()
         except (KeyboardInterrupt, EOFError):
             print("\nBye.")
             break
-
         if not word:
             continue
-
         result = translate(word, fa_en, en_fa)
         print(result if result else "Not found")
 
@@ -116,25 +109,19 @@ def main():
         action="store_true",
         help="Interactive fzf selector",
     )
-
     args = parser.parse_args()
-
     fa_en, en_fa = load_dictionary(Path(DICT_FILE))
     all_words = set(fa_en) | set(en_fa)
-
     if args.fzf:
         selected = fzf_select(all_words)
         if not selected:
             sys.exit(0)
-
         result = translate(selected, fa_en, en_fa)
         if result:
             print(result)
             sys.exit(0)
-
         print("Not found", file=sys.stderr)
         sys.exit(1)
-
     if args.prefix:
         matches = prefix_search(args.prefix, all_words)
         if matches:
@@ -142,7 +129,6 @@ def main():
             sys.exit(0)
         print("No matches", file=sys.stderr)
         sys.exit(1)
-
     if args.fuzzy:
         matches = fuzzy_search(args.fuzzy, all_words)
         if matches:
@@ -150,7 +136,6 @@ def main():
             sys.exit(0)
         print("No close matches", file=sys.stderr)
         sys.exit(1)
-
     if args.word:
         word = " ".join(args.word).strip()
         result = translate(word, fa_en, en_fa)
@@ -159,7 +144,6 @@ def main():
             sys.exit(0)
         print("Not found", file=sys.stderr)
         sys.exit(1)
-
     interactive_mode(fa_en, en_fa)
 
 

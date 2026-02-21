@@ -1,8 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
-import subprocess
 from multiprocessing import Pool
 from pathlib import Path
+import subprocess
 from time import perf_counter
 
 from fastwalk import walk_files
@@ -28,9 +27,7 @@ def format_file(file_path):
             capture_output=True,
         )
         print(f"[OK] {file_path.name}")
-
         return True
-
     except (
         subprocess.CalledProcessError,
         FileNotFoundError,
@@ -47,13 +44,10 @@ def main() -> None:
         path = Path(pth)
         if any(path.suffix == ext for ext in FILE_EXTENSIONS):
             cfiles.append(path)
-
     if not cfiles:
         cprint("No files found.", "red")
         return
-
     cprint(f"{len(cfiles)} files found...", "cyan")
-
     pool = Pool(6)
     for f in cfiles:
         pool.apply_async(format_file, ((f),))

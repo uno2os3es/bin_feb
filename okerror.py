@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from pathlib import Path
 import shutil
 import subprocess
-from pathlib import Path
 
 ERROR_DIR = Path("error")
 OK_DIR = Path("ok")
@@ -13,17 +13,12 @@ def ensure_dirs():
 
 
 def unique_destination(dest: Path) -> Path:
-    """
-    Prevent overwriting files by appending numeric suffix if needed.
-    """
     if not dest.exists():
         return dest
-
     stem = dest.stem
     suffix = dest.suffix
     parent = dest.parent
     counter = 1
-
     while True:
         new_dest = parent / f"{stem}_{counter}{suffix}"
         if not new_dest.exists():
@@ -32,10 +27,6 @@ def unique_destination(dest: Path) -> Path:
 
 
 def black_check(file_path: Path) -> bool:
-    """
-    Returns True if file passes black --check
-    Returns False if black reports formatting needed or error
-    """
     result = subprocess.run(
         ["black", "--check", str(file_path)],
         capture_output=True,
@@ -45,20 +36,16 @@ def black_check(file_path: Path) -> bool:
 
 def main():
     ensure_dirs()
-
     for py_file in Path(".").glob("*.py"):
         if py_file.name == Path(__file__).name:
             continue
-
         print(f"Checking {py_file}...")
-
         if black_check(py_file):
             dest = unique_destination(OK_DIR / py_file.name)
             print(f"  ✓ OK → {dest}")
         else:
             dest = unique_destination(ERROR_DIR / py_file.name)
             print(f"  ✗ ERROR → {dest}")
-
         shutil.move(str(py_file), str(dest))
 
 

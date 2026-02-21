@@ -15,7 +15,6 @@ from dh import MIME_TO_EXT
 
 
 def get_file_mime(file_path):
-    """Return MIME type of a file using the Linux `file` command."""
     try:
         result = subprocess.run(
             ["file", "--brief", "--mime-type", file_path],
@@ -30,7 +29,6 @@ def get_file_mime(file_path):
 
 
 def safe_rename(old_path, new_path):
-    """Rename file, avoiding conflicts by appending a number if needed."""
     base, ext = os.path.splitext(new_path)
     counter = 1
     while os.path.exists(new_path):
@@ -41,7 +39,6 @@ def safe_rename(old_path, new_path):
 
 
 def check_files(directory, auto_fix=False):
-    """Recursively check files for extension mismatch and optionally fix them."""
     mismatched_files = []
     for root, _, files in os.walk(directory):
         for name in files:
@@ -80,11 +77,9 @@ def main():
         help="Automatically fix mismatched extensions",
     )
     args = parser.parse_args()
-
     if not os.path.isdir(args.directory):
         print(f"Error: {args.directory} is not a valid directory")
         sys.exit(1)
-
     mismatches = check_files(args.directory, auto_fix=args.auto_fix)
     if mismatches:
         print("Files with mismatched extensions:")

@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from multiprocessing import Process, Queue, cpu_count
 import pathlib
 import sys
-from multiprocessing import Process, Queue, cpu_count
 
 import cv2
-import pytesseract
 from PIL import Image
+import pytesseract
 from termcolor import cprint
 
 video = sys.argv[1]
@@ -31,36 +31,27 @@ def ocr_worker(q_in: Queue, q_out: Queue):
 
 def main():
     cap = cv2.VideoCapture(video)
-
     q_in = Queue(maxsize=cpu_count() * 2)
     q_out = Queue()
-
     workers = [Process(target=ocr_worker, args=(q_in, q_out)) for _ in range(cpu_count())]
-
     for w in workers:
         w.start()
-
     frame_id = 0
     sent = 0
-
     while True:
         ret, frame = cap.read()
         if not ret:
             break
-
         frame_id += 1
         if frame_id % 2 == 0:
             q_in.put((frame_id, frame))
             sent += 1
-
     for _ in workers:
         q_in.put(None)
-
     received = 0
     while received < sent:
         _fid, _text = q_out.get()
         received += 1
-
     cap.release()
     for w in workers:
         w.join()

@@ -2,9 +2,7 @@
 import os
 
 search_string = 'b64 = """'
-
 current_dir = os.getcwd()
-
 for root, _dirs, files in os.walk(current_dir):
     for file in files:
         file_path = os.path.join(root, file)

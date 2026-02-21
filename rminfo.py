@@ -8,13 +8,10 @@ from fastwalk import walk_files
 
 
 def is_python_file(path: str) -> bool:
-    """Detect python files even without extension."""
     if os.path.isdir(path):
         return False
-
     if path.suffix == ".py":
         return True
-
     try:
         with open(
             path,
@@ -50,7 +47,6 @@ def remove_header(path) -> None:
             original = f.readlines()
     except Exception:
         return
-
     for line in original:
         if not (line.startswith("# Author ") or line.startswith("# Email ") or line.startswith("# Time ")):
             cleaned.append(line)

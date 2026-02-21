@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import os
-import unicodedata
 from html.parser import HTMLParser
+import os
 from pathlib import Path
+import unicodedata
 
 
 class TitleParser(HTMLParser):
@@ -59,23 +59,17 @@ def rename_html_files(root: Path):
         for name in filenames:
             if not name.lower().endswith((".html", ".htm")):
                 continue
-
             old_path = Path(dirpath) / name
             title = extract_title(old_path)
-
             if not title:
                 continue
-
             slug = slugify(title)
             if not slug:
                 continue
-
             new_path = old_path.with_name(slug + old_path.suffix)
             new_path = unique_path(new_path)
-
             if old_path == new_path:
                 continue
-
             print(f"{old_path} -> {new_path}")
             old_path.rename(new_path)
 

@@ -1,14 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import ast
-import sys
 from multiprocessing import Pool
 from pathlib import Path
 
-import tree_sitter_python as tspython
 from dh import folder_size, format_size
 from fastwalk import walk_files
 from termcolor import cprint
 from tree_sitter import Language, Parser, Query, QueryCursor
+import tree_sitter_python as tspython
 
 
 class TSRemover:
@@ -41,7 +40,7 @@ class TSRemover:
         deletions = []
         comment_count = 0
         docstring_count = 0
-        for pattern_index, captures_dict in matches:
+        for _pattern_index, captures_dict in matches:
             for capture_name, node_list in captures_dict.items():
                 for node in node_list:
                     start = node.start_byte

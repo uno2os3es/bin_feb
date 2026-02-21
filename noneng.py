@@ -5,9 +5,7 @@ from langdetect import DetectorFactory, detect
 from langdetect.lang_detect_exception import LangDetectException
 
 DetectorFactory.seed = 0
-
 TEXT_EXTENSIONS = [p.strip for p in open("/sdcard/txt").read().splitlines()]
-
 MAX_CHARS = 5000
 
 

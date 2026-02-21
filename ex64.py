@@ -10,60 +10,43 @@ BASE64_IMG_REGEX = re.compile(r"data:image/(?P<ext>[a-zA-Z0-9+]+);base64,(?P<dat
 
 
 def extract_images_from_file(file_path: Path, output_dir: Path):
-    """Scans a text file for embedded base64 images and extracts them.
-    Returns number of images found.
-    """
     try:
         text = file_path.read_text(errors="ignore")
     except Exception:
         return 0
-
     matches = BASE64_IMG_REGEX.finditer(text)
     count = 0
-
     for m in matches:
         ext = m.group("ext").lower()
         b64_data = m.group("data").replace("\n", "").replace("\r", "")
-
         try:
             img_bytes = base64.b64decode(b64_data, validate=False)
         except Exception:
             continue
-
         digest = hashlib.sha1(img_bytes).hexdigest()[:12]
         filename = f"{file_path.stem}_{digest}.{ext}"
         output_path = output_dir / filename
-
         with open(output_path, "wb") as f:
             f.write(img_bytes)
-
         count += 1
-
     return count
 
 
 def scan_and_extract(base_dir: Path, output_dir: Path) -> None:
-    """Recursively scan for .ipynb, .js, .html files and extract images."""
     output_dir.mkdir(exist_ok=True)
-
     target_exts = {".ipynb", ".js", ".html"}
     total_found = 0
-
     print(f"\n🔍 Scanning: {base_dir.resolve()}\n")
-
     for root, _, files in os.walk(base_dir):
         for fname in files:
             ext = Path(fname).suffix.lower()
             if ext not in target_exts:
                 continue
-
             fpath = Path(root) / fname
             found = extract_images_from_file(fpath, output_dir)
             total_found += found
-
             if found:
                 print(f"📸 Extracted {found} images from {fpath}")
-
     print(f"\n✅ Extraction complete. Total images saved: {total_found}")
 
 

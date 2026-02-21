@@ -1,14 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import contextlib
+from multiprocessing import Pool, cpu_count
 import os
 import tarfile
 import zipfile
-from multiprocessing import Pool, cpu_count
 
 import regex as re
 
 OUTPUT_FILE = "gitlinks.txt"
-
 ARCHIVE_EXTENSIONS = (
     ".zip",
     ".whl",
@@ -17,7 +16,6 @@ ARCHIVE_EXTENSIONS = (
     ".tar.xz",
     ".txz",
 )
-
 GIT_REGEX_BYTES = re.compile(
     rb'(?:https?://|git@|git://)[^\s\'"]+?\.git\b',
     re.IGNORECASE,
@@ -87,7 +85,6 @@ def process_archive(path):
 
 
 def worker(path):
-    """Worker function for multiprocessing."""
     try:
         if path.lower().endswith(ARCHIVE_EXTENSIONS):
             return process_archive(path)
@@ -108,18 +105,14 @@ def collect_files():
 def main() -> None:
     files = collect_files()
     print(f"Found {len(files)} files. Using {cpu_count()} CPU cores...")
-
     found_urls = set()
-
     with Pool(cpu_count()) as pool:
         for urls in pool.imap_unordered(worker, files):
             if urls:
                 found_urls |= urls
-
     with open(OUTPUT_FILE, "w") as out:
         for url in sorted(found_urls):
             out.write(url + "\n")
-
     print(f"\nExtracted {len(found_urls)} unique git URLs → {OUTPUT_FILE}")
 
 

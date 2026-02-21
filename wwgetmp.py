@@ -1,15 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-Multi-part parallel downloader with pause, resume, and auto-recovery.
-"""
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import math
 import os
 import signal
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
@@ -33,10 +29,8 @@ signal.signal(signal.SIGTERM, _signal_handler)
 def head_request(url: str) -> int:
     r = requests.head(url, allow_redirects=True, timeout=10)
     r.raise_for_status()
-
     if r.headers.get("Accept-Ranges") != "bytes":
         raise RuntimeError("Server does not support range requests")
-
     return int(r.headers["Content-Length"])
 
 
@@ -74,9 +68,7 @@ def download_part(
 ):
     part_path = f"{output}.part{part_id}"
     downloaded = meta.get(str(part_id), start)
-
     headers = {"Range": f"bytes={downloaded}-{end}"}
-
     for attempt in range(MAX_RETRIES):
         try:
             with requests.get(url, headers=headers, stream=True, timeout=15) as r:
@@ -119,7 +111,6 @@ def download(url: str, output: str, workers: int):
     size = head_request(url)
     parts = build_parts(size)
     meta = load_meta(meta_path)
-
     try:
         with ThreadPoolExecutor(max_workers=workers) as pool:
             futures = []
@@ -137,15 +128,12 @@ def download(url: str, output: str, workers: int):
                         meta,
                     )
                 )
-
             for f in as_completed(futures):
                 f.result()
-
     except GracefulExit:
         save_meta(meta_path, meta)
         print("\nPaused. Resume by re-running.")
         sys.exit(0)
-
     save_meta(meta_path, meta)
     merge_parts(output, parts)
     cleanup(output, parts, meta_path)
@@ -156,9 +144,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python multipart_downloader.py <url> <output> [workers]")
         sys.exit(1)
-
     url = sys.argv[1]
     output = sys.argv[2]
     workers = int(sys.argv[3]) if len(sys.argv) > 3 else 4
-
     download(url, output, workers)

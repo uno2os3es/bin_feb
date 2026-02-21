@@ -45,10 +45,8 @@ def process_file(filepath, inplace=False, keep_strings=False):
     ]:
         print(f"Unsupported file type: {ext}")
         return
-
     with open(filepath) as f:
         content = f.read()
-
     cleaned = remove_comments_and_strings(content, ext, keep_strings)
     if inplace:
         with open(filepath, "w") as f:
@@ -82,7 +80,6 @@ if __name__ == "__main__":
         help="Keep strings in the output",
     )
     args = parser.parse_args()
-
     for filepath in args.files:
         process_file(
             filepath,

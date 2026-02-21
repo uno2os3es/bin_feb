@@ -1,23 +1,19 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import csv
 import json
-import sys
 from pathlib import Path
+import sys
 
 
 def csv_to_json(csv_file):
     csv_path = Path(csv_file)
-
     if not csv_path.exists():
         print(f"Error: file not found: {csv_path}")
         sys.exit(1)
-
     json_path = csv_path.with_suffix(".json")
-
     with csv_path.open(newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         data = list(reader)
-
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(
             data,
@@ -26,7 +22,6 @@ def csv_to_json(csv_file):
             ensure_ascii=False,
             sort_keys=True,
         )
-
     print(f"Converted (pretty JSON): {csv_path} → {json_path}")
 
 
@@ -34,7 +29,6 @@ def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} <file.csv>")
         sys.exit(1)
-
     csv_to_json(sys.argv[1])
 
 

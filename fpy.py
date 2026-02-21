@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from io import StringIO
 import sys
 import tokenize
-from io import StringIO
 
 import regex as re
 
@@ -45,23 +45,18 @@ def is_python_like(line) -> bool:
         return True
     if re.match(r"\s*@[A-Za-z_]\w*", line):
         return True
-    if re.match(r"\s*import\b|\s*from\b", line):
-        return True
-    return False
+    return bool(re.match(r"\s*import\b|\s*from\b", line))
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python fpy.py <filename>")
         sys.exit(1)
-
     fname = sys.argv[1]
-
     try:
         with open(fname) as f:
             lines = f.readlines()
         filtered = []
-
         for line in lines:
             if is_python_like(line) or looks_like_python(line) or is_probably_python(line):
                 filtered.append(line)
@@ -70,7 +65,6 @@ if __name__ == "__main__":
             for l in filtered:
                 f.write(l)
                 f.write("\n")
-
     except FileNotFoundError:
         print(f"Error: File '{fname}' not found.")
     except Exception as e:

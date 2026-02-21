@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import os
 from multiprocessing import Pool
+import os
 from pathlib import Path
 from time import perf_counter
 
@@ -12,19 +12,16 @@ def process_file(path) -> str:
     try:
         with open(path, encoding="utf-8") as f:
             content = f.read()
-
         if path.suffix == ".css" or ".min.css" in path.name:
             minified = cssmin(content)
         else:
             return f"SKIP (unknown type) → {path}"
-
         if len(minified) == len(content):
             return f"[NO CHANGE] {path.name}"
         else:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(minified)
             return f"[OK] {path.name}"
-
     except Exception as e:
         return f"[ERROR] ({path}): {e}"
 
@@ -43,11 +40,9 @@ def collect_files() -> list:
 def main() -> None:
     s = perf_counter()
     files = collect_files()
-
     if not files:
         print("No CSS files found.")
         return
-
     print(f"Found {len(files)} files. Starting multiprocessing...")
     with Pool(8) as pool:
         for result in pool.imap_unordered(process_file, files):

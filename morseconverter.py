@@ -46,7 +46,6 @@ REVERSE_MORSE_DICT = {v: k for k, v in MORSE_CODE_DICT.items()}
 
 
 def text_to_morse(text):
-    """Convert text to Morse code."""
     morse = []
     for char in text.upper():
         if char in MORSE_CODE_DICT:
@@ -57,7 +56,6 @@ def text_to_morse(text):
 
 
 def morse_to_text(morse):
-    """Convert Morse code to text."""
     text = []
     morse_chars = morse.split(" ")
     for code in morse_chars:
@@ -69,7 +67,6 @@ def morse_to_text(morse):
 
 
 def encrypt_file(input_filename, output_filename) -> None:
-    """Read file and convert to Morse code."""
     try:
         with pathlib.Path(input_filename).open("r", encoding="utf-8") as infile:
             content = infile.read()
@@ -83,7 +80,6 @@ def encrypt_file(input_filename, output_filename) -> None:
 
 
 def decrypt_file(input_filename, output_filename) -> None:
-    """Read Morse code file and convert to text."""
     try:
         with pathlib.Path(input_filename).open("r", encoding="utf-8") as infile:
             morse_content = infile.read()

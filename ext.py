@@ -1,15 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-Recursive extractor of top-level & nested classes/functions + top-level constants.
-Excludes directories: test, tests, examples.
-Outputs:
- - output/classes.py
- - output/functions.py
- - output/nested_classes.py
- - output/nested_functions.py
- - output/const.py
-"""
-
 import ast
 import multiprocessing as mp
 import os
@@ -79,53 +68,42 @@ def extract_from_file(
         tree = ast.parse(source)
     except Exception:
         return path, {}, {}, {}, {}, {}
-
     mark_parents(tree)
-
     tl_classes, tl_funcs = {}, {}
     nested_classes, nested_funcs = {}, {}
     consts = {}
-
     for node in ast.walk(tree):
         if isinstance(node, (ast.ClassDef, ast.FunctionDef)):
             src = ast.get_source_segment(source, node)
             if not src:
                 continue
-
             parent = getattr(node, "_parent", None)
             is_toplevel = isinstance(parent, ast.Module)
-
             if isinstance(node, ast.ClassDef):
                 if is_toplevel:
                     tl_classes[node.name] = src
                 else:
                     nested_classes[node.name] = src
-
             elif isinstance(node, ast.FunctionDef):
                 if is_toplevel:
                     tl_funcs[node.name] = src
                 else:
                     nested_funcs[node.name] = src
-
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             parent = getattr(node, "_parent", None)
             if not isinstance(parent, ast.Module):
                 continue
-
             if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
                 name = node.targets[0].id
             elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
                 name = node.target.id
             else:
                 continue
-
             if not is_constant_name(name):
                 continue
-
             src = ast.get_source_segment(source, node)
             if src:
                 consts[name] = src
-
     return (
         path,
         tl_classes,
@@ -145,25 +123,20 @@ def write_output(path: str, data: dict[str, str]) -> None:
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     files = discover_python_files()
-
     if not files:
         print("No Python files found.")
         return
-
     with mp.Pool(mp.cpu_count()) as pool:
         results = pool.map(extract_from_file, files)
-
     tl_classes, tl_funcs = {}, {}
     nested_classes, nested_funcs = {}, {}
     const_map = {}
-
     for _, c, f, nc, nf, consts in results:
         tl_classes.update(c)
         tl_funcs.update(f)
         nested_classes.update(nc)
         nested_funcs.update(nf)
         const_map.update(consts)
-
     write_output(
         os.path.join(OUTPUT_DIR, "classes.py"),
         tl_classes,
@@ -184,27 +157,21 @@ def main():
         os.path.join(OUTPUT_DIR, "const.py"),
         const_map,
     )
-
     print("\n=== Top-Level Classes ===")
     for n in sorted(tl_classes):
         print(" -", n)
-
     print("\n=== Top-Level Functions ===")
     for n in sorted(tl_funcs):
         print(" -", n)
-
     print("\n=== Nested Classes ===")
     for n in sorted(nested_classes):
         print(" -", n)
-
     print("\n=== Nested Functions ===")
     for n in sorted(nested_funcs):
         print(" -", n)
-
     print("\n=== Constants ===")
     for n in sorted(const_map):
         print(" -", n)
-
     print("\nOutputs saved to:", OUTPUT_DIR)
 
 

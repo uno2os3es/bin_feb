@@ -1,13 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import contextlib
 import multiprocessing
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import tarfile
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 
 BASE_DIR = Path.home() / "tmp" / "debs"
 BASE_DIR.mkdir(parents=True, exist_ok=True)
@@ -53,10 +53,8 @@ def copy_pkg_files(files, dest) -> None:
     for f in files:
         target = dest / f.lstrip("/")
         target.parent.mkdir(parents=True, exist_ok=True)
-        try:
+        with contextlib.suppress(Exception):
             shutil.copy2(f, target)
-        except Exception:
-            pass
 
 
 def build_tar_xz(source_dir, output_path) -> None:
@@ -67,13 +65,10 @@ def build_tar_xz(source_dir, output_path) -> None:
 def build_deb(pkg_dir, output_deb) -> None:
     debian_binary = pkg_dir / "debian-binary"
     debian_binary.write_text("2.0\n")
-
     control_tar = pkg_dir / "control.tar.xz"
     data_tar = pkg_dir / "data.tar.xz"
-
     build_tar_xz(pkg_dir / "DEBIAN", control_tar)
     build_tar_xz(pkg_dir / "files", data_tar)
-
     subprocess.run(
         f"ar r {output_deb} {debian_binary} {control_tar} {data_tar}",
         shell=True,
@@ -87,23 +82,17 @@ def process_package(pkg) -> str | None:
         if pkg_dir.exists():
             shutil.rmtree(pkg_dir)
         pkg_dir.mkdir()
-
         files_dir = pkg_dir / "files"
         debian_dir = pkg_dir / "DEBIAN"
         files_dir.mkdir()
         debian_dir.mkdir()
-
         meta = get_package_metadata(pkg)
         files = get_package_files(pkg)
-
         copy_pkg_files(files, files_dir)
         create_control_file(debian_dir, meta)
-
         output_deb = BASE_DIR / f"{pkg}.deb"
         build_deb(pkg_dir, output_deb)
-
         return f"[✔] {pkg} → {output_deb}"
-
     except Exception as e:
         return f"[✖] {pkg} FAILED: {e}"
 
@@ -117,14 +106,10 @@ def main() -> None:
         help="Number of parallel workers",
     )
     args = parser.parse_args()
-
     pkgs = ["tor"]
-
     print(f"[+] Building {len(pkgs)} packages using {args.workers} workers…\n")
-
     with ThreadPoolExecutor(max_workers=args.workers) as executor:
         futures = {executor.submit(process_package, pkg): pkg for pkg in pkgs}
-
         for future in as_completed(futures):
             print(future.result())
 

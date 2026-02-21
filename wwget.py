@@ -1,15 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-Parallel resumable file downloader with pause, resume, and auto-recovery.
-"""
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
 import signal
 import sys
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
@@ -79,9 +75,7 @@ def download_chunk(
     downloaded = meta.get(str(start), start)
     if downloaded > end:
         return
-
     headers = {"Range": f"bytes={downloaded}-{end}"}
-
     for attempt in range(MAX_RETRIES):
         try:
             with requests.get(url, headers=headers, stream=True, timeout=15) as r:
@@ -106,11 +100,9 @@ def download(url: str, output: str, workers: int = 4):
     meta_path = output + ".meta"
     size, _ = head_request(url)
     init_files(output, size)
-
     meta = load_meta(meta_path)
     meta_lock = threading.Lock()
     chunks = build_chunks(size)
-
     try:
         with ThreadPoolExecutor(max_workers=workers) as pool:
             futures = []
@@ -126,17 +118,13 @@ def download(url: str, output: str, workers: int = 4):
                         meta_lock,
                     )
                 )
-
             for f in as_completed(futures):
                 f.result()
-
     except GracefulExit:
         save_meta(meta_path, meta)
         print("\nPaused. Resume by re-running the script.")
         sys.exit(0)
-
     save_meta(meta_path, meta)
-
     if os.path.getsize(output) == size:
         os.remove(meta_path)
         print("Download completed successfully.")
@@ -146,9 +134,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python downloader.py <url> <output_file> [workers]")
         sys.exit(1)
-
     url = sys.argv[1]
     output = sys.argv[2]
     workers = int(sys.argv[3]) if len(sys.argv) > 3 else 4
-
     download(url, output, workers)

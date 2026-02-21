@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 from collections import deque
 from multiprocessing import Pool
 from pathlib import Path
@@ -35,7 +34,6 @@ def process_file(fp):
             return f"[OK] {txtfile.name} created."
         else:
             return f"{fp.name} : no text"
-
     except Exception as e:
         return f"[ERROR] {e}"
 
@@ -49,7 +47,6 @@ def main():
             continue
         if path.is_file() and path.suffix in IMG_EXT:
             files.append(path)
-
     with Pool(8) as p:
         pending = deque()
         for f in files:
@@ -58,7 +55,6 @@ def main():
                 print(pending.popleft().get())
         while pending:
             print(pending.popleft().get())
-
     print(f"{perf_counter() - start} sec")
 
 

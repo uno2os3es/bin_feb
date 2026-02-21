@@ -1,9 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-Script to replace 'import re' with 'import regex as re' in all Python files recursively.
-Supports both .py files and extensionless Python scripts.
-"""
-
 import os
 from pathlib import Path
 
@@ -11,18 +6,8 @@ import regex as re
 
 
 def is_python_file(file_path):
-    """
-    Check if a file is a Python file by extension or shebang.
-
-    Args:
-        file_path: Path to the file
-
-    Returns:
-        bool: True if file is a Python file, False otherwise
-    """
     if file_path.suffix == ".py":
         return True
-
     if file_path.suffix == "":
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -35,26 +20,14 @@ def is_python_file(file_path):
             IsADirectoryError,
         ):
             return False
-
     return False
 
 
 def process_file(file_path):
-    """
-    Process a single Python file to replace import statements.
-
-    Args:
-        file_path: Path to the Python file
-
-    Returns:
-        bool: True if file was modified, False otherwise
-    """
     try:
         with open(file_path, encoding="utf-8") as f:
             content = f.read()
-
         original_content = content
-
         replacement = r"^(\s*)import\s+re\s*($|#)"
         pattern = r"\1import regex as re\2"
         content = re.sub(
@@ -63,55 +36,39 @@ def process_file(file_path):
             content,
             flags=re.MULTILINE,
         )
-
         if content != original_content:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return True
-
         return False
-
     except Exception as e:
         print(f"Error processing {file_path}: {e}")
         return False
 
 
 def find_and_process_python_files(root_dir="."):
-    """
-    Find all Python files recursively and process them.
-
-    Args:
-        root_dir: Root directory to start searching (default: current directory)
-    """
     root_path = Path(root_dir)
     modified_files = []
     total_files = 0
-
     skip_dirs = {".git"}
-
     for item in root_path.rglob("*"):
         if item.is_dir():
             continue
-
         if any(part in skip_dirs or part.startswith(".") for part in item.parts):
             continue
-
         if is_python_file(item):
             total_files += 1
             file_type = "(.py)" if item.suffix == ".py" else "(no ext)"
             print(f"Processing {file_type}: {item}")
-
             if process_file(item):
                 modified_files.append(item)
                 print("  ✓ Modified")
             else:
                 print("  - No changes needed")
-
     print("\n" + "=" * 60)
     print("Summary:")
     print(f"  Total Python files processed: {total_files}")
     print(f"  Files modified: {len(modified_files)}")
-
     if modified_files:
         print("\nModified files:")
         for file in modified_files:
@@ -119,7 +76,6 @@ def find_and_process_python_files(root_dir="."):
 
 
 def main():
-    """Main function with command-line argument support."""
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -136,15 +92,11 @@ def main():
         default=".",
         help="Directory to process (default: current directory)",
     )
-
     args = parser.parse_args()
-
     print("processing '...")
     print(f"{os.path.abspath(args.directory)}\n")
-
     if args.dry_run:
         print("\n*** DRY RUN MODE - No files will be modified ***\n")
-
     find_and_process_python_files(args.directory)
     print("\nDone!")
 

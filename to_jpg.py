@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import time
 from multiprocessing import Pool
 from pathlib import Path
 
@@ -17,34 +16,27 @@ except ImportError:
     from PIL import Image
 
     USE_CV2 = False
-
 IGNORED_DIRS = {
     ".git",
 }
 
 
 def convert_file(file_path: str) -> bool:
-    """Convert an image to JPG, handling transparency with a white background."""
     path = Path(file_path)
     if not path.is_file():
         print(f"Skipping: {path.name} (Unsupported format or not a file)")
         return False
-
     if path.suffix.lower() == ".jpg":
         return True
-
     output_path = path.with_suffix(".jpg")
-
     if output_path.exists():
-        ouput_path = unique_path(output_path)
-
+        unique_path(output_path)
     try:
         if USE_CV2:
             img = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
             if img is None:
                 print(f"Error: Could not decode {path.name}")
                 return False
-
             if img.shape[2] == 4:
                 b, g, r, a = cv2.split(img)
                 white_bg = np.full(
@@ -59,7 +51,6 @@ def convert_file(file_path: str) -> bool:
                 final_img = cv2.merge((img_b, img_g, img_r))
             else:
                 final_img = img
-
             success = cv2.imwrite(
                 str(output_path),
                 final_img,
@@ -82,7 +73,6 @@ def convert_file(file_path: str) -> bool:
                 final_img = img
             final_img.save(output_path, "JPEG", quality=95)
             success = True
-
         if success:
             path.unlink()
             print(f"Successfully converted '{path.name}' to jpg.")
@@ -90,7 +80,6 @@ def convert_file(file_path: str) -> bool:
         else:
             print(f"Failed to write '{output_path.name}'")
             return False
-
     except Exception as e:
         print(f"Error converting '{path.name}': {e}")
         return False
@@ -101,7 +90,6 @@ def main() -> None:
     p.add_argument("files", nargs="*")
     args = p.parse_args()
     start_size = folder_size(".")
-
     if args.files:
         files = [Path(f) for f in args.files if Path(f).is_file() and is_image(f)]
     else:
@@ -110,13 +98,10 @@ def main() -> None:
             for f in Path(".").rglob("*")
             if f.is_file() and is_image(f) and not any(part in IGNORED_DIRS for part in f.parts)
         ]
-
     if not files:
         print("No image files detected.")
         return
-
     print(f"converting {len(files)} files...")
-
     pool = Pool(8)
     pool.imap_unordered(convert_file, files)
     pool.close()

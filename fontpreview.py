@@ -58,7 +58,6 @@ def main() -> None:
     html_content = generate_html(fonts)
     with pathlib.Path(OUTPUT_HTML).open("w", encoding="utf-8") as f:
         f.write(html_content)
-
     print("font-preview.html created.")
 
 

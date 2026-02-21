@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import os
 from pathlib import Path
 
@@ -11,7 +10,6 @@ static_dir = "/sdcard/_static"
 def fix_links(file_path):
     with open(file_path) as file:
         content = file.read()
-
     links = re.findall(r'href=[\'"]?([^\'" >]+)', content)
     for link in links:
         if not Path(link).exists():

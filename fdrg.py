@@ -1,25 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-Recursive string search utility with archive support.
-Uses fastwalk.walk (Rust jwalk-based) for fast, non-symlink traversal.
-"""
-
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import fnmatch
+from pathlib import Path
+from queue import Queue
 import tarfile
 import threading
 import zipfile
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
-from queue import Queue
 
 from fastwalk import walk_files
-
 
 pause_event = threading.Event()
 pause_event.set()
 results_queue = Queue()
-
 DEFAULT_EXCLUDED_DIRS = {
     ".git",
     "dist",
@@ -28,7 +21,6 @@ DEFAULT_EXCLUDED_DIRS = {
     "output",
 }
 DEFAULT_SKIPPED_EXTS = {".pyc", ".log", ".bak"}
-
 ARCHIVE_EXTENSIONS = (
     ".tar.gz",
     ".tar",
@@ -82,12 +74,10 @@ def report_result(file_path, line_num=None):
 def search_in_file(file_path, search_string, search_content):
     pause_event.wait()
     results = []
-
     if not search_content:
         if search_string.lower() in file_path.name.lower():
             results.append((str(file_path), None))
         return results
-
     try:
         with open(
             file_path,
@@ -100,20 +90,17 @@ def search_in_file(file_path, search_string, search_content):
                     results.append((str(file_path), ln))
     except Exception:
         pass
-
     return results
 
 
 def extract_and_search_archive(archive_path, search_string, search_content):
     results = []
-
     try:
         if archive_path.suffix == ".zip" or archive_path.name.endswith((".whl", ".apk")):
             with zipfile.ZipFile(archive_path) as zf:
                 for member in zf.namelist():
                     pause_event.wait()
                     ref = f"{archive_path}::{member}"
-
                     if not search_content:
                         if search_string.lower() in member.lower():
                             results.append((ref, None))
@@ -134,16 +121,13 @@ def extract_and_search_archive(archive_path, search_string, search_content):
                                     results.append((ref, ln))
                         except Exception:
                             pass
-
         else:
             with tarfile.open(archive_path, "r:*") as tf:
                 for m in tf.getmembers():
                     pause_event.wait()
                     if not m.isfile():
                         continue
-
                     ref = f"{archive_path}::{m.name}"
-
                     if not search_content:
                         if search_string.lower() in m.name.lower():
                             results.append((ref, None))
@@ -173,7 +157,6 @@ def extract_and_search_archive(archive_path, search_string, search_content):
                             pass
     except Exception:
         pass
-
     return results
 
 
@@ -182,7 +165,6 @@ def process_file(path: Path, search_string, search_content):
         results = extract_and_search_archive(path, search_string, search_content)
     else:
         results = search_in_file(path, search_string, search_content)
-
     for r in results:
         report_result(*r)
 
@@ -199,21 +181,16 @@ def main():
         default=[],
         help="Exclude dir or glob (repeatable)",
     )
-
     args = parser.parse_args()
-
     excluded_dirs = DEFAULT_EXCLUDED_DIRS | {e for e in args.exclude if not any(ch in e for ch in "*?[]")}
     excluded_patterns = {e for e in args.exclude if any(ch in e for ch in "*?[]")}
-
     setup_keyboard_listener()
-
     root = Path(args.directory).resolve()
     print(f"[INFO] Root: {root}")
     print(f"[INFO] Mode: {'content' if args.content else 'filename'}")
     print(f"[INFO] Excluded dirs: {sorted(excluded_dirs)}")
     print(f"[INFO] Excluded patterns: {sorted(excluded_patterns)}")
     print("=" * 80)
-
     files = []
     for pth in walk_files(root):
         path = Path(pth)
@@ -228,9 +205,7 @@ def main():
         ):
             continue
         files.append(path)
-
     print(f"[INFO] Files queued: {len(files)}\n")
-
     with ThreadPoolExecutor(max_workers=8) as ex:
         futures = [
             ex.submit(
@@ -243,7 +218,6 @@ def main():
         ]
         for _f in as_completed(futures):
             pass
-
     print(f"[INFO] Total results: {results_queue.qsize()}")
 
 

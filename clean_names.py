@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
 import os
-import sys
 from pathlib import Path
+import sys
 
 import regex as re
 
@@ -11,8 +11,6 @@ try:
 except ImportError:
     print("Install termcolor: pip install termcolor")
     sys.exit(1)
-
-
 REGEX_RULES = [
     r"\bOutcast\b",
     r"\bS\d{2}\b",
@@ -22,7 +20,6 @@ REGEX_RULES = [
     r"\bx264\b",
     r"-REWARD_HI",
 ]
-
 EXTENSIONS = {".srt", ".mkv", ".mp4", ".avi"}
 
 
@@ -51,38 +48,29 @@ def main():
     ap.add_argument("-r", "--recursive", action="store_true", help="scan recursively")
     ap.add_argument("-w", "--write", action="store_true", help="actually rename files")
     args = ap.parse_args()
-
     files = collect_files(Path("."), args.recursive)
     if not files:
         print("No matching files found")
         return
-
     names = [f.name for f in files]
     prefix = common_prefix(names)
     suffix = common_suffix(names)
-
     print(colored("\nPreview:", "cyan", attrs=["bold"]))
-
     for f in files:
         name = f.name
         core = name[len(prefix) : len(name) - len(suffix)]
         core = apply_regex(core)
-
         new_name = f"{f.stem.split('.')[0]}.{core}{f.suffix}"
         new_name = re.sub(r"\.+", ".", new_name)
-
         if name == new_name:
             continue
-
         print(colored("OLD:", "red"), name, colored("-> NEW:", "green"), new_name)
-
         if args.write:
             target = f.with_name(new_name)
             if target.exists():
                 print(colored("SKIPPED (exists)", "yellow"), new_name)
             else:
                 f.rename(target)
-
     if not args.write:
         print(colored("\nDry-run only. Use -w to apply changes.", "yellow"))
 

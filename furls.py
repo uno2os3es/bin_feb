@@ -6,17 +6,16 @@ import os
 import sys
 import tarfile
 import tempfile
-import zipfile
 from time import perf_counter
+import zipfile
 
-import regex as re
 from dh import is_valid_url
+import regex as re
 
 try:
     import zstandard as zstd
 except Exception:
     zstd = None
-
 DEFAULT_MAX_MB = 50
 EXCLUDE_DIRS = {
     ".git",
@@ -28,12 +27,10 @@ EXCLUDE_DIRS = {
     "build",
     "dist",
 }
-
 URL_RE = re.compile(
     r'(https?://[^\s\'"<>\\)\\(]+)',
     flags=re.IGNORECASE,
 )
-
 ARCHIVE_SUFFIXES = (
     ".tar.gz",
     ".tgz",
@@ -46,7 +43,6 @@ ARCHIVE_SUFFIXES = (
     ".zip",
     ".whl",
 )
-
 TEXT_MIME_LIKE = {
     ".txt",
     ".md",
@@ -88,9 +84,6 @@ def decode_bytes_to_text(b):
 
 
 def scan_bytes_for_urls(b, max_bytes, exts, name_hint=None):
-    """
-    Scan bytes for URLs. If exts is provided, and name_hint has an extension not in exts, skip.
-    """
     if exts is not None and name_hint:
         _, ext = os.path.splitext(name_hint)
         if ext and ext.lower() not in exts:
@@ -107,11 +100,6 @@ def is_archive_name(name):
 
 
 def open_tar_from_zst_path(path):
-    """
-    Decompress a .tar.zst file to a temporary file and open it with tarfile.
-    Returns an open TarFile object and the temporary file (so caller can close/remove).
-    If zstandard is not available, returns (None, None).
-    """
     if zstd is None:
         return None, None
     temp = tempfile.TemporaryFile()
@@ -145,9 +133,6 @@ def process_zipfile_zipped(
     recursion_depth,
     max_recursion,
 ):
-    """
-    Iterate members in a ZipFile object, scan regular files, and recursively handle nested archives.
-    """
     for zi in zipf.infolist():
         if zi.is_dir():
             continue
@@ -231,10 +216,6 @@ def process_bytes_as_archive(
     recursion_depth=0,
     max_recursion=3,
 ):
-    """
-    Given bytes and a filename hint, try to treat bytes as an archive and extract/scan members.
-    recursion_depth prevents infinite recursion in nested archives.
-    """
     lname = name.lower()
     bio = io.BytesIO(b)
     try:
@@ -357,16 +338,12 @@ def process_path(
     found,
     recursion_limit=999,
 ):
-    """
-    Process a filesystem path: if it's a regular file, scan it; if it's a supported archive, open and scan members.
-    """
     try:
         size = os.path.getsize(path)
     except Exception:
         return
     if size > max_bytes and not is_archive_name(path):
         return
-
     lname = path.lower()
     try:
         if any(lname.endswith(suf) for suf in (".zip", ".whl")):
@@ -383,7 +360,6 @@ def process_path(
                 return
             except zipfile.BadZipFile:
                 pass
-
         if any(
             lname.endswith(suf)
             for suf in (
@@ -409,7 +385,6 @@ def process_path(
                 return
             except (tarfile.ReadError, EOFError):
                 pass
-
         if lname.endswith(".tar.zst"):
             if zstd is None:
                 try:
@@ -444,7 +419,6 @@ def process_path(
                 with contextlib.suppress(Exception):
                     tmpf.close()
             return
-
         with open(path, "rb") as fh:
             b = fh.read(max_bytes + 1)
             found.update(
@@ -490,10 +464,8 @@ def main():
         help="Max nested-archive recursion depth (default 999).",
     )
     args = parser.parse_args()
-
     max_bytes = int(args.max_mb * 1024 * 1024)
     exts = {e.strip().lower() for e in args.extensions.split(",") if e.strip()} if args.extensions else None
-
     found = set()
     for root, dirs, files in os.walk(".", topdown=True, followlinks=False):
         dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
@@ -509,7 +481,6 @@ def main():
                 found,
                 recursion_limit=args.max_recursion,
             )
-
     sorted_urls = sorted(found)
     try:
         if os.path.exists(args.output):

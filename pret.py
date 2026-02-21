@@ -7,7 +7,6 @@ from dh import file_size, folder_size, format_size, run_command
 from fastwalk import walk_files
 
 MAX_IN_FLIGHT = 16
-
 FILE_EXTENSIONS = {
     ".js",
     ".css",
@@ -52,20 +51,15 @@ def main() -> None:
     if not jfiles:
         print("No files found.")
         return
-
     print(f"Formatting {len(jfiles)} files usin mp...")
     with Pool(8) as p:
         pending = deque()
-
         for f in jfiles:
             pending.append(p.apply_async(format_file, (f,)))
-
             if len(pending) >= MAX_IN_FLIGHT:
                 pending.popleft().get()
-
         while pending:
             pending.popleft().get()
-
     end = folder_size(".")
     print(f"{format_size(start - end)}")
 

@@ -1,25 +1,18 @@
 #!/usr/bin/env python3
-import os
-import stat
 from pathlib import Path
+import stat
 
 
 def has_shebang(path: Path) -> bool:
-    """
-    Return True if file starts with a shebang (#!).
-    """
     try:
         with path.open("rb") as f:
-            first_two = f.read(2)
-            return first_two == b"#!"
+            first_three = f.read(3)
+            return first_three == b"#!/"
     except (OSError, PermissionError):
         return False
 
 
 def make_executable(path: Path) -> None:
-    """
-    Add executable bits (user/group/other) while preserving existing perms.
-    """
     current_mode = path.stat().st_mode
     executable_bits = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
     new_mode = current_mode | executable_bits
@@ -27,13 +20,9 @@ def make_executable(path: Path) -> None:
 
 
 def process_directory(root: Path) -> None:
-    """
-    Recursively process files in root directory.
-    """
     for path in root.rglob("*"):
         if not path.is_file():
             continue
-
         if has_shebang(path):
             mode = path.stat().st_mode
             if not (mode & stat.S_IXUSR):

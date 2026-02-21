@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 from pathlib import Path
 
 OLD = {
@@ -18,12 +17,10 @@ def fix_file(path: Path) -> bool:
     lines = text.splitlines()
     if not lines:
         return False
-
     if any(lines[0] == p for p in OLD):
         lines[0] = NEW
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         return True
-
     return False
 
 
@@ -33,7 +30,6 @@ def main() -> None:
         if fix_file(file):
             fixed += 1
             print(f"Updated: {file}")
-
     print(f"\nDone. Updated {fixed} files.")
 
 

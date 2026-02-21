@@ -1,17 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-path: ./extract_urls.py
-"""
-
 from __future__ import annotations
 
+from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import tarfile
 import threading
-import zipfile
-from collections.abc import Iterable
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlparse, urlunparse
+import zipfile
 
 import regex as re
 
@@ -19,13 +15,9 @@ try:
     import zstandard as zstd
 except Exception:
     zstd = None
-
 URL_RE = re.compile(r"""(https?://[^\s<>"\']+|\bwww\.[^\s<>"\']+\b|\b[^\s<>"\']+\.(com|net|org)[^\s<>"\']*)""")
-
 GITHUB_RE = re.compile(r"(?i)github\.com")
-
 MAX_WORKERS = os.cpu_count() or 4
-
 all_urls: set[str] = set()
 git_urls: set[str] = set()
 git_urls_classified: dict[str, set[str]] = {
@@ -37,7 +29,6 @@ git_urls_classified: dict[str, set[str]] = {
     "clone": set(),
     "other": set(),
 }
-
 lock = threading.Lock()
 
 
@@ -46,12 +37,9 @@ def normalize_url(url: str) -> str:
         p = urlparse(url)
         scheme = p.scheme.lower()
         netloc = p.netloc.lower()
-
         if (scheme == "http" and netloc.endswith(":80")) or (scheme == "https" and netloc.endswith(":443")):
             netloc = netloc.rsplit(":", 1)[0]
-
         path = p.path.rstrip("/") or "/"
-
         return urlunparse(
             (
                 scheme,
@@ -70,7 +58,6 @@ def classify_github_url(url: str) -> str:
     try:
         p = urlparse(url)
         path = p.path.lower()
-
         if p.netloc.startswith("raw.githubusercontent.com"):
             return "raw"
         if url.endswith(".git"):
@@ -81,11 +68,9 @@ def classify_github_url(url: str) -> str:
             return "pull"
         if "/releases" in path:
             return "release"
-
         parts = [x for x in path.split("/") if x]
         if len(parts) >= 2:
             return "repo"
-
         return "other"
     except Exception:
         return "other"
@@ -105,7 +90,6 @@ def handle_file_bytes(data: bytes) -> None:
     urls = extract_urls_from_bytes(data)
     if not urls:
         return
-
     with lock:
         for u in urls:
             all_urls.add(u)
@@ -153,7 +137,6 @@ def process_tar(path: str) -> None:
 def process_tar_zst(path: str) -> None:
     if not zstd:
         return
-
     try:
         with open(path, "rb") as f:
             dctx = zstd.ZstdDecompressor()
@@ -173,7 +156,6 @@ def process_tar_zst(path: str) -> None:
 
 def process_path(path: str) -> None:
     p = path.lower()
-
     if p.endswith((".zip", ".whl")):
         process_zip(path)
     elif p.endswith((".tar.gz", ".tgz", ".tar.xz", ".tar.bz2")):
@@ -192,16 +174,13 @@ def iter_files(root: str) -> Iterable[str]:
 
 def main() -> None:
     files = list(iter_files("."))
-
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
         futures = [ex.submit(process_path, f) for f in files]
         for _ in as_completed(futures):
             pass
-
     with open("/sdcard/urls.txt", "a", encoding="utf-8") as f:
         for u in sorted(all_urls):
             f.write(u + "\n")
-
     with open(
         "/sdcard/giturls.txt",
         "a",
@@ -209,7 +188,6 @@ def main() -> None:
     ) as f:
         for u in sorted(git_urls):
             f.write(u + "\n")
-
     with open(
         "/sdcard/giturls_classified.txt",
         "a",

@@ -1,15 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import shutil
 from pathlib import Path
+import shutil
 
 BASE_DIR = Path.cwd()
-
 for item in BASE_DIR.iterdir():
     if not item.is_file():
         continue
-
     ext = item.suffix.lower().lstrip(".") or "no_extension"
     target_dir = BASE_DIR / ext
     target_dir.mkdir(exist_ok=True)
-
     shutil.move(str(item), target_dir / item.name)

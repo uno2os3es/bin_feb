@@ -1,21 +1,17 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 # === One-cell Colab notebook: export site-packages ===
-
 import os
+from pathlib import Path
 import shutil
 import site
 import zipfile
-from pathlib import Path
 
 from google.colab import drive
 
 drive.mount("/content/drive")
-
 site_pkgs = Path(site.getsitepackages()[0])
-
 out_dir = Path("/content/drive/MyDrive/wheels")
 out_dir.mkdir(parents=True, exist_ok=True)
-
 EXCLUDE_PREFIXES = ("setuptools", "pip")
 
 
@@ -25,17 +21,13 @@ def excluded(name: str) -> bool:
 
 copied_files = 0
 zipped_dirs = 0
-
 for entry in site_pkgs.iterdir():
     name = entry.name
-
     if excluded(name):
         continue
-
     if entry.is_file():
         shutil.copy2(entry, out_dir / name)
         copied_files += 1
-
     elif entry.is_dir():
         zip_path = out_dir / f"{name}.zip"
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -48,7 +40,6 @@ for entry in site_pkgs.iterdir():
                             fp.relative_to(site_pkgs),
                         )
         zipped_dirs += 1
-
 print("Export completed successfully.")
 print(f"Site-packages source : {site_pkgs}")
 print(f"Output directory     : {out_dir}")

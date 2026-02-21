@@ -6,7 +6,6 @@ import requests
 
 
 def normalize_repo_address(repo_arg: str) -> str:
-    """Convert input to 'user/repo' format."""
     if repo_arg.startswith("http://") or repo_arg.startswith("https://"):
         parts = repo_arg.rstrip("/").split("/")
         if len(parts) >= 5:
@@ -20,7 +19,6 @@ def normalize_repo_address(repo_arg: str) -> str:
 
 
 def get_repo_size(repo: str) -> int:
-    """Fetch repo size in KB using GitHub API."""
     url = f"https://api.github.com/repos/{repo}"
     response = requests.get(url)
     if response.status_code == 200:
@@ -33,7 +31,6 @@ def get_repo_size(repo: str) -> int:
 
 
 def get_branches(repo: str) -> list:
-    """Return list of branch names."""
     url = f"https://api.github.com/repos/{repo}/branches"
     response = requests.get(url)
     if response.status_code == 200:
@@ -44,7 +41,6 @@ def get_branches(repo: str) -> list:
 
 
 def get_branch_size(repo: str, branch: str) -> int:
-    """Estimate branch size by summing sizes of all files in default tree."""
     url = f"https://api.github.com/repos/{repo}/git/trees/{branch}?recursive=1"
     response = requests.get(url)
     if response.status_code == 200:
@@ -56,7 +52,6 @@ def get_branch_size(repo: str, branch: str) -> int:
 
 
 def format_size(kb: int) -> str:
-    """Return human-readable size."""
     mb = kb / 1024
     return f"{kb} KB ({mb:.2f} MB)"
 
@@ -70,7 +65,6 @@ def main() -> None:
         help="Show size of all branches",
     )
     args = parser.parse_args()
-
     try:
         repo = normalize_repo_address(args.repo)
         if args.all_branches:

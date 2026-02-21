@@ -16,7 +16,6 @@ def read_file(path):
 def collect_files(root):
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIRS]
-
         for fname in filenames:
             full = os.path.join(dirpath, fname)
             if os.path.abspath(full) == os.path.abspath(OUTPUT_FILE) or fname == os.path.basename(__file__):
@@ -27,7 +26,6 @@ def collect_files(root):
 def merge_files(root):
     files = list(collect_files(root))
     print(f"Found {len(files)} files")
-
     with open(OUTPUT_FILE, "w", encoding="utf-8") as fo:
         for i, path in enumerate(files, 1):
             content = read_file(path)
@@ -35,12 +33,9 @@ def merge_files(root):
                 continue
             fo.write(f"########### {path} ##########\n\n\n")
             fo.write(content)
-
             if i != len(files):
                 fo.write("\n\n\n")
-
             print(f"Added: {path}")
-
     print(f"\nsaved as: {OUTPUT_FILE}")
 
 
@@ -50,5 +45,4 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Merge files recursively into merged.txt")
     ap.add_argument("--path", default=".", help="Directory to scan")
     args = ap.parse_args()
-
     merge_files(args.path)

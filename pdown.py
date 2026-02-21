@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import subprocess
 import sys
 from time import perf_counter

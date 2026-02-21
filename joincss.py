@@ -1,13 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
-import contextlib
-import os
-import sys
-import tempfile
 from pathlib import Path
+import sys
 
-import regex as re
 from dh import atomic_write
+import regex as re
 
 LOCAL_FONT_BASE = Path("/sdcard/_static/fonts")
 FONT_EXTS = {".woff", ".woff2", ".ttf", ".otf", ".eot"}
@@ -21,7 +17,6 @@ FAMILY_RULES = {
     "fontawesome": "fa",
     "fa-": "fa",
 }
-
 URL_RE = re.compile(
     r'url\((["\']?)(https?://[^)]+?\.(?:woff2?|ttf|otf|eot))\1\)',
     re.I,
@@ -31,16 +26,13 @@ URL_RE = re.compile(
 def find_css(paths):
     seen = set()
     result = []
-
     for p in paths:
         p = Path(p)
-
         if p.is_file() and p.suffix.lower() == ".css":
             rp = p.resolve()
             if rp not in seen:
                 seen.add(rp)
                 result.append(rp)
-
         elif p.is_dir():
             pattern = "**/*.css"
             for f in sorted(p.glob(pattern)):
@@ -48,10 +40,8 @@ def find_css(paths):
                 if rp not in seen:
                     seen.add(rp)
                     result.append(rp)
-
         else:
             print(f"Skipping invalid path: {p}", file=sys.stderr)
-
     return result
 
 
@@ -70,33 +60,24 @@ def read_css(files):
         text = URL_RE.sub(localize_font_url, text)
         lines = text.splitlines()
         cleaned = []
-
         for line in lines:
             stripped = line.strip().lower()
-
             if stripped.startswith("@charset"):
                 if charset_line is None:
                     charset_line = line.strip()
                 continue
-
             cleaned.append(line)
-
         chunks.append((file, "\n".join(cleaned).strip()))
-
     return charset_line, chunks
 
 
 def join_css(files, output):
     charset, chunks = read_css(files)
-
     parts = []
-
     if charset:
         parts.append(charset + "\n")
-
     for file, content in chunks:
         parts.append(f"\n/* ===== {file.name} ===== */\n{content}\n")
-
     final_css = "\n".join(parts).strip() + "\n"
     atomic_write(output, final_css)
 
@@ -106,7 +87,6 @@ def main():
     if not files:
         print("No CSS files found.", file=sys.stderr)
         sys.exit(1)
-
     join_css(files, "merged.css")
     print(f"Joined {len(files)} files -> merged.css")
 

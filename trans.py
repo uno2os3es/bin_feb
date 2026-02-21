@@ -1,14 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""Translate a text file to English using deep-translator.
-Supports:
-- Auto language detection
-- Japanese, Korean, or any language supported by GoogleTranslator
-- Chunked translation to avoid API limits.
-"""
-
 import argparse
-import sys
 from pathlib import Path
+import sys
 
 from deep_translator import GoogleTranslator, single_detection
 
@@ -34,7 +27,6 @@ def chunk_text(text: str, size: int = CHUNK_SIZE) -> list[str]:
 
 
 def detect_lang(text: str) -> str:
-    """Auto language detection using deep-translator."""
     sample = text[:500]
     return single_detection(sample)
 
@@ -65,7 +57,6 @@ def main() -> None:
         help="Source lang code or 'auto'",
     )
     args = parser.parse_args()
-
     in_path = Path(args.input_path)
     if not in_path.exists():
         print(
@@ -73,15 +64,12 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
-
     try:
         text = read_text_file(in_path)
     except Exception as exc:
         print(f"Read error: {exc}", file=sys.stderr)
         sys.exit(1)
-
     chunks = chunk_text(text)
-
     src_lang = args.lang
     if src_lang == "auto":
         try:
@@ -92,7 +80,6 @@ def main() -> None:
                 file=sys.stderr,
             )
             sys.exit(1)
-
     try:
         translated = translate_chunks(chunks, src_lang)
     except Exception as exc:
@@ -101,14 +88,12 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
-
     out_path = build_output_path(in_path)
     try:
         write_text_file(out_path, translated)
     except Exception as exc:
         print(f"Write error: {exc}", file=sys.stderr)
         sys.exit(1)
-
     print(f"Translated ({src_lang} → en) → {out_path}")
 
 

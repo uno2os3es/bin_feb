@@ -106,12 +106,9 @@ commands = [
     "uu-whoami",
     "uu-yes",
 ]
-
 aliases_file = os.path.expanduser("~/.bash.d/.ba")
-
 with open(aliases_file, "a") as f:
     for cmd in commands:
         alias_name = cmd.replace("uu-", "")
         f.write(f'alias {alias_name}="{cmd}"\n')
-
 print(f"✅ Added {len(commands)} aliases to {aliases_file}")

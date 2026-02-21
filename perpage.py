@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import os
 from multiprocessing import Pool
+import os
 from pathlib import Path
 
 import pdfplumber
@@ -9,7 +9,6 @@ from termcolor import cprint
 
 def process_file(fp):
     i = 1
-
     with pdfplumber.open(fp) as pdf:
         numpages = len(pdf.pages)
         strn = len(str(numpages))
@@ -35,7 +34,6 @@ def process_file(fp):
                     fo.write("empty page")
                 cprint(f"page {i} is empty", "blue")
             i += 1
-
     del i
     del text
     del pages

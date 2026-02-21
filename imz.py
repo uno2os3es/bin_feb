@@ -1,23 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""Offline requirements.txt generator (full rewrite).
-
-Features:
-- archive support (.zip/.whl/.tar.gz/.tgz/.tar.xz)
-- notebooks (.ipynb)
-- shebang (no extension python scripts)
-- ignore paths
-- tqdm progress bar
-- import -> package mapping file support
-- stdlib exclusion
-- offline pip.txt verification
-- multiprocessing
-- persistent caching of file analysis
-- exclude local/project imports (relative and modules present in repo)
-- fully resolve namespace packages (top-level) with mapping fallback
-- trace `from module import *` by examining module sources for __all__ and internal imports
-- static detection of dynamic imports (importlib.import_module, __import__)
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -27,20 +8,19 @@ import hashlib
 import json
 import multiprocessing as mp
 import os
+from pathlib import Path
 import sys
 import tarfile
 import zipfile
-from pathlib import Path
 
-import regex as re
 from dh import PKG_MAPPING, STDLIB
+import regex as re
 from tqdm import tqdm
 
 CACHE_FILE = ".reqcache.json"
 
 
 def fast_hash(path: Path) -> str:
-    """Efficient hash: hash first 4KB + size + mtime to be quick."""
     try:
         h = hashlib.sha256()
         stat = path.stat()
@@ -88,7 +68,6 @@ def load_set_file(path: str) -> set[str]:
 
 
 def load_mapping(path: str) -> dict[str, str]:
-    """Mapping file: lines like `module=subpackage-package` or `pkg.submod=package-name`."""
     out: dict[str, str] = {}
     try:
         with open(
@@ -109,20 +88,12 @@ def load_mapping(path: str) -> dict[str, str]:
 
 
 def extract_from_ast(code: str, path_hint: str | None = None) -> dict[str, set[str]]:
-    """Parse Python source and extract:
-      - imports: top-level names imported (first component)
-      - star_imports: modules used in `from X import *`
-      - dynamic_imports: string literals used in importlib.import_module/__import__
-      - relative_imports: modules imported with level > 0 (local)
-    Returns a dict of sets.
-    """
     result = {
         "imports": set(),
         "star_modules": set(),
         "dynamic": set(),
         "relative": set(),
     }
-
     try:
         tree = ast.parse(code)
     except Exception:
@@ -132,13 +103,11 @@ def extract_from_ast(code: str, path_hint: str | None = None) -> dict[str, set[s
         ):
             result["dynamic"].add(m.group(1).split(".", 1)[0])
         return result
-
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for a in node.names:
                 first = a.name.split(".", 1)[0]
                 result["imports"].add(first)
-
         elif isinstance(node, ast.ImportFrom):
             if node.level and node.level > 0:
                 if node.module:
@@ -146,14 +115,12 @@ def extract_from_ast(code: str, path_hint: str | None = None) -> dict[str, set[s
                 else:
                     result["relative"].add(".")
                 continue
-
             if node.module:
                 base = node.module.split(".", 1)[0]
                 if any(name.name == "*" for name in node.names):
                     result["star_modules"].add(node.module)
                 else:
                     result["imports"].add(base)
-
         elif isinstance(node, ast.Call):
             if isinstance(node.func, ast.Name) and node.func.id == "__import__":
                 if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
@@ -174,7 +141,6 @@ def extract_from_ast(code: str, path_hint: str | None = None) -> dict[str, set[s
                     )
                 ):
                     result["dynamic"].add(node.args[0].value.split(".", 1)[0])
-
     return result
 
 
@@ -339,10 +305,8 @@ def process_tar_file(
 def process_raw(
     path: str,
 ) -> dict[str, list[str]]:
-    """Worker entry point. Returns a serializable dict with sets converted to lists."""
     p = Path(path)
     name = str(p).lower()
-
     if p.suffix == ".py":
         return process_py_file(p)
     if p.suffix == ".ipynb":
@@ -364,12 +328,6 @@ def process_raw(
 def build_project_module_map(
     sources: list[str],
 ) -> dict[str, list[str]]:
-    """Build a mapping of module dotted names -> file paths discovered in sources.
-    We attempt:
-      - path/to/pkg/mod.py -> pkg.mod
-      - path/to/pkg/__init__.py -> pkg
-    We include nested dotted names as possible matches.
-    """
     mapping: dict[str, list[str]] = {}
     for fp in sources:
         p = Path(fp)
@@ -392,10 +350,6 @@ def build_project_module_map(
 
 
 def trace_star_module(module: str, project_map: dict[str, list[str]]) -> set[str]:
-    """Given a module dotted path (e.g., "mypkg.submod"), attempt to find its source inside
-    the project map and extract imports and any names listed in __all__.
-    Returns a set of imported top-level names discovered inside that module.
-    """
     found_imports = set()
     candidates = []
     if module in project_map:
@@ -404,7 +358,6 @@ def trace_star_module(module: str, project_map: dict[str, list[str]]) -> set[str
     if top in project_map:
         candidates += project_map[top]
     candidates = list(dict.fromkeys(candidates))
-
     for fp in candidates:
         try:
             text = Path(fp).read_text(encoding="utf-8", errors="ignore")
@@ -452,15 +405,6 @@ def resolve_packages(
     pip_available: set[str],
     project_toplevels: set[str],
 ) -> set[str]:
-    """Map import names -> package names which should be placed into requirements.txt.
-
-    Rules:
-    - Skip if in stdlib
-    - Skip if in project_toplevels (local module present)
-    - Apply mapping: exact match or submodule match
-    - Normalize to top-level package (first component) when appropriate
-    - Keep only packages that appear in pip_available (offline list), otherwise still include them (option)
-    """
     out = set()
     for imp in imports:
         if not imp:
@@ -479,10 +423,7 @@ def resolve_packages(
                 if key in mapping:
                     mapped = mapping[key]
                     break
-            if mapped:
-                out_name = mapped
-            else:
-                out_name = parts[0]
+            out_name = mapped or parts[0]
         if pip_available:
             low = {p.lower(): p for p in pip_available}
             candidate_low = out_name.lower()
@@ -561,20 +502,15 @@ def main() -> None:
         help="Include packages not present in offline pip list (default: only include those in piplist)",
     )
     args = p.parse_args()
-
     ignore_dirs = set(args.ignore)
-
     stdlib = STDLIB
     mapping = PKG_MAPPING
     piplist = load_set_file(args.pipfile)
-
     sources = scan_sources(ignore_dirs)
     sources = sorted(set(sources))
-
     project_map = build_project_module_map(sources)
     set(project_map.keys())
     project_top_only = {k.split(".", 1)[0] for k in project_map}
-
     cache_path = Path(args.cache_file)
     cache = {} if args.no_cache else (load_json(cache_path) if cache_path.exists() else {})
     if args.clear_cache:
@@ -585,7 +521,6 @@ def main() -> None:
         except Exception as e:
             print("Failed clearing cache:", e)
         return
-
     tasks = []
     cached_results = []
     for path in sources:
@@ -614,7 +549,6 @@ def main() -> None:
                 needs = False
         if needs:
             tasks.append(path)
-
     computed_results = []
     if tasks:
         with mp.Pool(mp.cpu_count()) as pool:
@@ -624,7 +558,6 @@ def main() -> None:
                 desc="Processing",
             ):
                 computed_results.append(res)
-
     if not args.no_cache:
         for path, res in zip(tasks, computed_results, strict=False):
             key = os.path.normpath(path)
@@ -640,18 +573,15 @@ def main() -> None:
             }
         with contextlib.suppress(Exception):
             save_json(cache_path, cache)
-
     all_imports: set[str] = set()
     all_star_modules: set[str] = set()
     all_dynamic: set[str] = set()
     all_relative: set[str] = set()
-
     for r in cached_results + computed_results:
         all_imports |= set(r.get("imports", []))
         all_star_modules |= set(r.get("star_modules", []))
         all_dynamic |= set(r.get("dynamic", []))
         all_relative |= set(r.get("relative", []))
-
     traced_from_star = set()
     if all_star_modules:
         for mod in tqdm(
@@ -659,11 +589,8 @@ def main() -> None:
             desc="Tracing star imports",
         ):
             traced_from_star |= trace_star_module(mod, project_map)
-
     dynamic_tops = {d.split(".", 1)[0] for d in all_dynamic}
-
     discovered = set(all_imports) | traced_from_star | dynamic_tops
-
     final_candidates = set()
     for imp in discovered:
         if not imp:
@@ -675,7 +602,6 @@ def main() -> None:
         if imp in all_relative:
             continue
         final_candidates.add(imp)
-
     pkgs = resolve_packages(
         final_candidates,
         stdlib,
@@ -683,11 +609,9 @@ def main() -> None:
         piplist,
         project_top_only,
     )
-
     if not args.include_unknown and piplist:
         lowpip = {p.lower() for p in piplist}
         pkgs = {p for p in pkgs if p.lower() in lowpip}
-
     out_file = Path(args.out)
     try:
         with out_file.open("w", encoding="utf-8") as f:
@@ -696,7 +620,6 @@ def main() -> None:
     except Exception as e:
         print("Failed writing requirements file:", e)
         sys.exit(2)
-
     print("\nGenerated", out_file.name)
     print("────────────────────────────")
     if pkgs:

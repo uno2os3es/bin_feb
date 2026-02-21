@@ -16,9 +16,6 @@ def getimg(dir="."):
 
 
 def render_ascii(image_path):
-    """
-    Convert an image to ASCII and render it to the terminal.
-    """
     art = AsciiArt.from_image(image_path)
     art.to_terminal(
         columns=os.get_terminal_size().columns,

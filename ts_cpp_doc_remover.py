@@ -1,12 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import subprocess
-import sys
-from multiprocessing import Pool
 from pathlib import Path
 
-import tree_sitter_cpp as tscpp
 from termcolor import cprint
 from tree_sitter import Language, Parser
+import tree_sitter_cpp as tscpp
 
 
 class TSCppRemover:
@@ -17,22 +14,18 @@ class TSCppRemover:
     def remove_comments(self, source: str) -> str:
         tree = self.parser.parse(source.encode("utf-8"))
         root = tree.root_node
-
         to_delete = []
 
         def walk(node):
             if node.type == "comment":
                 to_delete.append((node.start_byte, node.end_byte))
-
             for child in node.children:
                 walk(child)
 
         walk(root)
-
         new_source = source.encode("utf-8")
         for start, end in sorted(to_delete, reverse=True):
             new_source = new_source[:start] + new_source[end:]
-
         cleaned = new_source.decode("utf-8")
         return self._cleanup_blank_lines(cleaned)
 
@@ -41,7 +34,6 @@ class TSCppRemover:
         lines = text.splitlines()
         cleaned = []
         blank_streak = 0
-
         for line in lines:
             if line.strip() == "":
                 blank_streak += 1
@@ -50,18 +42,15 @@ class TSCppRemover:
             else:
                 blank_streak = 0
                 cleaned.append(line.rstrip())
-
         return "\n".join(cleaned) + "\n"
 
 
 def process_file(fp):
     file_path = Path(fp)
     init_size = file_path.stat().st_size
-
     remover = TSCppRemover()
     code = file_path.read_text(encoding="utf-8", errors="ignore")
     result = remover.remove_comments(code)
-
     if len(result) != len(code):
         file_path.write_text(result, encoding="utf-8")
         end_size = file_path.stat().st_size
@@ -73,7 +62,6 @@ def process_file(fp):
 
 if __name__ == "__main__":
     exts = {".cpp", ".cc", ".cxx", ".hpp", ".h", ".hh", ".hxx", ".c"}
-
     for path in Path().rglob("*"):
         if path.is_file() and path.suffix in exts:
             process_file(path)

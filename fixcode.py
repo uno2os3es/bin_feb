@@ -1,22 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-AST-safe PDF Python cleaner with structural corrections:
-- Comment narrative text
-- Reset indent on def/class
-- Force __main__ guard to indent level 1
-- AST validate output
-"""
-
 import ast
 from pathlib import Path
 
 import regex as re
 
 INDENT = " " * 4
-
 DEF_CLASS = re.compile(r"^\s*(def|class)\s+")
 MAIN_GUARD = re.compile(r"""^\s*if\s+__name__\s*==\s*['"]__main__['"]\s*:""")
-
 BLOCK_START = re.compile(
     r"""
     ^\s*
@@ -71,46 +61,35 @@ def clean_text(text: str) -> str:
     out = []
     indent_level = 0
     in_code = False
-
     for raw in text.splitlines():
         line = raw.rstrip()
-
         if not line.strip():
             out.append("")
             continue
-
         if DEF_CLASS.match(line):
             in_code = True
-
         if not in_code and not is_code_line(line):
             out.append("# " + line.strip())
             continue
-
         stripped = line.strip()
-
         if DEF_CLASS.match(stripped):
             indent_level = 0
             out.append(stripped)
             indent_level = 1
             continue
-
         if MAIN_GUARD.match(stripped):
             indent_level = 1
             out.append('if __name__ == "__main__":')
             continue
-
         if stripped.startswith(("return", "pass", "break", "continue", "raise")):
             out.append(INDENT * indent_level + stripped)
             indent_level = max(indent_level - 1, 0)
             continue
-
         if BLOCK_START.match(stripped):
             out.append(INDENT * indent_level + stripped)
             indent_level += 1
             continue
-
         out.append(INDENT * indent_level + stripped)
-
     return "\n".join(out)
 
 
@@ -127,10 +106,8 @@ def main():
 
     src = Path(sys.argv[1])
     dst = Path(sys.argv[1])
-
     cleaned = clean_text(src.read_text(encoding="utf-8", errors="ignore"))
     ok, err = ast_validate(cleaned)
-
     if ok:
         dst.write_text(cleaned, encoding="utf-8")
         print(f"✔ AST valid → {dst}")

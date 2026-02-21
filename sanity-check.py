@@ -4,7 +4,6 @@ import sys
 
 
 def get_installed_packages():
-    """Return a list of installed packages using dpkg-query."""
     try:
         result = subprocess.run(
             [
@@ -23,7 +22,6 @@ def get_installed_packages():
 
 
 def check_package_health(package_name):
-    """Check if a package is properly installed and configured."""
     try:
         result = subprocess.run(
             ["dpkg", "-l", package_name],
@@ -50,7 +48,6 @@ def check_package_health(package_name):
 
 
 def check_for_updates():
-    """Check for available updates using apt-get."""
     try:
         result = subprocess.run(
             ["apt-get", "-s", "upgrade"],
@@ -67,7 +64,6 @@ def main():
     print("=== Installed Packages Sanity Check ===")
     installed_pkgs = get_installed_packages()
     print(f"Found {len(installed_pkgs)} installed packages.\n")
-
     issues_found = 0
     for pkg_info in installed_pkgs:
         pkg_name, _status, _version = pkg_info.split("\t")
@@ -76,7 +72,6 @@ def main():
         if not is_ok:
             print(f"[!] {pkg_name}: {msg}")
             issues_found += 1
-
     print("\n=== Update Check ===")
     update_info = check_for_updates()
     if "0 upgraded, 0 newly installed" in update_info:
@@ -85,7 +80,6 @@ def main():
         print("Updates are available. Run 'sudo apt-get upgrade' to update.")
         print("--- Update Info ---")
         print(update_info)
-
     print("\n=== Summary ===")
     print(f"Issues found: {issues_found}")
     if issues_found == 0:

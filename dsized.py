@@ -1,17 +1,15 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 # file: get_download_size.py
-
 import argparse
 import os
+from pathlib import Path
 import urllib.error
 import urllib.request
-from pathlib import Path
 
 MAX_DOWNLOAD_SIZE = 1 * 1024 * 1024
 
 
 def fetch_content_length(url: str) -> int | None:
-    """Try to fetch Content-Length via HEAD or partial GET."""
     request = urllib.request.Request(url, method="HEAD")
     try:
         with urllib.request.urlopen(request, timeout=10) as response:
@@ -21,7 +19,6 @@ def fetch_content_length(url: str) -> int | None:
     except urllib.error.HTTPError as e:
         if e.code not in (405, 403):
             raise
-
     request = urllib.request.Request(url, method="GET")
     request.add_header("Range", "bytes=0-0")
     with urllib.request.urlopen(request, timeout=10) as response:
@@ -40,7 +37,6 @@ def format_size(size_bytes: int) -> str:
 
 
 def download_file(url: str, dest_dir: Path) -> None:
-    """Download file to dest_dir using last path component as filename."""
     filename = Path(urllib.request.urlparse(url).path).name or "downloaded_file"
     dest_file = dest_dir / filename
     try:
@@ -51,15 +47,12 @@ def download_file(url: str, dest_dir: Path) -> None:
 
 
 def process_url(url: str, download_dir: Path | None = None) -> str:
-    """Fetch size and optionally download if under limit."""
     try:
         size = fetch_content_length(url)
         if size is None:
             return f"{url}\tUnknown"
-
         size_str = format_size(size)
         print(f"URL: {url}, Size: {size_str}")
-
         if download_dir and size <= MAX_DOWNLOAD_SIZE:
             user_input = input(f"Do you want to download this file (size: {size_str})? (y/n): ").strip().lower()
             if user_input == "y":
@@ -68,7 +61,6 @@ def process_url(url: str, download_dir: Path | None = None) -> str:
                 print("Download skipped.")
         else:
             print("File is too large to download or no download directory specified.")
-
         return f"{url}\t{size_str}"
     except Exception as exc:
         return f"{url}\tError: {exc}"
@@ -86,11 +78,8 @@ def main() -> None:
         help="Directory to download files smaller than 1MB",
     )
     args = parser.parse_args()
-
     download_dir = Path(args.download) if args.download else Path(os.path.expanduser("~/Downloads"))
-
     download_dir.mkdir(parents=True, exist_ok=True)
-
     input_path = Path(args.input)
     if input_path.is_file():
         lines = input_path.read_text(encoding="utf-8").splitlines()

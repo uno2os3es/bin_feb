@@ -1,13 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 from __future__ import annotations
 
 from multiprocessing import Pool
 from pathlib import Path
 from time import perf_counter
 
-import htmlmin
 from fastwalk import walk_files
+import htmlmin
 
 
 # fmt: off
@@ -37,15 +36,12 @@ def main() -> None:
         path = Path(pth)
         if path.is_file() and (path.suffix in {".html", ".htm"}):
             files.append(path)
-
     if not files:
         print("No html files detected.")
         return
-
     pool = Pool(10)
     for name in files:
         pool.apply_async(process_file, ((name), ))
-
     pool.close()
     pool.join()
     duration = perf_counter() - start_time

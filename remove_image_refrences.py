@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-
-import regex as re
 from pathlib import Path
 
+import regex as re
+
 REMOTE_PREFIXES = ("http://", "https://", "//")
-
-
 # ---------- HTML Processing ----------
-
 IMG_TAG_RE = re.compile(r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\'][^>]*>', re.IGNORECASE)
 
 
@@ -24,8 +21,9 @@ def remove_remote_html_images(text: str) -> str:
 MD_INLINE_IMG_RE = re.compile(r"!\[.*?\]\((.*?)\)", re.IGNORECASE)
 
 MD_REF_IMG_RE = re.compile(r"!\[.*?\]\[(.*?)\]", re.IGNORECASE)
-
 MD_REF_DEF_RE = re.compile(r"^\s*\[(.*?)\]:\s*(\S+)", re.MULTILINE)
+
+RST_IMG_RE = re.compile(r"^\s*\.\. \|[^|]+\| image:: https?://[^\s]+.*$", re.MULTILINE)
 
 
 def remove_remote_md_images(text: str) -> str:
@@ -36,7 +34,6 @@ def remove_remote_md_images(text: str) -> str:
         return match.group(0)
 
     text = MD_INLINE_IMG_RE.sub(inline_repl, text)
-
     remote_ids = set()
     for m in MD_REF_DEF_RE.finditer(text):
         ref_id, url = m.groups()
@@ -52,25 +49,31 @@ def remove_remote_md_images(text: str) -> str:
     text = MD_REF_IMG_RE.sub(ref_repl, text)
 
     def def_repl(match):
-        ref_id, url = match.groups()
+        ref_id, _url = match.groups()
         if ref_id in remote_ids:
             return ""
         return match.group(0)
 
-    text = MD_REF_DEF_RE.sub(def_repl, text)
+    return MD_REF_DEF_RE.sub(def_repl, text)
 
-    return text
+
+def remove_remote_rst_images(text: str) -> str:
+    """Remove RST image directives with remote URLs"""
+    return RST_IMG_RE.sub("", text)
 
 
 def process_file(path: Path):
     original = path.read_text(encoding="utf-8", errors="ignore")
+    modified = original
 
     if path.suffix.lower() in (".html", ".htm"):
         modified = remove_remote_html_images(original)
-    elif path.suffix.lower() in {".md", ".txt"}:
+    elif path.suffix.lower() in (".md",):
         modified = remove_remote_md_images(original)
-    else:
-        return
+    elif path.suffix.lower() in (".rst", ".txt"):
+        # Process both RST and markdown patterns in text files
+        modified = remove_remote_rst_images(original)
+        modified = remove_remote_md_images(modified)
 
     if modified != original:
         path.write_text(modified, encoding="utf-8")
@@ -78,8 +81,9 @@ def process_file(path: Path):
 
 
 def main():
+    extensions = {".html", ".htm", ".md", ".rst", ".txt"}
     for file in Path(".").rglob("*"):
-        if file.is_file() and file.suffix.lower() in (".html", ".htm", ".md"):
+        if file.is_file() and file.suffix.lower() in extensions:
             process_file(file)
 
 

@@ -11,33 +11,27 @@ def fold_content_pure(fname, width=35):
         content = f.read()
     lines = content.splitlines()
     folded_lines = []
-
     for line in lines:
         while len(line) > width:
             folded_lines.append(line[:width])
             line = line[width:]
         if line:
             folded_lines.append(line)
-
     with open(fname, "w") as fo:
         for line in folded_lines:
             fo.write(line + "\n")
-
     print(f"{fname} updated.")
 
 
 def fold_file_inplace(filename):
-    """Fold file content to 45 columns with spaces, then overwrite the original file."""
     if not os.path.exists(filename):
         print(
             f"Error: File '{filename}' not found.",
             file=sys.stderr,
         )
         sys.exit(1)
-
     with open(filename, encoding="utf-8") as f:
         original_content = f.read()
-
     with tempfile.NamedTemporaryFile(
         mode="w+",
         suffix=".tmp",
@@ -47,7 +41,6 @@ def fold_file_inplace(filename):
         temp_filename = temp_f.name
         temp_f.write(original_content)
         temp_f.flush()
-
         result = subprocess.run(
             [
                 "fold",
@@ -61,7 +54,6 @@ def fold_file_inplace(filename):
             text=True,
             encoding="utf-8",
         )
-
         if result.returncode != 0:
             print(
                 f"Error running fold: {result.stderr}",
@@ -69,10 +61,8 @@ def fold_file_inplace(filename):
             )
             os.unlink(temp_filename)
             sys.exit(1)
-
         with open(filename, "w", encoding="utf-8") as original_f:
             original_f.write(result.stdout)
-
     os.unlink(temp_filename)
     print(f"Successfully folded '{filename}' in place.")
 

@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 from os.path import relpath
 from pathlib import Path
 
@@ -16,7 +15,6 @@ def delete_empty_dirs(root: Path) -> None:
             if path.name.startswith("mc") and path.parent.name == "tmp":
                 continue
             delete_empty_dirs(path)
-
             try:
                 if not any(path.iterdir()):
                     path.rmdir()

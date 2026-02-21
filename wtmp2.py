@@ -28,13 +28,10 @@ def copy_if_match(src_path) -> bool:
             return False
     except Exception as e:
         return f"Error copying file : {e}"
-
     return False
 
 
 class CopyEventHandler(FileSystemEventHandler):
-    """Handles file creation and modification events."""
-
     def on_created(self, event) -> None:
         if not event.is_directory:
             copy_if_match(event.src_path)
@@ -49,13 +46,10 @@ if __name__ == "__main__":
     event_handler = CopyEventHandler()
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
-
     observer.start()
-
     try:
         while True:
             time.sleep(0.0001)
     except KeyboardInterrupt:
         observer.stop()
-
     observer.join()

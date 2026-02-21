@@ -5,7 +5,6 @@ import sys
 
 def strip_html_tags(input_file, output_file) -> None:
     inside_tag = False
-
     with (
         open(
             input_file,
@@ -25,7 +24,6 @@ def strip_html_tags(input_file, output_file) -> None:
                     continue
                 if not inside_tag:
                     buf.append(ch)
-
             cleaned = "".join(buf).strip()
             if cleaned:
                 out.write(cleaned + "\n")
@@ -35,16 +33,12 @@ def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: html2txt.py <input.html>")
         sys.exit(1)
-
     input_file = sys.argv[1]
-
     if not os.path.isfile(input_file):
         print("Error: file not found:", input_file)
         sys.exit(1)
-
     base, _ = os.path.splitext(input_file)
     output_file = base + ".txt"
-
     strip_html_tags(input_file, output_file)
     print("Saved:", output_file)
 

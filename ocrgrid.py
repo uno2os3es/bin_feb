@@ -1,10 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 # file: ocr_grid_runner.py
-"""
-Run Tesseract OCR on an image using multiple config permutations,
-with and without image preprocessing, and save structured reports.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -13,8 +8,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-import pytesseract
 from PIL import Image
+import pytesseract
 
 
 def pil_to_cv(img: Image.Image) -> np.ndarray:
@@ -42,9 +37,7 @@ def deskew(img: np.ndarray) -> np.ndarray:
     gray = to_grayscale(img)
     coords = np.column_stack(np.where(gray > 0))
     angle = cv2.minAreaRect(coords)[-1]
-
     angle = -(90 + angle) if angle < -45 else -angle
-
     h, w = img.shape[:2]
     center = (w // 2, h // 2)
     m = cv2.getRotationMatrix2D(center, angle, 1.0)
@@ -72,7 +65,6 @@ def run_tesseract(
 ) -> dict[str, str]:
     config = f"--psm {psm} --oem {oem} -c user_defined_dpi={dpi}"
     text = pytesseract.image_to_string(img, config=config)
-
     return {
         "psm": psm,
         "oem": oem,
@@ -92,12 +84,9 @@ def main() -> None:
         default=Path("ocr_output"),
     )
     args = parser.parse_args()
-
     args.out.mkdir(parents=True, exist_ok=True)
-
     base_img = Image.open(args.fname).convert("RGB")
     cv_img = pil_to_cv(base_img)
-
     image_variants: dict[str, Image.Image] = {
         "original": base_img,
         "grayscale": cv_to_pil(to_grayscale(cv_img)),
@@ -105,29 +94,23 @@ def main() -> None:
         "deskewed": cv_to_pil(deskew(cv_img)),
         "rotated_90": cv_to_pil(rotate(cv_img, 90)),
     }
-
     psm_values = [3, 4, 6, 11]
     oem_values = [1, 3]
     dpi_values = [150, 300]
-
     report_index: list[dict] = []
-
     for (
         variant_name,
         img,
     ) in image_variants.items():
         variant_dir = args.out / variant_name
         variant_dir.mkdir(exist_ok=True)
-
         for psm in psm_values:
             for oem in oem_values:
                 for dpi in dpi_values:
                     result = run_tesseract(img, psm, oem, dpi)
-
                     tag = f"psm{psm}_oem{oem}_dpi{dpi}"
                     txt_path = variant_dir / f"{tag}.txt"
                     meta_path = variant_dir / f"{tag}.json"
-
                     txt_path.write_text(
                         result["text"],
                         encoding="utf-8",
@@ -143,7 +126,6 @@ def main() -> None:
                         ),
                         encoding="utf-8",
                     )
-
                     report_index.append(
                         {
                             "variant": variant_name,
@@ -153,7 +135,6 @@ def main() -> None:
                             "text_file": str(txt_path),
                         }
                     )
-
     (args.out / "index.json").write_text(
         json.dumps(report_index, indent=2),
         encoding="utf-8",

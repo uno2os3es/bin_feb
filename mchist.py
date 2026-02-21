@@ -2,11 +2,9 @@
 input_file = "/data/data/com.termux/files/home/.local/share/mc/history"
 output_file = "/data/data/com.termux/files/home/.bash_history"
 cmdline_section = []
-
 with open(input_file) as file:
     lines = file.readlines()
     capture = False
-
     for line in lines:
         line = line.strip()
         if line == "[cmdline]":

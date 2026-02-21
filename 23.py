@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env python3
+from multiprocessing import Lock, Pool
 import os
+from pathlib import Path
 import subprocess
 import sys
-from multiprocessing import Lock, Pool
-from pathlib import Path
 
 from fastwalk import walk_files
 
@@ -11,12 +11,8 @@ print_lock = Lock()
 
 
 def is_python_file(path: Path) -> bool:
-    """Determines if a file is a Python file.
-    Criteria: Ends in .py OR has a python shebang.
-    """
     if path.suffix == ".py":
         return True
-
     if path.suffix == "":
         try:
             with open(path, "rb") as f:
@@ -29,7 +25,6 @@ def is_python_file(path: Path) -> bool:
 
 
 def run_command(cmd):
-    """Runs a subprocess command and returns (returncode, stdout, stderr)."""
     try:
         result = subprocess.run(
             cmd,
@@ -48,10 +43,6 @@ def run_command(cmd):
 
 
 def process_file(file_path) -> None:
-    """Worker function to process a single file.
-    1. Run ruff check (fixes)
-    2. Run ruff format (styling).
-    """
     print(f"[OK] {file_path.name}")
     check_cmd = [
         "ruff",
@@ -63,7 +54,6 @@ def process_file(file_path) -> None:
         "--quiet",
         str(file_path),
     ]
-
     rc_check, out_check, err_check = run_command(check_cmd)
     format_cmd = [
         "ruff",
@@ -72,23 +62,18 @@ def process_file(file_path) -> None:
         "/data/data/com.termux/files/home/.config/ruff/ruff.toml",
         str(file_path),
     ]
-
     rc_fmt, _out_fmt, err_fmt = run_command(format_cmd)
-
     output = []
-
     if rc_check != 0 or err_check.strip():
         output.append(f"--- Issues fixing {path.name} ---")
         if err_check.strip():
             output.append(err_check.strip())
         if out_check.strip():
             output.append(out_check.strip())
-
     if rc_fmt != 0 or err_fmt.strip():
         output.append(f"--- Issues formatting {file_path.name} ---")
         if err_fmt.strip():
             output.append(err_fmt.strip())
-
     if output:
         with print_lock:
             print("\n".join(output))
@@ -96,7 +81,6 @@ def process_file(file_path) -> None:
 
 
 def get_all_files(root_dir):
-    """Recursively finds all python files."""
     py_files = []
     for pth in walk_files(root_dir):
         path = Path(pth)
@@ -119,10 +103,8 @@ def main() -> None:
         print("Error: 'ruff' is not installed or not in PATH.")
         print("Please run: pip install ruff")
         sys.exit(1)
-
     root_dir = os.getcwd()
     files = get_all_files(root_dir)
-
     if not files:
         print("no file found.")
         return

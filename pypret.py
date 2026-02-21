@@ -7,7 +7,6 @@ import jsbeautifier
 
 
 def beautify_json_file(file_path) -> bool | None:
-    """Beautifies JSON files using the built-in json library."""
     try:
         with pathlib.Path(file_path).open(encoding="utf-8") as f:
             data = json.load(f)
@@ -21,7 +20,6 @@ def beautify_json_file(file_path) -> bool | None:
 
 
 def beautify_code_file(file_path, beautify_function, asset_type) -> bool | None:
-    """Beautifies HTML, JS, or CSS files using jsbeautifier."""
     try:
         with pathlib.Path(file_path).open(encoding="utf-8") as f:
             original_content = f.read()
@@ -38,7 +36,6 @@ def beautify_code_file(file_path, beautify_function, asset_type) -> bool | None:
 def beautify_files_in_directory(
     root_dir=".",
 ) -> None:
-    """Recursively finds and beautifies HTML, JS, CSS, and JSON files."""
     processed_count = 0
     errors_count = 0
     beautifier_map = {

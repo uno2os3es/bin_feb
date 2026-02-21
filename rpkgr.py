@@ -1,12 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 # file: repack_pkg_parallel.py
-
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+from pathlib import Path
 import shutil
 import sysconfig
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 
 import regex as re
 from wheel.wheelfile import WheelFile
@@ -103,19 +102,14 @@ def repack(
     if pkg_lower not in installed:
         print(f"Package '{pkg}' not found.")
         return
-
     real_pkg, version = installed[pkg_lower]
-
     target_dir = out_repack / real_pkg
     target_dir.mkdir(parents=True, exist_ok=True)
-
     copy_package_files(real_pkg, site, target_dir)
     dist_info = copy_dist_info(real_pkg, version, site, target_dir)
     copy_scripts(real_pkg, target_dir)
-
     tags = get_wheel_tags(dist_info)
     tag = tags[0]
-
     wheel = build_wheel(
         real_pkg,
         version,
@@ -140,23 +134,19 @@ def main() -> None:
         help="Repack all installed pkgs",
     )
     args = parser.parse_args()
-
     site = find_site_packages()
     out_repack = Path.home() / "tmp" / "repack"
     out_whl = Path.home() / "tmp" / "whl"
     out_repack.mkdir(parents=True, exist_ok=True)
     out_whl.mkdir(parents=True, exist_ok=True)
-
     if args.all:
         pkgs = list_installed_packages(site)
         pkg_list = [real for _, (real, _) in pkgs.items()]
     else:
         pkg_list = args.packages
-
     if not pkg_list:
         print("No packages specified.")
         return
-
     with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         futures = {
             executor.submit(

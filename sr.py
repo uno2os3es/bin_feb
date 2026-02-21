@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import argparse
 import base64
+from email.parser import Parser
 import hashlib
 import os
+from pathlib import Path
 import sys
 import sysconfig
 import zipfile
-from email.parser import Parser
-from pathlib import Path
 
 
 def prefix_path():
@@ -61,7 +61,6 @@ def parse_metadata_from_distinfo(distinfo_dir):
             md["Version"] = parsed.get("Version")
             md["Summary"] = parsed.get("Summary")
             break
-
     ep = distinfo_dir / "entry_points.txt"
     if ep.exists():
         console = []
@@ -142,22 +141,17 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
     if not rec_list:
         print(f"[-] Error: Could not find RECORD for {distinfo_path.name}. Skipping.")
         return
-
     md = parse_metadata_from_distinfo(distinfo_path)
     dist_name = (md.get("Name") or distinfo_path.name.split("-", 1)[0]).replace("-", "_")
     md.get("Version") or "0.0.0"
-
     collected_files = []
     missing_files = []
-
     for rel in rec_list:
         if not rel or rel.endswith("RECORD") or rel.startswith(("..", "/")):
             continue
-
         src = base / rel
         if not src.exists():
             src = prefix / rel
-
         if src.exists():
             if src.is_dir():
                 for root, _, files in os.walk(src):
@@ -173,18 +167,15 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
                 collected_files.append((src, rel))
         else:
             missing_files.append(rel)
-
     if "console_scripts" in md:
         for sp in find_script_paths(prefix, md["console_scripts"]):
             collected_files.append((sp, f"bin/{sp.name}"))
-
     if missing_files:
         print(f"[!] Error: Missing files for {dist_name}:")
         for m in missing_files:
             print(f"    - {m}")
         print(f"[*] Aborting wheel build for {dist_name}.")
         return
-
     py_tag, abi_tag, plat_tag = detect_wheel_tags()
     native_exts = {
         ".so",
@@ -195,10 +186,8 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
     }
     is_platform = any(s.suffix.lower() in native_exts for s, _ in collected_files)
     wheel_tag = f"{py_tag}-{abi_tag}-{plat_tag}" if is_platform else "py3-none-any"
-
     wheel_out_path.parent.mkdir(parents=True, exist_ok=True)
     record_lines = []
-
     with zipfile.ZipFile(
         wheel_out_path,
         "w",
@@ -208,20 +197,17 @@ def collect_and_build(distinfo_path, prefix, wheel_out_path):
             zf.write(src, arcname=rel)
             h, size = compute_hash_and_size(src)
             record_lines.append(f"{rel},{h},{size}")
-
         wheel_content = f"Wheel-Version: 1.0\nGenerator: repack_tool\nRoot-Is-Purelib: {'false' if is_platform else 'true'}\nTag: {wheel_tag}\n"
         zf.writestr(
             f"{distinfo_path.name}/WHEEL",
             wheel_content,
         )
         record_lines.append(f"{distinfo_path.name}/WHEEL,,")
-
         record_lines.append(f"{distinfo_path.name}/RECORD,,")
         zf.writestr(
             f"{distinfo_path.name}/RECORD",
             "\n".join(record_lines) + "\n",
         )
-
     print(f"[+] Successfully built: {wheel_out_path.name}")
 
 
@@ -239,11 +225,9 @@ def main():
         help="Repack all.",
     )
     args = parser.parse_args()
-
     prefix = prefix_path()
     site_dirs = [Path.cwd(), *site_packages_paths(prefix)]
     dists = find_distributions(site_dirs)
-
     to_do = []
     if args.all or not args.packages:
         to_do = list(dists.values())
@@ -252,19 +236,15 @@ def main():
             key = name.lower()
             if key in dists:
                 to_do.append(dists[key])
-
     wheel_dir = Path.home() / "tmp" / "wheels"
     print(f"[*] Saving wheels to: {wheel_dir}")
-
     for distinfo in to_do:
         try:
             md = parse_metadata_from_distinfo(distinfo)
             name = (md.get("Name") or distinfo.name.split("-", 1)[0]).replace("-", "_")
             ver = md.get("Version") or "0"
-
             _py_tag, _abi_tag, _plat_tag = detect_wheel_tags()
             out_name = f"{name}-{ver}-py3-none-any.whl"
-
             collect_and_build(
                 distinfo,
                 prefix,

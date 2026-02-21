@@ -3,16 +3,16 @@ from __future__ import annotations
 
 import argparse
 import base64
+from configparser import ConfigParser
+from email.parser import Parser
 import hashlib
 import operator
 import os
+from pathlib import Path
 import shutil
 import sys
 import sysconfig
 import zipfile
-from configparser import ConfigParser
-from email.parser import Parser
-from pathlib import Path
 
 
 def prefix_path():
@@ -156,7 +156,6 @@ def compute_hash_and_size(path):
 
 
 def detect_wheel_tags():
-    """Why: build correct platform/ABI tags for platform-specific wheels."""
     impl = sys.implementation.name
     mj = sys.version_info.major
     mn = sys.version_info.minor
@@ -263,7 +262,6 @@ def collect_files_for_dist(distinfo_path, site_dirs, prefix):
 
 
 def _has_native_extensions(tree_items) -> bool:
-    """Why: determine whether wheel must be platform-specific by checking file extensions."""
     native_exts = {
         ".so",
         ".pyd",
@@ -352,7 +350,6 @@ def main() -> None:
             cleaned = cleaned.strip("\n")
             if cleaned:
                 allxtx.append(cleaned)
-
     parser = argparse.ArgumentParser(description="Repack installed packages into .whl files (Termux-aware).")
     parser.add_argument(
         "packages",

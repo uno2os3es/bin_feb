@@ -1,29 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-"""
-dedupe_xxhash.py
-
-Usage:
-  python dedupe_xxhash.py [path]
-  python dedupe_xxhash.py --dry-run [path]
-  python dedupe_xxhash.py --restore --dry-run
-  python dedupe_xxhash.py --restore
-
-Behavior:
-  - Scans 'path' (default current dir) recursively.
-  - Ignores symlinks.
-  - Groups files by xxh64 hash (with cache keyed by path,size,mtime).
-  - Moves one copy per group into ~/dups/ as "<hash>__<basename>".
-  - Replaces other copies with symlinks to the stored file.
-  - Writes manifest at ~/dups/manifest.json for restore.
-  - --restore copies stored files back to original locations and removes stored files and manifest.
-"""
-
 import argparse
+from collections import defaultdict
 import json
 import os
-import shutil
-from collections import defaultdict
 from pathlib import Path
+import shutil
 
 import xxhash
 
@@ -95,11 +76,9 @@ def dedupe(root: Path, dry_run=False, force=False):
     cache = load_json(CACHE_PATH) if CACHE_PATH.exists() else {}
     groups = build_groups(root, cache)
     save_json(CACHE_PATH, cache)
-
     DUPS_DIR.mkdir(parents=True, exist_ok=True)
     manifest = load_json(MANIFEST_PATH) if MANIFEST_PATH.exists() else {}
     changed = False
-
     for h, paths in groups.items():
         if len(paths) < 2:
             continue
@@ -107,7 +86,6 @@ def dedupe(root: Path, dry_run=False, force=False):
         original = paths_sorted[0]
         stored_name = f"{h}__{original.name}"
         stored_path = DUPS_DIR / stored_name
-
         if not stored_path.exists():
             if dry_run:
                 print(f"[DRY] move: {original} -> {stored_path}")
@@ -125,7 +103,6 @@ def dedupe(root: Path, dry_run=False, force=False):
             else:
                 original.unlink()
                 print(f"removed original file: {original}")
-
         for p in paths_sorted[1:]:
             if p.is_symlink():
                 continue
@@ -145,12 +122,10 @@ def dedupe(root: Path, dry_run=False, force=False):
                 )
                 print(f"symlinked: {p} -> {stored_path.resolve()}")
             changed = True
-
         manifest[str(stored_path)] = {
             "hash": h,
             "originals": [str(p) for p in paths_sorted],
         }
-
     if not dry_run and changed:
         save_json(MANIFEST_PATH, manifest)
         save_json(CACHE_PATH, cache)
@@ -203,7 +178,6 @@ def restore(dry_run=False):
                 print(f"removed stored file: {stored}")
             except Exception as e:
                 print(f"warning: could not remove stored file {stored}: {e}")
-
     if not dry_run:
         try:
             MANIFEST_PATH.unlink()
@@ -238,7 +212,6 @@ def main():
         help="Force overwrite behavior (not used for safety here)",
     )
     args = ap.parse_args()
-
     root = Path(args.path).resolve()
     if args.restore:
         restore(dry_run=args.dry_run)

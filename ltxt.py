@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-import os
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 
 from dh import BIN_EXT
 from tqdm import tqdm
@@ -10,7 +10,6 @@ EXCLUDED_EXTENSIONS = BIN_EXT
 
 
 def process_file(filepath):
-    """Read lines from a file and return a Counter of lines."""
     counter = Counter()
     try:
         with open(
@@ -28,39 +27,25 @@ def process_file(filepath):
 
 
 def collect_files_by_extension():
-    """
-    Walk current directory and group files by extension.
-    Files without extension are grouped under 'no_ext'.
-    Excluded extensions are skipped.
-    """
     ext_map = {}
-
     for root, _, filenames in os.walk(os.getcwd()):
         for fname in filenames:
             if fname.startswith("."):
                 continue
-
             full_path = os.path.join(root, fname)
             ext = os.path.splitext(fname)[1].lower().lstrip(".")
-
             if ext in EXCLUDED_EXTENSIONS:
                 continue
-
             if not ext:
                 ext = "no_ext"
-
             ext_map.setdefault(ext, []).append(full_path)
-
     return ext_map
 
 
 def collect_lines_for_extension(ext, files):
-    """Collect lines for a given extension and save to CSV."""
     if not files:
         return
-
     global_counter = Counter()
-
     with ThreadPoolExecutor() as executor:
         futures = {executor.submit(process_file, f): f for f in files}
         for future in tqdm(
@@ -69,7 +54,6 @@ def collect_lines_for_extension(ext, files):
             desc=f"Processing .{ext}  files",
         ):
             global_counter.update(future.result())
-
     output_file = f"{ext}.txt"
     with open(
         output_file,
@@ -82,17 +66,14 @@ def collect_lines_for_extension(ext, files):
         ) in global_counter.most_common():
             if count >= 2:
                 fo.write(line + "\n")
-
     print(f"Saved results to {output_file}")
 
 
 def main():
     ext_map = collect_files_by_extension()
-
     if not ext_map:
         print("No eligible files found.")
         return
-
     for ext, files in ext_map.items():
         collect_lines_for_extension(ext, files)
 

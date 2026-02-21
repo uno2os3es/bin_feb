@@ -17,7 +17,6 @@ def delete_multiline_string_from_files(search_string, directory=".") -> None:
     for dirpath, _, filenames in os.walk(directory):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
-
             if os.path.isfile(file_path) and os.path.splitext(file_path)[1] in EXT:
                 try:
                     with open(
@@ -25,10 +24,8 @@ def delete_multiline_string_from_files(search_string, directory=".") -> None:
                         encoding="utf-8",
                     ) as file:
                         content = file.read()
-
                     if search_string in content:
                         new_content = content.replace(search_string, "")
-
                         with open(file_path, "w") as file:
                             file.write(new_content)
                         print(f"Deleted string from {file_path}")

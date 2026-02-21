@@ -20,13 +20,10 @@ def get_clipboard():
 
 def detect_shebang(content: str) -> str | None:
     stripped = content.lstrip()
-
     if stripped.startswith("#!"):
         return None
-
     if "import " in content or "def " in content or stripped.startswith("python"):
         return TERMUX_PYTHON
-
     if stripped.startswith(
         (
             "echo ",
@@ -39,14 +36,12 @@ def detect_shebang(content: str) -> str | None:
         )
     ):
         return TERMUX_BASH
-
     return None
 
 
 def create_symlink(out_file):
     base_name = os.path.basename(out_file)
     name_without_ext, ext = os.path.splitext(base_name)
-
     if ext and os.path.abspath(os.getcwd()) == os.path.abspath(os.path.expanduser("~/bin")):
         symlink_path = os.path.join(
             os.path.dirname(out_file),
@@ -86,29 +81,22 @@ def main():
             file=sys.stderr,
         )
         sys.exit(1)
-
     out_file = sys.argv[1]
     clipboard = get_clipboard()
-
     cwd = os.path.abspath(os.getcwd())
     bin_dir = os.path.abspath(os.path.expanduser("~/bin"))
     bin_dir2 = os.path.abspath(os.path.expanduser("~/bashbin"))
-
     final_content = clipboard
-
     if cwd == bin_dir:
         shebang = detect_shebang(clipboard)
         if shebang:
             final_content = shebang + clipboard
-
     with open(out_file, "w") as f:
         f.write(final_content)
-
     if cwd == bin_dir:
         os.chmod(out_file, 0o755)
     if cwd == bin_dir2:
         os.chmod(out_file, 0o755)
-
     create_symlink(out_file)
 
 

@@ -1,14 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import ast
-import sys
-from multiprocessing import Pool
 from pathlib import Path
 
-import tree_sitter_python as tspython
 from dh import folder_size, format_size
 from fastwalk import walk_files
 from termcolor import cprint
 from tree_sitter import Language, Parser
+import tree_sitter_python as tspython
 
 
 class TSRemover:
@@ -19,27 +17,22 @@ class TSRemover:
     def remove_comments(self, source: str) -> str:
         tree = self.parser.parse(source.encode("utf-8"))
         root = tree.root_node
-
         to_delete = []
 
         def walk(node):
             if node.type == "comment":
                 to_delete.append((node.start_byte, node.end_byte))
-
             if node.type == "expression_statement" and len(node.children) == 1:
                 child = node.children[0]
                 if child.type == "string":
                     to_delete.append((node.start_byte, node.end_byte))
-
             for child in node.children:
                 walk(child)
 
         walk(root)
-
         new_source = source.encode("utf-8")
         for start, end in sorted(to_delete, reverse=True):
             new_source = new_source[:start] + new_source[end:]
-
         cleaned = new_source.decode("utf-8")
         return self._cleanup_blank_lines(cleaned)
 

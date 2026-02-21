@@ -4,16 +4,14 @@ import os
 import sys
 from urllib.parse import urljoin, urlparse
 
-import requests
 from bs4 import BeautifulSoup
+import requests
 
 
 def extract_links(url: str):
     resp = requests.get(url, timeout=15)
     resp.raise_for_status()
-
     soup = BeautifulSoup(resp.text, "html.parser")
-
     links = set()
     for tag in soup.find_all("a", href=True):
         href = tag.get("href").strip()
@@ -22,22 +20,18 @@ def extract_links(url: str):
             parsed = urlparse(abs_url)
             if parsed.scheme in ("http", "https"):
                 links.add(abs_url)
-
     return sorted(links)
 
 
 def split_internal_external(base_url, links):
     base_domain = urlparse(base_url).netloc
-
     internal = []
     external = []
-
     for link in links:
         if urlparse(link).netloc == base_domain:
             internal.append(link)
         else:
             external.append(link)
-
     return internal, external
 
 
@@ -57,9 +51,7 @@ def main():
         default="output",
         help="Output directory (default: output)",
     )
-
     args = parser.parse_args()
-
     url = args.url or input("Enter URL: ").strip()
     if not url.startswith(("http://", "https://")):
         print(
@@ -67,9 +59,7 @@ def main():
             file=sys.stderr,
         )
         sys.exit(1)
-
     os.makedirs(args.out, exist_ok=True)
-
     try:
         links = extract_links(url)
     except Exception as e:
@@ -78,13 +68,10 @@ def main():
             file=sys.stderr,
         )
         sys.exit(1)
-
     internal, external = split_internal_external(url, links)
-
     save_links(args.out, "all_links.txt", links)
     save_links(args.out, "internal_links.txt", internal)
     save_links(args.out, "external_links.txt", external)
-
     print(f"Total links     : {len(links)}")
     print(f"Internal links  : {len(internal)}")
     print(f"External links  : {len(external)}")

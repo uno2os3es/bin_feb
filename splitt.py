@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import os
-import sys
 from pathlib import Path
+import sys
 
 
 def split_file_by_delimiter(fname, delim) -> None:

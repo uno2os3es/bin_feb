@@ -15,8 +15,8 @@ import argparse
 import fnmatch
 import logging
 import mmap
-import os
 from multiprocessing import Pool
+import os
 from pathlib import Path
 
 from dh import is_binary
@@ -69,16 +69,12 @@ def convert_with_temp(path: Path) -> None:
 def safe_convert(path: Path, dry_run: bool = False) -> str:
     if not path.is_file():
         return "SKIP_NOT_FILE"
-
     if is_binary(path):
         return "SKIP_BINARY"
-
     if not needs_conversion(path):
         return "SKIP_ALREADY_UNIX"
-
     if dry_run:
         return "DRY_RUN"
-
     try:
         convert_in_place(path)
         return "CONVERTED_MMAP"
@@ -92,7 +88,6 @@ def safe_convert(path: Path, dry_run: bool = False) -> str:
 
 def scan_paths(inputs, recursive: bool, excludes) -> list[Path]:
     result = []
-
     for inp in inputs:
         p = Path(inp)
         if p.is_dir():
@@ -102,13 +97,11 @@ def scan_paths(inputs, recursive: bool, excludes) -> list[Path]:
                 result.extend(p.glob("*"))
         else:
             result.append(p)
-
     out = []
     for p in result:
         if any(fnmatch.fnmatch(str(p), pat) for pat in excludes):
             continue
         out.append(p)
-
     return out
 
 
@@ -122,7 +115,6 @@ def worker(args):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Fast dos2unix converter with mmap, tqdm, error logging.")
-
     parser.add_argument(
         "paths",
         nargs="*",
@@ -134,30 +126,24 @@ def parse_args():
     parser.add_argument("--chunksize", type=int, default=50)
     parser.add_argument("--exclude", nargs="*", default=[])
     parser.add_argument("--verbose", action="store_true")
-
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-
     if not args.paths:
         args.paths = ["."]
         args.recursive = True
-
     log_dir = Path.home() / "tmp"
     log_dir.mkdir(exist_ok=True)
     log_file = log_dir / "pydos2unix.log"
-
     logging.basicConfig(
         filename=str(log_file),
         level=logging.ERROR,
         format="%(asctime)s %(levelname)s: %(message)s",
     )
-
     files = scan_paths(args.paths, args.recursive, args.exclude)
     tasks = [(p, args.dry_run) for p in files]
-
     if args.parallel > 1:
         with Pool(args.parallel) as pool, tqdm(total=len(tasks), unit="file") as bar:
             for _ in pool.imap_unordered(

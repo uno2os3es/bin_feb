@@ -2,22 +2,18 @@
 import os
 from pathlib import Path
 
-import regex as re
 from deep_translator import GoogleTranslator
 from fastwalk import walk_files
+import regex as re
 
 DIRECTORY = "."
-
 non_english_pattern = re.compile(r"[^\x00-\x7F]")
 
 
 def translate_if_needed(name: str) -> str:
-    """Translate filename only if it contains non-English characters."""
     base, ext = os.path.splitext(name)
-
     if not non_english_pattern.search(base):
         return name
-
     try:
         translated = GoogleTranslator(source="auto", target="en").translate(base)
         return translated + ext
@@ -27,14 +23,11 @@ def translate_if_needed(name: str) -> str:
 
 
 def get_unique_path(path: Path) -> Path:
-    """Generate a unique non-conflicting path by adding _1, _2, etc."""
     if not path.exists():
         return path
-
     base = path.stem
     ext = path.suffix
     parent = path.parent
-
     counter = 1
     while True:
         new_path = parent / f"{base}_{counter}{ext}"
@@ -46,28 +39,20 @@ def get_unique_path(path: Path) -> Path:
 def rename_files(directory: str):
     for _pth in walk_files(directory):
         path = Path(filepath)
-
         if path.is_file():
             new_name = translate_if_needed(path.name)
-
             if new_name == path.name:
                 continue
-
             new_path = path.parent / new_name
             new_path = get_unique_path(new_path)
-
             os.rename(path, new_path)
             print(f"File renamed: {path.name} -> {new_path.name}")
-
         elif path.is_dir():
             new_name = translate_if_needed(path.name)
-
             if new_name == path.name:
                 continue
-
             new_path = path.parent / new_name
             new_path = get_unique_path(new_path)
-
             os.rename(path, new_path)
             print(f"Directory renamed: {path.name} -> {new_path.name}")
 

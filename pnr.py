@@ -1,19 +1,15 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import argparse
 import os
-import sys
 from pathlib import Path
+import sys
 
 
 def get_unique_name(path, base_name):
-    """Generate a unique name by appending _number if name exists."""
     if not os.path.exists(os.path.join(path, base_name)):
         return base_name
-
     name, ext = os.path.splitext(base_name)
     counter = 1
-
     while True:
         new_name = f"{name}_{counter}{ext}"
         if not os.path.exists(os.path.join(path, new_name)):
@@ -27,7 +23,6 @@ def ask_user_for_rename(old_name, new_name):
         response = (
             input(f"'{new_name}' already exists. Rename '{old_name}' with _number suffix? (y/n): ").lower().strip()
         )
-
         if response in ["y", "yes"]:
             return True
         elif response in ["n", "no"]:
@@ -42,36 +37,28 @@ def remove_string_from_names(
     recursive=False,
     current_path=".",
 ):
-    """Remove specified string from all file and directory names."""
     renamed_count = 0
-
     try:
         items = os.listdir(current_path)
     except PermissionError:
         print(f"Permission denied: {current_path}")
         return renamed_count
-
     files = []
     dirs = []
-
     for item in items:
         item_path = os.path.join(current_path, item)
         if os.path.isfile(item_path):
             files.append(item)
         elif os.path.isdir(item_path):
             dirs.append(item)
-
     for filename in files:
         if string_to_remove in filename:
             new_name = filename.replace(string_to_remove, "")
-
             if not new_name.strip():
                 print(f"Warning: Removing '{string_to_remove}' would make filename empty for '{filename}'")
                 continue
-
             old_path = os.path.join(current_path, filename)
             new_path = os.path.join(current_path, new_name)
-
             if os.path.exists(new_path):
                 if dry_run:
                     print(f"Would conflict: '{filename}' -> '{new_name}' (already exists)")
@@ -84,7 +71,6 @@ def remove_string_from_names(
                 else:
                     print(f"Skipped: '{filename}'")
                     continue
-
             if dry_run:
                 print(f"Would rename: '{old_path}' -> '{new_name}'")
             else:
@@ -94,20 +80,16 @@ def remove_string_from_names(
                     renamed_count += 1
                 except OSError as e:
                     print(f"Error renaming '{filename}': {e}")
-
     dirs_to_process = []
     for dirname in dirs:
         if string_to_remove in dirname:
             new_name = dirname.replace(string_to_remove, "")
-
             if not new_name.strip():
                 print(f"Warning: Removing '{string_to_remove}' would make dirname empty for '{dirname}'")
                 dirs_to_process.append((dirname, dirname))
                 continue
-
             old_path = os.path.join(current_path, dirname)
             new_path = os.path.join(current_path, new_name)
-
             if os.path.exists(new_path):
                 if dry_run:
                     print(f"Would conflict: '{dirname}' -> '{new_name}' (already exists)")
@@ -122,7 +104,6 @@ def remove_string_from_names(
                     print(f"Skipped: '{dirname}'")
                     dirs_to_process.append((dirname, dirname))
                     continue
-
             if dry_run:
                 print(f"Would rename: '{old_path}' -> '{new_name}'")
                 dirs_to_process.append((dirname, dirname))
@@ -137,7 +118,6 @@ def remove_string_from_names(
                     dirs_to_process.append((dirname, dirname))
         else:
             dirs_to_process.append((dirname, dirname))
-
     if recursive:
         for _, dirname in dirs_to_process:
             subdir_path = os.path.join(current_path, dirname)
@@ -147,7 +127,6 @@ def remove_string_from_names(
                 recursive,
                 subdir_path,
             )
-
     return renamed_count
 
 
@@ -158,32 +137,25 @@ def replace_string_in_names(
     recursive=False,
     current_path=".",
 ):
-    """Replace str1 with str2 in all file and directory names."""
     renamed_count = 0
-
     try:
         items = os.listdir(current_path)
     except PermissionError:
         print(f"Permission denied: {current_path}")
         return renamed_count
-
     files = []
     dirs = []
-
     for item in items:
         item_path = os.path.join(current_path, item)
         if os.path.isfile(item_path):
             files.append(item)
         elif os.path.isdir(item_path):
             dirs.append(item)
-
     for filename in files:
         if str1 in filename:
             new_name = filename.replace(str1, str2)
-
             old_path = os.path.join(current_path, filename)
             new_path = os.path.join(current_path, new_name)
-
             if os.path.exists(new_path):
                 if dry_run:
                     print(f"Would conflict: '{filename}' -> '{new_name}' (already exists)")
@@ -196,7 +168,6 @@ def replace_string_in_names(
                 else:
                     print(f"Skipped: '{filename}'")
                     continue
-
             if dry_run:
                 print(f"Would rename: '{old_path}' -> '{new_name}'")
             else:
@@ -206,15 +177,12 @@ def replace_string_in_names(
                     renamed_count += 1
                 except OSError as e:
                     print(f"Error renaming '{filename}': {e}")
-
     dirs_to_process = []
     for dirname in dirs:
         if str1 in dirname:
             new_name = dirname.replace(str1, str2)
-
             old_path = os.path.join(current_path, dirname)
             new_path = os.path.join(current_path, new_name)
-
             if os.path.exists(new_path):
                 if dry_run:
                     print(f"Would conflict: '{dirname}' -> '{new_name}' (already exists)")
@@ -229,7 +197,6 @@ def replace_string_in_names(
                     print(f"Skipped: '{dirname}'")
                     dirs_to_process.append((dirname, dirname))
                     continue
-
             if dry_run:
                 print(f"Would rename: '{old_path}' -> '{new_name}'")
                 dirs_to_process.append((dirname, dirname))
@@ -244,7 +211,6 @@ def replace_string_in_names(
                     dirs_to_process.append((dirname, dirname))
         else:
             dirs_to_process.append((dirname, dirname))
-
     if recursive:
         for _, dirname in dirs_to_process:
             subdir_path = os.path.join(current_path, dirname)
@@ -255,7 +221,6 @@ def replace_string_in_names(
                 recursive,
                 subdir_path,
             )
-
     return renamed_count
 
 
@@ -265,21 +230,16 @@ def rename_by_template(
     recursive=False,
     current_path=".",
 ):
-    """Rename all files using template with sequential numbering."""
     renamed_count = 0
-
     try:
         items = os.listdir(current_path)
     except PermissionError:
         print(f"Permission denied: {current_path}")
         return renamed_count
-
     files = [f for f in items if os.path.isfile(os.path.join(current_path, f))]
-
     script_name = os.path.basename(__file__)
     if script_name in files:
         files.remove(script_name)
-
     if not files:
         print(f"No files found to rename in {current_path}.")
     else:
@@ -292,19 +252,14 @@ def rename_by_template(
             padding = 3
         else:
             padding = 4
-
         for i, filename in enumerate(files, 1):
             _name, ext = os.path.splitext(filename)
-
             number_str = str(i).zfill(padding)
             new_name = f"{template}{number_str}{ext}"
-
             if new_name == filename:
                 continue
-
             old_path = os.path.join(current_path, filename)
             new_path = os.path.join(current_path, new_name)
-
             if os.path.exists(new_path):
                 if dry_run:
                     print(f"Would conflict: '{filename}' -> '{new_name}' (already exists)")
@@ -317,7 +272,6 @@ def rename_by_template(
                 else:
                     print(f"Skipped: '{filename}'")
                     continue
-
             if dry_run:
                 print(f"Would rename: '{old_path}' -> '{new_name}'")
             else:
@@ -329,7 +283,6 @@ def rename_by_template(
                     renamed_count += 1
                 except OSError as e:
                     print(f"Error renaming '{filename}': {e}")
-
     if recursive:
         dirs = [d for d in items if os.path.isdir(os.path.join(current_path, d))]
         for dirname in dirs:
@@ -340,7 +293,6 @@ def rename_by_template(
                 recursive,
                 subdir_path,
             )
-
     return renamed_count
 
 
@@ -357,7 +309,6 @@ Examples:
   python pnr.py -t doc --dry-run             # Show what would be renamed
         """,
     )
-
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "-r",
@@ -379,30 +330,23 @@ Examples:
         default="",
         help="Rename files using template with sequential numbering",
     )
-
     parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Show what would be renamed without actually doing it",
     )
-
     parser.add_argument(
         "--recursive",
         action="store_true",
         help="Process directories recursively",
     )
-
     args = parser.parse_args()
-
     current_dir = os.getcwd()
     print(f"Working in directory: {current_dir}")
-
     if args.recursive:
         print("Recursive mode enabled")
-
     if args.dry_run:
         print("DRY RUN MODE - No actual changes will be made\n")
-
     try:
         if args.remove:
             print(f"Removing '{args.remove}' from names...")
@@ -412,7 +356,6 @@ Examples:
                 args.recursive,
             )
             print(f"\nOperation completed. {count} items processed.")
-
         elif args.replace:
             str1, str2 = args.replace
             print(f"Replacing '{str1}' with '{str2}' in names...")
@@ -423,7 +366,6 @@ Examples:
                 args.recursive,
             )
             print(f"\nOperation completed. {count} items processed.")
-
         elif args.template:
             print(f"Renaming files using template '{args.template}'...")
             count = rename_by_template(
@@ -432,7 +374,6 @@ Examples:
                 args.recursive,
             )
             print(f"\nOperation completed. {count} items processed.")
-
     except KeyboardInterrupt:
         print("\nOperation cancelled by user.")
         sys.exit(1)

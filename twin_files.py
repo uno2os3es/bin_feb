@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import argparse
 from pathlib import Path
 
@@ -7,14 +6,11 @@ from pathlib import Path
 def remove_ipynb_if_md_exists(root: Path, dry_run: bool = True):
     removed = 0
     checked = 0
-
     for ipynb_path in root.rglob("*.ipynb"):
         checked += 1
         md_path = ipynb_path.with_suffix(".md")
-
         if md_path.exists():
             print(f"[MATCH] {ipynb_path}  ->  {md_path}")
-
             if not dry_run:
                 try:
                     ipynb_path.unlink()
@@ -24,7 +20,6 @@ def remove_ipynb_if_md_exists(root: Path, dry_run: bool = True):
                     print(f"[ERROR] Could not remove {ipynb_path}: {e}")
             else:
                 print(f"[DRY RUN] Would remove {ipynb_path}")
-
     print("\n--- Summary ---")
     print(f"Checked: {checked}")
     print(f"Removed: {removed}" if not dry_run else "Dry run only. No files removed.")
@@ -38,6 +33,5 @@ if __name__ == "__main__":
         help="Actually delete files (default is dry run).",
     )
     args = parser.parse_args()
-
     root_dir = Path(".").resolve()
     remove_ipynb_if_md_exists(root_dir, dry_run=not args.apply)

@@ -1,21 +1,19 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import fnmatch
 import os
 import stat
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING
 
-import regex as re
 from dh import is_binary
+import regex as re
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-
 IGNORED_DIRS = {
     ".git",
     ".hg",
@@ -25,7 +23,6 @@ IGNORED_DIRS = {
 }
 BINARY_CHUNK = 4096
 DEFAULT_THREADS = max(4, (os.cpu_count() or 4))
-
 ANSI_BOLD = "\033[1m"
 ANSI_RESET = "\033[0m"
 ANSI_HIGHLIGHT = "\033[31m"
@@ -57,7 +54,6 @@ def collect_files(
 ) -> Iterable[str]:
     include_globs = include_globs or []
     exclude_globs = exclude_globs or []
-
     for root in roots:
         if os.path.isfile(root):
             yield root
@@ -108,7 +104,6 @@ def search_file_text_mode(
     str,
     list[tuple[int, str, list[tuple[int, int]]]],
 ]:
-    """Returns: (path, [ (lineno, line_text, [ (match_start, match_end), ...] ), ... ])."""
     matches = []
     try:
         with open(
@@ -245,7 +240,6 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
-
     ignore_case = args.ignore_case
     fixed = args.fixed_strings
     compiled = None
@@ -261,10 +255,8 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
-
     include_globs = args.glob or []
     exclude_globs = args.exclude or []
-
     candidates = list(
         collect_files(
             args.paths,
@@ -275,10 +267,8 @@ def main(argv: list[str] | None = None) -> int:
             max_filesize=args.max_filesize,
         )
     )
-
     if not candidates:
         return 0
-
     color = not args.no_color and sys.stdout.isatty()
     any_match = False
     results_per_file = {}
@@ -337,7 +327,6 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 130
-
     return 0 if any_match else 1
 
 

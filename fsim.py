@@ -7,7 +7,6 @@ import ssdeep
 
 
 def get_all_files(root="."):
-    """Recursively collect all file paths under root."""
     file_paths = []
     for dirpath, _, filenames in os.walk(root):
         for f in filenames:
@@ -17,7 +16,6 @@ def get_all_files(root="."):
 
 
 def compute_hashes(files):
-    """Compute ssdeep hashes for all files."""
     hashes = {}
     for f in files:
         try:
@@ -30,11 +28,9 @@ def compute_hashes(files):
 
 
 def group_similar_files(hashes, threshold):
-    """Group files by similarity threshold."""
     visited = set()
     groups = []
     files = list(hashes.keys())
-
     for i, f1 in enumerate(files):
         if f1 in visited:
             continue
@@ -53,7 +49,6 @@ def group_similar_files(hashes, threshold):
 
 
 def copy_groups(groups, output_dir="output"):
-    """Copy grouped files into output directory."""
     os.makedirs(output_dir, exist_ok=True)
     for idx, group in enumerate(groups, start=1):
         group_dir = os.path.join(output_dir, f"group_{idx}")
@@ -69,20 +64,16 @@ def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} <threshold>")
         sys.exit(1)
-
     try:
         threshold = int(sys.argv[1])
     except ValueError:
         print("Threshold must be an integer (0–100).")
         sys.exit(1)
-
     files = get_all_files(".")
     print(f"Found {len(files)} files. Computing hashes...")
     hashes = compute_hashes(files)
-
     print("Comparing files...")
     groups = group_similar_files(hashes, threshold)
-
     if not groups:
         print("No similar files found.")
     else:

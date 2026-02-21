@@ -7,17 +7,13 @@ def clean_file(filename):
     try:
         with open(filename, encoding="utf-8") as f:
             lines = f.readlines()
-
         cleaned_lines = []
         for line in lines:
             cleaned_line = "".join(ch for ch in line if unicodedata.category(ch)[0] != "C" or ch in "\n\r\t")
             cleaned_lines.append(cleaned_line)
-
         with open(filename, "w", encoding="utf-8") as f:
             f.writelines(cleaned_lines)
-
         print(f"Successfully cleaned: {filename}")
-
     except FileNotFoundError:
         print(f"Error: The file '{filename}' was not found.")
     except Exception as e:

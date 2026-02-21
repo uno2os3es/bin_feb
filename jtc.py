@@ -1,15 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from fastwalk import walk_files
-from pathlib import Path
-from multiprocessing import Pool
-from dh import run_command
 import ast
+from multiprocessing import Pool
+from pathlib import Path
+
+from dh import run_command
+from fastwalk import walk_files
 
 
 def process_file(path) -> None:
     try:
-        cmd = f"just-the-code -s --language=python {str(path)}"
-        ret, new_code, stderr = run_command(cmd)
+        cmd = f"just-the-code -s --language=python {path!s}"
+        ret, new_code, _stderr = run_command(cmd)
         if ret == 0:
             ast.parse(new_code)
             path.write_text(new_code, encoding="utf-8")

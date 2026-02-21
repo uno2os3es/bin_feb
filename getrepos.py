@@ -6,7 +6,6 @@ import requests
 
 
 def get_repos(username: str) -> None:
-    """Fetch public repositories of a GitHub user."""
     url = f"https://api.github.com/users/{username}/repos"
     try:
         response = requests.get(url, timeout=10)

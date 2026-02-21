@@ -6,19 +6,17 @@ import hashlib
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import regex as re
 from dh import MIME_TO_EXT, TXT_EXT
+import regex as re
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-
 OUTPUT_DIR = Path("extracted_base64")
 HTML_EXTENSIONS = TXT_EXT
 DATA_URL_RE = re.compile(
     r"^data:(?:application/(?:font\-woff;charset=utf\-8|(?:vnd\.ms\-fontobject|octet\-stream));base64,|(?:(?:image/svg\+xml|font/(?:woff2|ttf))|font/woff);base64,)$",
     re.IGNORECASE,
 )
-
 MIME_EXTENSION_MAP = MIME_TO_EXT
 
 

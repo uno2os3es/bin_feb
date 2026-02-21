@@ -1,12 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 import argparse
-import sys
 from pathlib import Path
+import sys
 
 import regex as re
 
 TIMESTAMP_RE = re.compile(r"(\d{2}:\d{2}:\d{2},\d{3})\s-->\s(\d{2}:\d{2}:\d{2},\d{3})")
-
 ONE_SEC_MS = 1000
 
 
@@ -25,7 +24,6 @@ def from_ms(ms: int) -> str:
 
 
 def shift_content(text: str, shift_ms: int) -> str:
-
     def repl(m):
         a, b = m.groups()
         return f"{from_ms(to_ms(a) + shift_ms)} --> {from_ms(to_ms(b) + shift_ms)}"
@@ -47,16 +45,13 @@ def main():
     if raw and raw[0] in ("+", "-"):
         force_shift = ONE_SEC_MS if raw[0] == "+" else -ONE_SEC_MS
         raw = raw[1:]
-
     ap = argparse.ArgumentParser(description="Shift SRT subtitles inplace (batch supported)")
     ap.add_argument("path", nargs="?", default=".")
     ap.add_argument("-r", "--recursive", action="store_true")
     ap.add_argument("-s", "--shift", type=float, default=0.0)
     ap.add_argument("--plus", action="store_true", help="Shift +1s")
     ap.add_argument("--minus", action="store_true", help="Shift -1s")
-
     args = ap.parse_args(raw)
-
     if force_shift is not None:
         shift_ms = force_shift
     elif args.plus:
@@ -65,13 +60,10 @@ def main():
         shift_ms = -ONE_SEC_MS
     else:
         shift_ms = int(args.shift * 1000)
-
     path = Path(args.path)
-
     if path.is_file():
         process_file(path, shift_ms)
         return
-
     glob = "**/*.srt" if args.recursive else "*.srt"
     for f in sorted(path.glob(glob)):
         process_file(f, shift_ms)

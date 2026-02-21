@@ -1,14 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python3
 # file: get_download_size.py
-
 import argparse
+from pathlib import Path
 import urllib.error
 import urllib.request
-from pathlib import Path
 
 
 def fetch_content_length(url: str) -> int | None:
-    """Try to fetch Content-Length via HEAD or partial GET."""
     request = urllib.request.Request(url, method="HEAD")
     try:
         with urllib.request.urlopen(request, timeout=10) as response:
@@ -18,7 +16,6 @@ def fetch_content_length(url: str) -> int | None:
     except urllib.error.HTTPError as e:
         if e.code not in (405, 403):
             raise
-
     request = urllib.request.Request(url, method="GET")
     request.add_header("Range", "bytes=0-0")
     with urllib.request.urlopen(request, timeout=10) as response:
@@ -54,12 +51,10 @@ def main() -> None:
         help="Download URL or file containing URLs",
     )
     args = parser.parse_args()
-
     input_path = Path(args.input)
     if input_path.is_file():
         lines = input_path.read_text(encoding="utf-8").splitlines()
         updated_lines = [process_url(line.strip()) for line in lines if line.strip()]
-
         input_path.write_text(
             "\n".join(updated_lines),
             encoding="utf-8",

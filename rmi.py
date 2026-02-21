@@ -17,7 +17,6 @@ INVISIBLE_CHARS = {
 
 
 def clean_text(text: str) -> str:
-    """Remove invisible and formatting characters from text."""
     cleaned = ""
     for c in text:
         if ord(c) == 8204:
@@ -38,18 +37,14 @@ def main():
         errors="ignore",
     ) as f:
         text = f.read()
-
     cleaned = clean_text(text)
-
     removed = len(text) - len(cleaned)
     if removed:
         print(f"{removed} invisible characters removed")
     else:
         print("No invisible characters found")
-
     with open(sys.argv[1], "w", encoding="utf-8") as f:
         f.write(cleaned)
-
     print("done")
 
 

@@ -8,7 +8,6 @@ OUTPUT_FILE = "dic.json"
 
 
 def translate_word(word):
-    """Translate a single Persian word to English."""
     try:
         return GoogleTranslator(source="auto", target="en").translate(word)
     except Exception as e:
@@ -18,18 +17,14 @@ def translate_word(word):
 
 def main():
     translations = {}
-
     with open(INPUT_FILE, encoding="utf-8") as f:
         words = [line.strip() for line in f if line.strip()]
-
     print(f"Loaded {len(words)} Persian words")
-
     for w in words:
         eng = translate_word(w)
         if eng:
             translations[w] = eng
             print(f"{w} → {eng}")
-
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(
             translations,
@@ -37,7 +32,6 @@ def main():
             ensure_ascii=False,
             indent=2,
         )
-
     print(f"\nSaved JSON dictionary to {OUTPUT_FILE}")
 
 

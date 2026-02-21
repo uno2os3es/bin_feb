@@ -2,8 +2,8 @@
 import argparse
 import ast
 import os
-import sqlite3
 from pathlib import Path
+import sqlite3
 from typing import Any
 
 import regex as re
@@ -87,7 +87,6 @@ class EntityExtractor(ast.NodeVisitor):
         super().generic_visit(node)
 
 
-#########
 """
 # --- Core AST Visitor for Entity Extraction ---
 class EntityExtractor(ast.NodeVisitor):
@@ -96,7 +95,6 @@ class EntityExtractor(ast.NodeVisitor):
         self.source_lines = source_content.splitlines(keepends=True)
         self.original_path = original_path
         self.scope_stack = []
-
     def _get_source_slice(self, node: ast.AST) -> str:
         start_line = node.lineno - 1
         end_line = node.end_lineno or node.lineno
@@ -107,7 +105,6 @@ class EntityExtractor(ast.NodeVisitor):
             last_line = code_slice[-1]
             code_slice[-1] = last_line[:node.end_col_offset]
         return "".join(code_slice)
-
     def _extract_and_save(self, node: ast.AST, entity_type: str, name: str):
         entity_code = self._get_source_slice(node)
         scope_prefix = "_".join(self.scope_stack)
@@ -122,41 +119,35 @@ class EntityExtractor(ast.NodeVisitor):
             "is_class": entity_type == "class",
             "is_function": entity_type in ("function", "method"),
         })
-
     def visit_FunctionDef(self, node: ast.FunctionDef):
         entity_type = "method" if self.scope_stack and self.scope_stack[-1].startswith("class_") else "function"
         self._extract_and_save(node, entity_type, node.name)
         self.scope_stack.append(f"func_{node.name}")
         self.generic_visit(node)
         self.scope_stack.pop()
-
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
         entity_type = "method" if self.scope_stack and self.scope_stack[-1].startswith("class_") else "function"
         self._extract_and_save(node, entity_type, node.name)
         self.scope_stack.append(f"async_func_{node.name}")
         self.generic_visit(node)
         self.scope_stack.pop()
-
     def visit_ClassDef(self, node: ast.ClassDef):
         self._extract_and_save(node, "class", node.name)
         self.scope_stack.append(f"class_{node.name}")
         self.generic_visit(node)
         self.scope_stack.pop()
-
     def visit_Assign(self, node: ast.Assign):
         if not self.scope_stack:
             if len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
                 target_name = node.targets[0].id
                 if re.match(r"^[A-Z_][A-Z0-9_]*$", target_name):
                     self._extract_and_save(node, "constant", target_name)
-
     def generic_visit(self, node: ast.AST):
         super().generic_visit(node)
 """
 
 
 def create_database():
-    """Creates the SQLite database and the required table."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
@@ -177,7 +168,6 @@ def create_database():
 
 
 def save_entity_to_db(entity: dict[str, Any]):
-    """Saves a single extracted entity to the SQLite database."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(
@@ -255,10 +245,8 @@ def main():
         help="Save extracted entities to the database",
     )
     args = parser.parse_args()
-
     print(f"Starting analysis in {Path.cwd()}...")
     create_database()
-
     files_to_process = []
     current_dir = Path(".")
     for root, _, filenames in os.walk(current_dir):
@@ -268,24 +256,19 @@ def main():
                 continue
             if path.suffix in ALLOWED_PYTHON_EXTENSIONS or is_python_file_no_extension(path):
                 files_to_process.append(path)
-
     if not files_to_process:
         print("No Python files found to process.")
         return
-
     all_entities = []
     for path in files_to_process:
         entities = process_single_file(path)
         all_entities.extend(entities)
-
     print(f"Processing complete. Extracted {len(all_entities)} entities.")
-
     if args.database:
         print(f"Saving entities to database at {DB_PATH}...")
         for entity in all_entities:
             save_entity_to_db(entity)
         print("All entities saved to database.")
-
     print("All tasks finished successfully!")
 
 

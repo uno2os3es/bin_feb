@@ -8,7 +8,6 @@ BLUE = "\033[34m"
 GREEN = "\033[32m"
 RED = "\033[31m"
 RESET = "\033[0m"
-
 COMPRESSED_EXTS = {
     ".zip",
     ".tar",
@@ -21,7 +20,6 @@ COMPRESSED_EXTS = {
 
 
 def human_readable_size(size_bytes):
-    """Convert bytes to KB/MB/GB with formatting."""
     if size_bytes < 1024:
         return f"{size_bytes} B"
     elif size_bytes < 1024**2:
@@ -33,7 +31,6 @@ def human_readable_size(size_bytes):
 
 
 def get_dir_size(path):
-    """Recursively calculate directory size."""
     total = 0
     for root, _dirs, files in os.walk(path, onerror=lambda e: None):
         for f in files:
@@ -52,9 +49,7 @@ def list_dir(path="."):
     except Exception as e:
         print(f"Error accessing {path}: {e}")
         return
-
     items = []
-
     for entry in entries:
         full_path = os.path.join(path, entry)
         try:
@@ -74,22 +69,17 @@ def list_dir(path="."):
         except Exception:
             size = 0
             color = CYAN
-
         items.append((size, entry, color))
-
     size_col_width = max(
         (len(human_readable_size(s)) for s, _, _ in items),
         default=4,
     )
     name_col_width = max((len(n) for _, n, _ in items), default=4)
-
     print(f"{'size'.ljust(size_col_width)}  {'name'}")
     print("-" * (size_col_width + name_col_width + 2))
-
     if not items:
         print("(directory is empty)")
         return
-
     for size, name, color in sorted(items, key=lambda x: x[0]):
         size_str = human_readable_size(size).ljust(size_col_width)
         print(f"{size_str}  {color}{name}{RESET}")

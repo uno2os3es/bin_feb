@@ -22,7 +22,6 @@ def from_ms(ms: int) -> str:
 
 
 def shift_content(text: str, shift_ms: int) -> str:
-
     def repl(m):
         start, end = m.groups()
         return f"{from_ms(to_ms(start) + shift_ms)} --> {from_ms(to_ms(end) + shift_ms)}"
@@ -58,25 +57,19 @@ def main():
         action="store_true",
         help="Process subdirectories",
     )
-
     args = ap.parse_args()
     shift_ms = int(args.shift * 1000)
     path = Path(args.path)
-
     if path.is_file() and path.suffix.lower() == ".srt":
         process_file(path, shift_ms)
         return
-
     if not path.is_dir():
         raise SystemExit("Invalid path")
-
     glob = "**/*.srt" if args.recursive else "*.srt"
     files = sorted(path.glob(glob))
-
     if not files:
         print("No .srt files found")
         return
-
     for f in files:
         process_file(f, shift_ms)
 

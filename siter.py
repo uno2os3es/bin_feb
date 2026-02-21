@@ -1,15 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-
 import argparse
 import base64
 import csv
 import hashlib
 import logging
+from pathlib import Path
 import shutil
 import sys
 import tempfile
 import zipfile
-from pathlib import Path
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,7 +26,6 @@ class WheelBuilder:
         self.site_packages = site_packages.resolve()
         self.output_dir = output_dir.resolve()
         self.output_dir.mkdir(parents=True, exist_ok=True)
-
         self.venv_root = self._find_venv_root()
         self.bin_dir = self._find_bin_dir()
         self.share_dir = self.venv_root / "share" if self.venv_root else None
@@ -48,7 +46,6 @@ class WheelBuilder:
         return Path("/data/data/com.termux/files/usr/bin")
         if not self.venv_root:
             return None
-
         for name in ["bin", "Scripts"]:
             d = self.venv_root / name
             if d.exists():
@@ -56,7 +53,6 @@ class WheelBuilder:
         return Path("/data/data/com.termux/files/usr/bin")
 
     def _compute_hash(self, path: Path) -> str:
-        """Compute SHA256 hash for RECORD file"""
         h = hashlib.sha256()
         with open(path, "rb") as f:
             for chunk in iter(lambda: f.read(8192), b""):
@@ -65,11 +61,9 @@ class WheelBuilder:
         return f"sha256={base64.urlsafe_b64encode(digest).decode().rstrip('=')} "
 
     def _read_record(self, dist_info: Path) -> dict[str, dict]:
-        """Parse RECORD file into structured data"""
         record_file = dist_info / "RECORD"
         if not record_file.exists():
             return {}
-
         records = {}
         with open(
             record_file,
@@ -88,29 +82,23 @@ class WheelBuilder:
         return records
 
     def _read_installer(self, dist_info: Path) -> str:
-        """Read INSTALLER file to know how package was installed"""
         installer_file = dist_info / "INSTALLER"
         if installer_file.exists():
             return installer_file.read_text().strip()
         return "unknown"
 
     def _find_scripts_for_package(self, package_name: str, records: dict) -> list[Path]:
-        """Find console scripts for this package"""
         if not self.bin_dir or not self.bin_dir.exists():
             return []
-
         scripts = []
         entry_points_file = None
-
         for path_str in records:
             if path_str.endswith("entry_points.txt"):
                 entry_points_file = self.site_packages / path_str
                 break
-
         if entry_points_file and entry_points_file.exists():
             script_names = set()
             in_console_scripts = False
-
             for line in entry_points_file.read_text().splitlines():
                 line = line.strip()
                 if line == "[console_scripts]":
@@ -121,7 +109,6 @@ class WheelBuilder:
                 elif in_console_scripts and "=" in line:
                     script_name = line.split("=")[0].strip()
                     script_names.add(script_name)
-
             for script_name in script_names:
                 script_path = self.bin_dir / script_name
                 if script_path.exists():
@@ -129,34 +116,27 @@ class WheelBuilder:
                 exe_path = self.bin_dir / f"{script_name}.exe"
                 if exe_path.exists():
                     scripts.append(exe_path)
-
         return scripts
 
     def _find_data_for_package(self, package_name: str, records: dict) -> list[tuple[Path, str]]:
-        """Find data files in share/ for this package"""
         if not self.share_dir or not self.share_dir.exists():
             return []
-
         data_files = []
         pkg_normalized = package_name.lower().replace("-", "_")
-
         for item in self.share_dir.rglob("*"):
             if not item.is_file():
                 continue
-
             if any(pkg_normalized in p.name.lower() for p in item.parents):
                 try:
                     rel_path = item.relative_to(self.share_dir)
                     data_files.append((item, str(rel_path)))
                 except ValueError:
                     pass
-
         return data_files
 
     def _get_wheel_tags(
         self,
     ) -> tuple[str, str, str, bool]:
-        """Determine wheel compatibility tags"""
         try:
             from packaging.tags import sys_tags
 
@@ -184,31 +164,23 @@ class WheelBuilder:
             )
 
     def _detect_purity(self, records: dict) -> bool:
-        """Check if package is pure Python (no compiled extensions)"""
         return all(not path.endswith((".so", ".pyd", ".dll")) for path in records)
 
     def build_wheel(self, dist_info_dir: Path) -> Path | None:
-        """Build a wheel file for a single package"""
         if not dist_info_dir.is_dir():
             return None
-
         parts = dist_info_dir.stem.split("-")
         if len(parts) < 2:
             log.warning(f"Invalid dist-info name: {dist_info_dir.name}")
             return None
-
         pkg_name = parts[0]
         version = parts[1] if len(parts) > 1 else "0.0.0"
-
         log.info(f"Building wheel for {pkg_name} {version}")
-
         records = self._read_record(dist_info_dir)
         if not records:
             log.warning(f"No RECORD file for {pkg_name}")
             return None
-
         is_pure = self._detect_purity(records)
-
         if is_pure:
             python_tag, abi_tag, platform_tag = (
                 "py3",
@@ -222,40 +194,29 @@ class WheelBuilder:
                 platform_tag,
                 _,
             ) = self._get_wheel_tags()
-
         scripts = self._find_scripts_for_package(pkg_name, records)
         data_files = self._find_data_for_package(pkg_name, records)
-
         if scripts:
             log.info(f"  Found {len(scripts)} script(s)")
         if data_files:
             log.info(f"  Found {len(data_files)} data file(s)")
-
         wheel_name = f"{pkg_name.replace('-', '_')}-{version}-{python_tag}-{abi_tag}-{platform_tag}.whl"
         wheel_path = self.output_dir / wheel_name
-
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
-
             dist_info_name = f"{pkg_name}-{version}.dist-info"
             dist_info_dest = tmp_path / dist_info_name
             dist_info_dest.mkdir(parents=True)
-
             data_dir_name = f"{pkg_name}-{version}.data"
             data_dir = None
-
             new_record = []
-
             for path_str, _info in records.items():
                 src = self.site_packages / path_str
                 if not src.exists():
                     continue
-
                 dest = dist_info_dest / Path(path_str).name if ".dist-info" in path_str else tmp_path / path_str
-
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dest)
-
                 rel_path = dest.relative_to(tmp_path)
                 file_hash = self._compute_hash(dest)
                 file_size = dest.stat().st_size
@@ -266,12 +227,10 @@ class WheelBuilder:
                         str(file_size),
                     )
                 )
-
             if scripts:
                 data_dir = tmp_path / data_dir_name
                 scripts_dir = data_dir / "scripts"
                 scripts_dir.mkdir(parents=True, exist_ok=True)
-
                 for script in scripts:
                     dest = scripts_dir / script.name
                     shutil.copy2(script, dest)
@@ -285,13 +244,11 @@ class WheelBuilder:
                             str(file_size),
                         )
                     )
-
             if data_files:
                 if not data_dir:
                     data_dir = tmp_path / data_dir_name
                 data_data_dir = data_dir / "data"
                 data_data_dir.mkdir(parents=True, exist_ok=True)
-
                 for (
                     src,
                     rel_data_path,
@@ -312,14 +269,12 @@ class WheelBuilder:
                             str(file_size),
                         )
                     )
-
             wheel_file = dist_info_dest / "WHEEL"
             with open(wheel_file, "w") as f:
                 f.write("Wheel-Version: 1.0\n")
                 f.write("Generator: wheel-builder 1.0\n")
                 f.write(f"Root-Is-Purelib: {'true' if is_pure else 'false'}\n")
                 f.write(f"Tag: {python_tag}-{abi_tag}-{platform_tag}\n")
-
             rel_path = wheel_file.relative_to(tmp_path)
             file_hash = self._compute_hash(wheel_file)
             file_size = wheel_file.stat().st_size
@@ -330,7 +285,6 @@ class WheelBuilder:
                     str(file_size),
                 )
             )
-
             record_file = dist_info_dest / "RECORD"
             with open(
                 record_file,
@@ -348,7 +302,6 @@ class WheelBuilder:
                         "",
                     ]
                 )
-
             with zipfile.ZipFile(
                 wheel_path,
                 "w",
@@ -358,22 +311,17 @@ class WheelBuilder:
                     if file.is_file():
                         arcname = file.relative_to(tmp_path)
                         whl.write(file, arcname)
-
         log.info(f"  Created: {wheel_path.name}")
         return wheel_path
 
     def build_all(self) -> int:
-        """Build wheels for all installed packages"""
         dist_infos = sorted(self.site_packages.glob("*.dist-info"))
-
         if not dist_infos:
             log.error(f"No packages found in {self.site_packages}")
             return 0
-
         log.info(f"Found {len(dist_infos)} package(s) in {self.site_packages}")
         if self.venv_root:
             log.info(f"Virtual environment: {self.venv_root}")
-
         built = 0
         for dist_info in dist_infos:
             try:
@@ -385,28 +333,23 @@ class WheelBuilder:
                     import traceback
 
                     traceback.print_exc()
-
         log.info(f"\nBuilt {built}/{len(dist_infos)} wheels in {self.output_dir}")
         return built
 
 
 def find_site_packages() -> list[Path]:
-    """Find all site-packages directories"""
     candidates = []
-
     import site
 
     for sp in site.getsitepackages():
         p = Path(sp)
         if p.exists():
             candidates.append(p)
-
     user_site = site.getusersitepackages()
     if user_site:
         p = Path(user_site)
         if p.exists():
             candidates.append(p)
-
     cwd = Path.cwd()
     for pattern in [".venv", "venv", "env"]:
         for venv in cwd.rglob(pattern):
@@ -414,7 +357,6 @@ def find_site_packages() -> list[Path]:
                 for sp in venv.rglob("site-packages"):
                     if sp.is_dir() and sp not in candidates:
                         candidates.append(sp)
-
     return sorted(set(candidates))
 
 
@@ -426,25 +368,20 @@ def main():
 Examples:
   # Build wheels from current environment
   %(prog)s
-
   # Build from specific site-packages
   %(prog)s --site-packages /path/to/venv/lib/python3.11/site-packages
-
   # Custom output directory
   %(prog)s --output ./wheels
-
   # Build single package
   %(prog)s --package requests
         """,
     )
-
     parser.add_argument(
         "--site-packages",
         "-s",
         type=Path,
         help="Path to site-packages directory (auto-detect if not specified)",
     )
-
     parser.add_argument(
         "--output",
         "-o",
@@ -452,39 +389,32 @@ Examples:
         default=Path("./wheels"),
         help="Output directory for wheels (default: ./wheels)",
     )
-
     parser.add_argument(
         "--package",
         "-p",
         help="Build only this package (by name)",
     )
-
     parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
         help="Verbose output",
     )
-
     parser.add_argument(
         "--list",
         "-l",
         action="store_true",
         help="List available site-packages directories and exit",
     )
-
     args = parser.parse_args()
-
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
-
     if args.list:
         sites = find_site_packages()
         print(f"Found {len(sites)} site-packages:")
         for i, sp in enumerate(sites, 1):
             print(f"  {i}. {sp}")
         return 0
-
     if args.site_packages:
         site_packages = args.site_packages.resolve()
         if not site_packages.exists():
@@ -495,44 +425,35 @@ Examples:
         if not sites:
             log.error("No site-packages found. Use --site-packages to specify.")
             return 1
-
         if len(sites) == 1:
             site_packages = sites[0]
         else:
             print("Multiple site-packages found:")
             for i, sp in enumerate(sites, 1):
                 print(f"  {i}. {sp}")
-
             try:
                 choice = int(input("\nSelect site-packages [1]: ") or "1")
                 site_packages = sites[choice - 1]
             except (ValueError, IndexError):
                 log.error("Invalid selection")
                 return 1
-
     log.info(f"Using site-packages: {site_packages}")
-
     builder = WheelBuilder(site_packages, args.output)
-
     if args.package:
         dist_info = site_packages / f"{args.package}-*.dist-info"
         matches = list(site_packages.glob(f"{args.package}*.dist-info"))
-
         if not matches:
             log.error(f"Package not found: {args.package}")
             return 1
-
         if len(matches) > 1:
             log.warning(f"Multiple matches for '{args.package}':")
             for m in matches:
                 log.warning(f"  - {m.name}")
             log.info("Building all matches...")
-
         built = 0
         for dist_info in matches:
             if builder.build_wheel(dist_info):
                 built += 1
-
         return 0 if built > 0 else 1
     else:
         built = builder.build_all()

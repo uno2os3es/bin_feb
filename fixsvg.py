@@ -1,21 +1,19 @@
 #!/data/data/com.termux/files/usr/bin/env python3
-from fastwalk import walk_files
 from pathlib import Path
+
+from fastwalk import walk_files
 
 
 def process_file(fp: Path):
     if not fp.exists():
         return False
     print(f"processing  ... {fp.name}")
-
     last_tag_pos = -1
     tags = ("</svg>", "</html>", "</body>", "</script>", "</div>")
-
     content = []
     with fp.open("r", encoding="utf-8") as f:
         for line in f:
             content.append(line)
-
     for i, line in reversed(list(enumerate(content))):
         for tag in tags:
             idx = line.rfind(tag)
@@ -24,10 +22,8 @@ def process_file(fp: Path):
                 break
         if last_tag_pos != -1:
             break
-
     if last_tag_pos == -1:
         return True
-
     trimmed = "".join(content)[:last_tag_pos]
     fp.write_text(trimmed, encoding="utf-8")
     return True
